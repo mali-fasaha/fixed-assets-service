@@ -1,7 +1,7 @@
 version: '2'
 services:
   fixedassetservice-app:
-    image: fixedassetservice
+    image: ghacupha/fixed-asset-service:0.0.1
     environment:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=prod,swagger
