@@ -3,7 +3,7 @@
 openapi: '3.0.1'
 info:
   title: 'fixedAssetService'
-  version: 0.0.1
+  version: 0.0.2
 servers:
   - url: http://localhost:58214
     description: Development server
