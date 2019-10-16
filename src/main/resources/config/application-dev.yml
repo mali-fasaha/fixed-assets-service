@@ -107,7 +107,7 @@ spring:
         enabled: true
 
 server:
-  port: 595959
+  port: 58214
 
 # ===================================================================
 # JHipster specific properties
@@ -140,7 +140,7 @@ jhipster:
       client-id: internal
       client-secret: internal
   mail: # specific JHipster mail property, for standard properties see MailProperties
-    base-url: http://127.0.0.1:595959
+    base-url: http://127.0.0.1:58214
   metrics:
     logs: # Reports metrics in the logs
       enabled: false

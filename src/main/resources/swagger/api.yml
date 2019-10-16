@@ -5,8 +5,8 @@ info:
   title: 'fixedAssetService'
   version: 0.0.1
 servers:
-  - url: http://localhost:595959
+  - url: http://localhost:58214
     description: Development server
-  - url: https://localhost:595959
+  - url: https://localhost:58214
     description: Development server with TLS Profile
 paths: {}

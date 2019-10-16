@@ -8,7 +8,7 @@
     "baseName": "fixedAssetService",
     "packageName": "io.github.assets",
     "packageFolder": "io/github/assets",
-    "serverPort": "595959",
+    "serverPort": "58214",
     "authenticationType": "uaa",
     "uaaBaseName": "fixedAssetsUaa",
     "cacheProvider": "hazelcast",

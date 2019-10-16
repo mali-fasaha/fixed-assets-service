@@ -14,26 +14,6 @@
     <property name="uuidType" value="uuid" dbms="h2, postgresql"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190716120450_added_entity_AssetTransaction.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190716120832_added_entity_ScannedDocument.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190717061217_added_entity_FixedAssetInvoice.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190717070924_added_entity_Dealer.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190719090101_added_entity_FixedAssetItem.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190719093106_added_entity_ServiceOutlet.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190719093818_added_entity_FixedAssetCategory.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190719094403_added_entity_DepreciationRegime.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190719101103_added_entity_FixedAssetAssessment.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190724160716_added_entity_AssetDepreciation.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190725143715_added_entity_AssetDisposal.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190725165704_added_entity_AssetAcquisition.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190725172554_added_entity_CapitalWorkInProgress.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190725173446_added_entity_CwipTransfer.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190725182420_added_entity_Employee.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190725183036_added_entity_TransactionApproval.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190726061845_added_entity_MessageToken.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190726070646_added_entity_FileType.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190726071459_added_entity_FileUpload.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
-    <include file="config/liquibase/changelog/20190717061217_added_entity_constraints_FixedAssetInvoice.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>
