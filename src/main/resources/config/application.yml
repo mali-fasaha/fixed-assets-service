@@ -191,7 +191,7 @@ jhipster:
     default-include-pattern: /api/.*
     title: Fixed Asset Service API
     description: API for main fixed assets service
-    version: 0.0.3
+    version: 0.0.4
     terms-of-service-url: https://www.gnu.org/licenses/gpl-3.0.txt
     contact-name: Edwin Njeru
     contact-url: https://github.com/ghacupha
