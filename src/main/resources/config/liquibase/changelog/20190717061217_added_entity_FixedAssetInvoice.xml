@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    
+
     <!--
         Added the entity FixedAssetInvoice.
     -->
@@ -18,35 +18,38 @@
             <column name="invoice_reference" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+
             <column name="invoice_date" type="date">
                 <constraints nullable="true" />
             </column>
+
             <column name="invoice_amount" type="decimal(21,2)">
                 <constraints nullable="true" />
             </column>
+
             <column name="is_proforma" type="boolean">
                 <constraints nullable="true" />
             </column>
+
             <column name="is_credit_note" type="boolean">
                 <constraints nullable="true" />
             </column>
+
             <column name="attachments" type="longblob">
                 <constraints nullable="true" />
             </column>
             <column name="attachments_content_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="dealer_id" type="bigint">
                 <constraints nullable="true" />
             </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-    </changeSet>
-
-    <changeSet id="20190717061217-1-relations" author="jhipster">
 
     </changeSet>
-    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
     <!--
         Load sample data generated with Faker.js
@@ -58,19 +61,23 @@
     -->
     <changeSet id="20190717061217-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/fixed_asset_invoice.csv"
+                  file="config/liquibase/data/fixed_asset_invoice.csv"
                   separator=";"
-                  tableName="fixed_asset_invoice">
+                  tableName="fixed_asset_invoice"
+                  context="dev">
             <column name="id" type="numeric"/>
             <column name="invoice_reference" type="string"/>
             <column name="invoice_date" type="date"/>
             <column name="invoice_amount" type="numeric"/>
             <column name="is_proforma" type="boolean"/>
             <column name="is_credit_note" type="boolean"/>
-            <column name="attachments" type="blob"/>
+            <column name="attachments" type="string"/>
             <column name="attachments_content_type" type="string"/>
-            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>
 
+    <changeSet id="20190717061217-1-relations" author="jhipster">
+
+    </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 </databaseChangeLog>

@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    
+
     <!--
         Added the entity TransactionApproval.
     -->
@@ -18,35 +18,39 @@
             <column name="description" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="requested_by" type="bigint">
                 <constraints nullable="true" />
             </column>
+
             <column name="recommended_by" type="varchar(255)">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_transaction_approval_recommended_by" />
             </column>
+
             <column name="reviewed_by" type="varchar(255)">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_transaction_approval_reviewed_by" />
             </column>
+
             <column name="first_approver" type="varchar(255)">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_transaction_approval_first_approver" />
             </column>
+
             <column name="second_approver" type="varchar(255)">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_transaction_approval_second_approver" />
             </column>
+
             <column name="third_approver" type="varchar(255)">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_transaction_approval_third_approver" />
             </column>
+
             <column name="fourth_approver" type="varchar(255)">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_transaction_approval_fourth_approver" />
             </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-    </changeSet>
-
-    <changeSet id="20190725183036-1-relations" author="jhipster">
 
     </changeSet>
-    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
     <!--
         Load sample data generated with Faker.js
@@ -58,9 +62,10 @@
     -->
     <changeSet id="20190725183036-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/transaction_approval.csv"
+                  file="config/liquibase/data/transaction_approval.csv"
                   separator=";"
-                  tableName="transaction_approval">
+                  tableName="transaction_approval"
+                  context="dev">
             <column name="id" type="numeric"/>
             <column name="description" type="string"/>
             <column name="requested_by" type="numeric"/>
@@ -70,8 +75,11 @@
             <column name="second_approver" type="string"/>
             <column name="third_approver" type="string"/>
             <column name="fourth_approver" type="string"/>
-            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>
 
+    <changeSet id="20190725183036-1-relations" author="jhipster">
+
+    </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 </databaseChangeLog>

@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    
+
     <!--
         Added the entity Dealer.
     -->
@@ -18,47 +18,55 @@
             <column name="title" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+
             <column name="dealer_name" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+
             <column name="dealer_address" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="dealer_phone_number" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="dealer_email" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="bank_name" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="bank_account_number" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="bank_branch" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="bank_swift_code" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="bank_physical_address" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="domicile" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="tax_authority_ref" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-    </changeSet>
-
-    <changeSet id="20190717070924-1-relations" author="jhipster">
 
     </changeSet>
-    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
     <!--
         Load sample data generated with Faker.js
@@ -70,9 +78,10 @@
     -->
     <changeSet id="20190717070924-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/dealer.csv"
+                  file="config/liquibase/data/dealer.csv"
                   separator=";"
-                  tableName="dealer">
+                  tableName="dealer"
+                  context="dev">
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>
             <column name="dealer_name" type="string"/>
@@ -86,8 +95,11 @@
             <column name="bank_physical_address" type="string"/>
             <column name="domicile" type="string"/>
             <column name="tax_authority_ref" type="string"/>
-            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>
 
+    <changeSet id="20190717070924-1-relations" author="jhipster">
+
+    </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 </databaseChangeLog>

@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    
+
     <!--
         Added the entity CapitalWorkInProgress.
     -->
@@ -18,29 +18,31 @@
             <column name="transaction_month" type="date">
                 <constraints nullable="false" />
             </column>
+
             <column name="asset_serial_tag" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+
             <column name="service_outlet_code" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+
             <column name="transaction_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+
             <column name="transaction_details" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+
             <column name="transaction_amount" type="decimal(21,2)">
                 <constraints nullable="false" />
             </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-    </changeSet>
-
-    <changeSet id="20190725172554-1-relations" author="jhipster">
 
     </changeSet>
-    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
     <!--
         Load sample data generated with Faker.js
@@ -52,9 +54,10 @@
     -->
     <changeSet id="20190725172554-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/capital_work_in_progress.csv"
+                  file="config/liquibase/data/capital_work_in_progress.csv"
                   separator=";"
-                  tableName="capital_work_in_progress">
+                  tableName="capital_work_in_progress"
+                  context="dev">
             <column name="id" type="numeric"/>
             <column name="transaction_month" type="date"/>
             <column name="asset_serial_tag" type="string"/>
@@ -62,8 +65,11 @@
             <column name="transaction_id" type="numeric"/>
             <column name="transaction_details" type="string"/>
             <column name="transaction_amount" type="numeric"/>
-            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>
 
+    <changeSet id="20190725172554-1-relations" author="jhipster">
+
+    </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 </databaseChangeLog>
