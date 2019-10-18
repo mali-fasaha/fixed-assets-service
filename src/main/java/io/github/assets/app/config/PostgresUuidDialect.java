@@ -1,5 +1,6 @@
-package io.github.assets.config.db;
+package io.github.assets.app.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.boot.model.TypeContributions;
 import org.hibernate.dialect.PostgreSQL95Dialect;
 import org.hibernate.service.ServiceRegistry;
@@ -9,6 +10,7 @@ import org.hibernate.type.descriptor.sql.SqlTypeDescriptor;
 
 import java.sql.Types;
 
+@Slf4j
 public class PostgresUuidDialect extends PostgreSQL95Dialect {
 
     public PostgresUuidDialect() {
@@ -20,6 +22,7 @@ public class PostgresUuidDialect extends PostgreSQL95Dialect {
     @Override
     public SqlTypeDescriptor remapSqlTypeDescriptor(SqlTypeDescriptor sqlTypeDescriptor) {
         if (sqlTypeDescriptor.getSqlType() == java.sql.Types.BLOB) {
+            log.debug("Remapping BLOB sql type to binary...");
             return BinaryTypeDescriptor.INSTANCE;
         }
         return super.remapSqlTypeDescriptor(sqlTypeDescriptor);
