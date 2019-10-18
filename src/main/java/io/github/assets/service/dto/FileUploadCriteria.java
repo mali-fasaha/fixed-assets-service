@@ -2,19 +2,18 @@ package io.github.assets.service.dto;
 
 import java.io.Serializable;
 import java.util.Objects;
+
+import io.github.assets.app.resource.decorator.FileUploadResource;
 import io.github.jhipster.service.Criteria;
 import io.github.jhipster.service.filter.BooleanFilter;
-import io.github.jhipster.service.filter.DoubleFilter;
 import io.github.jhipster.service.filter.Filter;
-import io.github.jhipster.service.filter.FloatFilter;
-import io.github.jhipster.service.filter.IntegerFilter;
 import io.github.jhipster.service.filter.LongFilter;
 import io.github.jhipster.service.filter.StringFilter;
 import io.github.jhipster.service.filter.LocalDateFilter;
 
 /**
  * Criteria class for the {@link io.github.assets.domain.FileUpload} entity. This class is used
- * in {@link io.github.assets.web.rest.FileUploadResource} to receive all the possible filtering options from
+ * in {@link FileUploadResource} to receive all the possible filtering options from
  * the Http GET request parameters.
  * For example the following could be a valid request:
  * {@code /file-uploads?id.greaterThan=5&attr1.contains=something&attr2.specified=false}

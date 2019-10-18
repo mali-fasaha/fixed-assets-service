@@ -1,6 +1,7 @@
 package io.github.assets.web.rest;
 
 import io.github.assets.FixedAssetServiceApp;
+import io.github.assets.app.resource.decorator.FileUploadResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.FileUpload;
 import io.github.assets.repository.FileUploadRepository;
@@ -9,7 +10,6 @@ import io.github.assets.service.FileUploadService;
 import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.service.mapper.FileUploadMapper;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
-import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.FileUploadQueryService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -311,7 +311,7 @@ public class FileUploadResourceIT {
             .andExpect(jsonPath("$.[*].uploadProcessed").value(hasItem(DEFAULT_UPLOAD_PROCESSED.booleanValue())))
             .andExpect(jsonPath("$.[*].uploadToken").value(hasItem(DEFAULT_UPLOAD_TOKEN)));
     }
-    
+
     @Test
     @Transactional
     public void getFileUpload() throws Exception {

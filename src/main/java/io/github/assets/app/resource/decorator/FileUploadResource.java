@@ -1,4 +1,4 @@
-package io.github.assets.web.rest;
+package io.github.assets.app.resource.decorator;
 
 import io.github.assets.service.FileUploadService;
 import io.github.assets.web.rest.errors.BadRequestAlertException;
@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,16 +25,13 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing {@link io.github.assets.domain.FileUpload}.
  */
 @RestController
 @RequestMapping("/api")
-public class FileUploadResource {
+public class FileUploadResource implements IFileUploadResource {
 
     private final Logger log = LoggerFactory.getLogger(FileUploadResource.class);
 
