@@ -1,6 +1,6 @@
 {
     "fluentMethods": true,
-    "clientRootFolder": "",
+    "clientRootFolder": "fixedAssetService",
     "relationships": [],
     "fields": [
         {
@@ -25,6 +25,19 @@
         {
             "fieldName": "received",
             "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "actioned",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "contentFullyEnqueued",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "fileModelType",
+            "fieldType": "FileModelType",
+            "fieldValues": "DEPRECIATION_UPLOAD,ACQUISITION_UPLOAD,DISPOSAL_UPLOAD,CWIP_UPLOAD,CWIP_TRANSFER_UPLOAD,ASSET_ITEM_UPLOAD"
         }
     ],
     "changelogDate": "20190726061845",

@@ -35,6 +35,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import io.github.assets.domain.enumeration.FileModelType;
 /**
  * Integration tests for the {@link MessageTokenResource} REST controller.
  */
@@ -52,6 +53,15 @@ public class MessageTokenResourceIT {
 
     private static final Boolean DEFAULT_RECEIVED = false;
     private static final Boolean UPDATED_RECEIVED = true;
+
+    private static final Boolean DEFAULT_ACTIONED = false;
+    private static final Boolean UPDATED_ACTIONED = true;
+
+    private static final Boolean DEFAULT_CONTENT_FULLY_ENQUEUED = false;
+    private static final Boolean UPDATED_CONTENT_FULLY_ENQUEUED = true;
+
+    private static final FileModelType DEFAULT_FILE_MODEL_TYPE = FileModelType.DEPRECIATION_UPLOAD;
+    private static final FileModelType UPDATED_FILE_MODEL_TYPE = FileModelType.ACQUISITION_UPLOAD;
 
     @Autowired
     private MessageTokenRepository messageTokenRepository;
@@ -109,7 +119,10 @@ public class MessageTokenResourceIT {
             .description(DEFAULT_DESCRIPTION)
             .timeSent(DEFAULT_TIME_SENT)
             .tokenValue(DEFAULT_TOKEN_VALUE)
-            .received(DEFAULT_RECEIVED);
+            .received(DEFAULT_RECEIVED)
+            .actioned(DEFAULT_ACTIONED)
+            .contentFullyEnqueued(DEFAULT_CONTENT_FULLY_ENQUEUED)
+            .fileModelType(DEFAULT_FILE_MODEL_TYPE);
         return messageToken;
     }
     /**
@@ -123,7 +136,10 @@ public class MessageTokenResourceIT {
             .description(UPDATED_DESCRIPTION)
             .timeSent(UPDATED_TIME_SENT)
             .tokenValue(UPDATED_TOKEN_VALUE)
-            .received(UPDATED_RECEIVED);
+            .received(UPDATED_RECEIVED)
+            .actioned(UPDATED_ACTIONED)
+            .contentFullyEnqueued(UPDATED_CONTENT_FULLY_ENQUEUED)
+            .fileModelType(UPDATED_FILE_MODEL_TYPE);
         return messageToken;
     }
 
@@ -151,6 +167,9 @@ public class MessageTokenResourceIT {
         assertThat(testMessageToken.getTimeSent()).isEqualTo(DEFAULT_TIME_SENT);
         assertThat(testMessageToken.getTokenValue()).isEqualTo(DEFAULT_TOKEN_VALUE);
         assertThat(testMessageToken.isReceived()).isEqualTo(DEFAULT_RECEIVED);
+        assertThat(testMessageToken.isActioned()).isEqualTo(DEFAULT_ACTIONED);
+        assertThat(testMessageToken.isContentFullyEnqueued()).isEqualTo(DEFAULT_CONTENT_FULLY_ENQUEUED);
+        assertThat(testMessageToken.getFileModelType()).isEqualTo(DEFAULT_FILE_MODEL_TYPE);
 
         // Validate the MessageToken in Elasticsearch
         verify(mockMessageTokenSearchRepository, times(1)).save(testMessageToken);
@@ -229,7 +248,10 @@ public class MessageTokenResourceIT {
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].timeSent").value(hasItem(DEFAULT_TIME_SENT.intValue())))
             .andExpect(jsonPath("$.[*].tokenValue").value(hasItem(DEFAULT_TOKEN_VALUE)))
-            .andExpect(jsonPath("$.[*].received").value(hasItem(DEFAULT_RECEIVED.booleanValue())));
+            .andExpect(jsonPath("$.[*].received").value(hasItem(DEFAULT_RECEIVED.booleanValue())))
+            .andExpect(jsonPath("$.[*].actioned").value(hasItem(DEFAULT_ACTIONED.booleanValue())))
+            .andExpect(jsonPath("$.[*].contentFullyEnqueued").value(hasItem(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue())))
+            .andExpect(jsonPath("$.[*].fileModelType").value(hasItem(DEFAULT_FILE_MODEL_TYPE.toString())));
     }
     
     @Test
@@ -246,7 +268,10 @@ public class MessageTokenResourceIT {
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.timeSent").value(DEFAULT_TIME_SENT.intValue()))
             .andExpect(jsonPath("$.tokenValue").value(DEFAULT_TOKEN_VALUE))
-            .andExpect(jsonPath("$.received").value(DEFAULT_RECEIVED.booleanValue()));
+            .andExpect(jsonPath("$.received").value(DEFAULT_RECEIVED.booleanValue()))
+            .andExpect(jsonPath("$.actioned").value(DEFAULT_ACTIONED.booleanValue()))
+            .andExpect(jsonPath("$.contentFullyEnqueued").value(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue()))
+            .andExpect(jsonPath("$.fileModelType").value(DEFAULT_FILE_MODEL_TYPE.toString()));
     }
 
     @Test
@@ -275,7 +300,10 @@ public class MessageTokenResourceIT {
             .description(UPDATED_DESCRIPTION)
             .timeSent(UPDATED_TIME_SENT)
             .tokenValue(UPDATED_TOKEN_VALUE)
-            .received(UPDATED_RECEIVED);
+            .received(UPDATED_RECEIVED)
+            .actioned(UPDATED_ACTIONED)
+            .contentFullyEnqueued(UPDATED_CONTENT_FULLY_ENQUEUED)
+            .fileModelType(UPDATED_FILE_MODEL_TYPE);
 
         restMessageTokenMockMvc.perform(put("/api/message-tokens")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -290,6 +318,9 @@ public class MessageTokenResourceIT {
         assertThat(testMessageToken.getTimeSent()).isEqualTo(UPDATED_TIME_SENT);
         assertThat(testMessageToken.getTokenValue()).isEqualTo(UPDATED_TOKEN_VALUE);
         assertThat(testMessageToken.isReceived()).isEqualTo(UPDATED_RECEIVED);
+        assertThat(testMessageToken.isActioned()).isEqualTo(UPDATED_ACTIONED);
+        assertThat(testMessageToken.isContentFullyEnqueued()).isEqualTo(UPDATED_CONTENT_FULLY_ENQUEUED);
+        assertThat(testMessageToken.getFileModelType()).isEqualTo(UPDATED_FILE_MODEL_TYPE);
 
         // Validate the MessageToken in Elasticsearch
         verify(mockMessageTokenSearchRepository, times(1)).save(testMessageToken);
@@ -352,7 +383,10 @@ public class MessageTokenResourceIT {
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].timeSent").value(hasItem(DEFAULT_TIME_SENT.intValue())))
             .andExpect(jsonPath("$.[*].tokenValue").value(hasItem(DEFAULT_TOKEN_VALUE)))
-            .andExpect(jsonPath("$.[*].received").value(hasItem(DEFAULT_RECEIVED.booleanValue())));
+            .andExpect(jsonPath("$.[*].received").value(hasItem(DEFAULT_RECEIVED.booleanValue())))
+            .andExpect(jsonPath("$.[*].actioned").value(hasItem(DEFAULT_ACTIONED.booleanValue())))
+            .andExpect(jsonPath("$.[*].contentFullyEnqueued").value(hasItem(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue())))
+            .andExpect(jsonPath("$.[*].fileModelType").value(hasItem(DEFAULT_FILE_MODEL_TYPE.toString())));
     }
 
     @Test

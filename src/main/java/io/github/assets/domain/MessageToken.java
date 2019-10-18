@@ -8,6 +8,8 @@ import javax.validation.constraints.*;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.io.Serializable;
 
+import io.github.assets.domain.enumeration.FileModelType;
+
 /**
  * A MessageToken.
  */
@@ -38,6 +40,16 @@ public class MessageToken implements Serializable {
 
     @Column(name = "received")
     private Boolean received;
+
+    @Column(name = "actioned")
+    private Boolean actioned;
+
+    @Column(name = "content_fully_enqueued")
+    private Boolean contentFullyEnqueued;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "file_model_type")
+    private FileModelType fileModelType;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -99,6 +111,45 @@ public class MessageToken implements Serializable {
     public void setReceived(Boolean received) {
         this.received = received;
     }
+
+    public Boolean isActioned() {
+        return actioned;
+    }
+
+    public MessageToken actioned(Boolean actioned) {
+        this.actioned = actioned;
+        return this;
+    }
+
+    public void setActioned(Boolean actioned) {
+        this.actioned = actioned;
+    }
+
+    public Boolean isContentFullyEnqueued() {
+        return contentFullyEnqueued;
+    }
+
+    public MessageToken contentFullyEnqueued(Boolean contentFullyEnqueued) {
+        this.contentFullyEnqueued = contentFullyEnqueued;
+        return this;
+    }
+
+    public void setContentFullyEnqueued(Boolean contentFullyEnqueued) {
+        this.contentFullyEnqueued = contentFullyEnqueued;
+    }
+
+    public FileModelType getFileModelType() {
+        return fileModelType;
+    }
+
+    public MessageToken fileModelType(FileModelType fileModelType) {
+        this.fileModelType = fileModelType;
+        return this;
+    }
+
+    public void setFileModelType(FileModelType fileModelType) {
+        this.fileModelType = fileModelType;
+    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -125,6 +176,9 @@ public class MessageToken implements Serializable {
             ", timeSent=" + getTimeSent() +
             ", tokenValue='" + getTokenValue() + "'" +
             ", received='" + isReceived() + "'" +
+            ", actioned='" + isActioned() + "'" +
+            ", contentFullyEnqueued='" + isContentFullyEnqueued() + "'" +
+            ", fileModelType='" + getFileModelType() + "'" +
             "}";
     }
 }

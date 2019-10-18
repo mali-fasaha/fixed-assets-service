@@ -88,6 +88,9 @@ class MessageTokenGatlingTest extends Simulation {
                 , "timeSent":null
                 , "tokenValue":"SAMPLE_TEXT"
                 , "received":null
+                , "actioned":null
+                , "contentFullyEnqueued":null
+                , "fileModelType":"DEPRECIATION_UPLOAD"
                 }""")).asJson
             .check(status.is(201))
             .check(headerRegex("Location", "(.*)").saveAs("new_messageToken_url"))).exitHereIfFailed
