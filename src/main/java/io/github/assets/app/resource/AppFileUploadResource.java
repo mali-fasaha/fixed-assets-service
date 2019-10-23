@@ -2,6 +2,8 @@ package io.github.assets.app.resource;
 
 import io.github.assets.app.resource.decorator.DecoratorFileUploadResource;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
+import io.github.assets.service.FileUploadQueryService;
+import io.github.assets.service.FileUploadService;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.app.resource.decorator.FileUploadResource;
@@ -23,11 +25,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/app")
-public class AppFileUploadResource extends DecoratorFileUploadResource implements Resource<FileUploadDTO, FileUploadCriteria> {
+public class AppFileUploadResource extends FileUploadResource implements Resource<FileUploadDTO, FileUploadCriteria> {
 
-
-    public AppFileUploadResource(final FileUploadResource fileUploadResource) {
-        super(fileUploadResource);
+    public AppFileUploadResource(final FileUploadService fileUploadService, final FileUploadQueryService fileUploadQueryService) {
+        super(fileUploadService, fileUploadQueryService);
     }
 
     /**
