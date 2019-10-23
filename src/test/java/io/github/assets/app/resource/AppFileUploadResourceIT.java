@@ -135,7 +135,7 @@ class AppFileUploadResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final AppFileUploadResource fileUploadResource = new AppFileUploadResource(this.fileUploadService, this.fileUploadQueryService);
+        final AppFileUploadResource fileUploadResource = new AppFileUploadResource(this.fileUploadResource);
         this.restFileUploadMockMvc = MockMvcBuilders.standaloneSetup(fileUploadResource)
                                                     .setCustomArgumentResolvers(pageableArgumentResolver)
                                                     .setControllerAdvice(exceptionTranslator)
