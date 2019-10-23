@@ -2,6 +2,7 @@ package io.github.assets.app.resource;
 
 import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.app.resource.decorator.FileUploadResource;
+import io.github.assets.app.resource.decorator.IFileUploadResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.FileUpload;
 import io.github.assets.repository.FileUploadRepository;
@@ -135,7 +136,7 @@ class AppFileUploadResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final AppFileUploadResource fileUploadResource = new AppFileUploadResource(this.fileUploadResource);
+        final IFileUploadResource fileUploadResource = new AppFileUploadResource(this.fileUploadResource);
         this.restFileUploadMockMvc = MockMvcBuilders.standaloneSetup(fileUploadResource)
                                                     .setCustomArgumentResolvers(pageableArgumentResolver)
                                                     .setControllerAdvice(exceptionTranslator)

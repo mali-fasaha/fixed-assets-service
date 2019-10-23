@@ -20,6 +20,11 @@ import javax.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.List;
 
+/**
+ * REST controller for managing {@link io.github.assets.domain.FileUpload}.
+ *
+ * It is intended to enable asynchronous processing for PUT, POST and DELETE request
+ */
 @Slf4j
 @RestController
 @RequestMapping("/app")
@@ -38,10 +43,13 @@ public class AppFileUploadResource implements IFileUploadResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new fileUploadDTO, or with status {@code 400 (Bad Request)} if the fileUpload has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
+    @Override
     @PostMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> createFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
         return this.fileUploadResource.createFileUpload(fileUploadDTO);
+
+//        return ResponseEntity.ok(fileUploadDTO);
     }
 
     /**
@@ -52,6 +60,7 @@ public class AppFileUploadResource implements IFileUploadResource {
      * status {@code 500 (Internal Server Error)} if the fileUploadDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
+    @Override
     @PutMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> updateFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
@@ -101,6 +110,7 @@ public class AppFileUploadResource implements IFileUploadResource {
      * @param id the id of the fileUploadDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
+    @Override
     @DeleteMapping("/file-uploads/{id}")
     public ResponseEntity<Void> deleteFileUpload(@PathVariable Long id) {
 
