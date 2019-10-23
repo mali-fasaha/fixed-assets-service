@@ -31,9 +31,12 @@ import java.util.List;
 public class AppFileUploadResource implements IFileUploadResource {
 
     private final IFileUploadResource fileUploadResource;
+    private final QueuedResource<FileUploadDTO> fileUploadQueuedResource;
 
-    public AppFileUploadResource(final IFileUploadResource fileUploadResource) {
+
+    public AppFileUploadResource(final IFileUploadResource fileUploadResource, final QueuedResource<FileUploadDTO> fileUploadQueuedResource) {
         this.fileUploadResource = fileUploadResource;
+        this.fileUploadQueuedResource = fileUploadQueuedResource;
     }
 
     /**
@@ -47,9 +50,7 @@ public class AppFileUploadResource implements IFileUploadResource {
     @PostMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> createFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
-        return this.fileUploadResource.createFileUpload(fileUploadDTO);
-
-//        return ResponseEntity.ok(fileUploadDTO);
+        return fileUploadQueuedResource.createEntity(fileUploadDTO);
     }
 
     /**
@@ -64,7 +65,7 @@ public class AppFileUploadResource implements IFileUploadResource {
     @PutMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> updateFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
-        return this.fileUploadResource.updateFileUpload(fileUploadDTO);
+        return fileUploadQueuedResource.updateEntity(fileUploadDTO);
     }
 
     /**
@@ -114,7 +115,7 @@ public class AppFileUploadResource implements IFileUploadResource {
     @DeleteMapping("/file-uploads/{id}")
     public ResponseEntity<Void> deleteFileUpload(@PathVariable Long id) {
 
-        return fileUploadResource.deleteFileUpload(id);
+        return fileUploadQueuedResource.deleteEntity(id);
     }
 
     /**

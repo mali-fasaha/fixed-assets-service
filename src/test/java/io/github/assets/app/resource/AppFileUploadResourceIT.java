@@ -13,7 +13,6 @@ import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.service.mapper.FileUploadMapper;
 import io.github.assets.web.rest.TestUtil;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -40,7 +39,6 @@ import static io.github.assets.web.rest.TestUtil.createFormattingConversionServi
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -132,11 +130,14 @@ class AppFileUploadResourceIT {
     @Autowired
     private FileUploadResource fileUploadResource;
 
+    @Autowired
+    private QueuedResource<FileUploadDTO> fileUploadQueuedResource;
+
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final IFileUploadResource fileUploadResource = new AppFileUploadResource(this.fileUploadResource);
+        final IFileUploadResource fileUploadResource = new AppFileUploadResource(this.fileUploadResource, fileUploadQueuedResource);
         this.restFileUploadMockMvc = MockMvcBuilders.standaloneSetup(fileUploadResource)
                                                     .setCustomArgumentResolvers(pageableArgumentResolver)
                                                     .setControllerAdvice(exceptionTranslator)
