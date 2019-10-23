@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
 
 @Slf4j
 @Component
-public class FileUploadQueuedResourceListener implements QueuedResource<FileUploadDTO> {
+public class FileUploadQueuedResourceListener implements QueuedResourceListener<FileUploadDTO> {
 
     private final IFileUploadResource fileUploadResource;
 
@@ -23,38 +23,32 @@ public class FileUploadQueuedResourceListener implements QueuedResource<FileUplo
     /**
      * Create entity response
      */
-    @Override
     @StreamListener(QueuedResourceStreams.QUEUED_RESOURCES_CREATE)
-    public ResponseEntity<FileUploadDTO> createEntity(@Payload FileUploadDTO requestDTO) throws URISyntaxException {
+    public void createEntity(@Payload FileUploadDTO requestDTO) throws URISyntaxException {
 
         log.info("Enqueued request for {} received for create request", requestDTO);
 
         // TODO use actual services
         fileUploadResource.createEntity(requestDTO);
-
-        return ResponseEntity.ok(requestDTO);
     }
 
     /**
      * Update entity sent in the request
      */
-    @Override
     @StreamListener(QueuedResourceStreams.QUEUED_RESOURCES_UPDATE)
-    public ResponseEntity<FileUploadDTO> updateEntity(@Payload FileUploadDTO requestDTO) throws URISyntaxException {
+    public void updateEntity(@Payload FileUploadDTO requestDTO) throws URISyntaxException {
 
         log.info("Enqueued request for {} received for update", requestDTO);
 
         // TODO use actual services
         fileUploadResource.updateEntity(requestDTO);
 
-        return ResponseEntity.ok(requestDTO);
+//        return ResponseEntity.ok(requestDTO);
     }
 
     /**
      * Delete the entity whose ID
      */
-    @Override
-    public ResponseEntity<Void> deleteEntity(final Long id) {
-        return null;
+    public void deleteEntity(final Long id) {
     }
 }

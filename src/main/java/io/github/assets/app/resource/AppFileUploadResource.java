@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/app")
+@RequestMapping("/api/app")
 public class AppFileUploadResource implements IFileUploadResource {
 
     private final IFileUploadResource fileUploadResource;

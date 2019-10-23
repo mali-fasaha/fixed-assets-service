@@ -25,7 +25,7 @@ public class FileUploadQueuedResource implements QueuedResource<FileUploadDTO> {
 
     private final IFileUploadResource fileUploadResource;
     @Autowired
-    private MessageService<ResourceMessage<Object>> resourceMessageService;
+    private MessageService<ResourceMessage<FileUploadDTO>> resourceMessageService;
     @Autowired
     private FileTypeService fileTypeService;
     @Autowired
@@ -44,7 +44,7 @@ public class FileUploadQueuedResource implements QueuedResource<FileUploadDTO> {
 //        return fileUploadResource.createFileUpload(requestDTO);
         FileType fileType = fileTypeService.findOne(requestDTO.getFileTypeId()).get();
 
-        MessageToken result = messageTokenService.save(this.resourceMessageService.sendMessage(new ResourceMessage<Object>(requestDTO, fileType.getFileType())));
+        MessageToken result = messageTokenService.save(this.resourceMessageService.sendMessage(new ResourceMessage<>(requestDTO, fileType.getFileType())));
         // TODO send result to message-token queue
 
         return ResponseEntity.ok(requestDTO);
