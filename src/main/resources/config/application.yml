@@ -103,6 +103,21 @@ management:
         auto-time-requests: true
 
 spring:
+  cloud:
+      stream:
+        kafka:
+          binder:
+            brokers: localhost:9092
+        bindings:
+          queued-resources-create-in:
+            destination: QueuedResources
+            contentType: application/json
+          queued-resources-update-in:
+            destination: QueuedResources
+            contentType: application/json
+          queued-resources-out:
+            destination: QueuedResources
+            contentType: application/json
   autoconfigure:
     exclude: org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
   application:
