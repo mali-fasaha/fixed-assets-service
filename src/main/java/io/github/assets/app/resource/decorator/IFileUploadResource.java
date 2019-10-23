@@ -1,5 +1,6 @@
 package io.github.assets.app.resource.decorator;
 
+import io.github.assets.app.resource.QueuedResource;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
 import org.springframework.data.domain.Pageable;
@@ -8,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import java.net.URISyntaxException;
 import java.util.List;
 
-public interface IFileUploadResource {
+public interface IFileUploadResource extends QueuedResource<FileUploadDTO> {
     /**
      * {@code POST  /file-uploads} : Create a new fileUpload.
      *
@@ -73,4 +74,22 @@ public interface IFileUploadResource {
      * @return the result of the search.
      */
     ResponseEntity<List<FileUploadDTO>> searchFileUploads(String query, Pageable pageable);
+
+    @Override
+    default ResponseEntity<FileUploadDTO> createEntity(FileUploadDTO requestDTO) throws URISyntaxException {
+
+        return this.createFileUpload(requestDTO);
+    }
+
+    @Override
+    default ResponseEntity<FileUploadDTO> updateEntity(FileUploadDTO requestDTO) throws URISyntaxException {
+
+        return this.updateFileUpload(requestDTO);
+    }
+
+    @Override
+    default ResponseEntity<Void> deleteEntity(Long id) {
+
+        return this.deleteFileUpload(id);
+    }
 }
