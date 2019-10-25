@@ -18,5 +18,5 @@ public class FileNotification {
 
     private String filename;
 
-    private MessageToken token;
+    private String messageToken;
 }
