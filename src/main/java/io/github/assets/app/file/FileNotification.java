@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Data
-public class FileNotification {
+public class FileNotification implements Tokenizable {
 
     private long fileId;
 
@@ -19,4 +19,6 @@ public class FileNotification {
     private String filename;
 
     private String messageToken;
+
+    private String description;
 }
