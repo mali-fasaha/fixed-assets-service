@@ -130,14 +130,10 @@ class AppFileUploadResourceIT {
     @Autowired
     private FileUploadResource fileUploadResource;
 
-    @Autowired
-    private QueuedResource<FileUploadDTO> fileUploadQueuedResource;
-
-
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final IFileUploadResource fileUploadResource = new AppFileUploadResource(this.fileUploadResource, fileUploadQueuedResource);
+        final IFileUploadResource fileUploadResource = new AppFileUploadResource(this.fileUploadResource);
         this.restFileUploadMockMvc = MockMvcBuilders.standaloneSetup(fileUploadResource)
                                                     .setCustomArgumentResolvers(pageableArgumentResolver)
                                                     .setControllerAdvice(exceptionTranslator)
@@ -199,7 +195,7 @@ class AppFileUploadResourceIT {
 
         // Create the FileUpload
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
-        restFileUploadMockMvc.perform(post("/app/file-uploads")
+        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isCreated());
@@ -233,7 +229,7 @@ class AppFileUploadResourceIT {
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restFileUploadMockMvc.perform(post("/app/file-uploads")
+        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
@@ -257,7 +253,7 @@ class AppFileUploadResourceIT {
         // Create the FileUpload, which fails.
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
-        restFileUploadMockMvc.perform(post("/app/file-uploads")
+        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
@@ -276,7 +272,7 @@ class AppFileUploadResourceIT {
         // Create the FileUpload, which fails.
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
-        restFileUploadMockMvc.perform(post("/app/file-uploads")
+        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
@@ -295,7 +291,7 @@ class AppFileUploadResourceIT {
         // Create the FileUpload, which fails.
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
-        restFileUploadMockMvc.perform(post("/app/file-uploads")
+        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
@@ -311,7 +307,7 @@ class AppFileUploadResourceIT {
         fileUploadRepository.saveAndFlush(fileUpload);
 
         // Get all the fileUploadList
-        restFileUploadMockMvc.perform(get("/app/file-uploads?sort=id,desc"))
+        restFileUploadMockMvc.perform(get("/api/app/file-uploads?sort=id,desc"))
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                              .andExpect(jsonPath("$.[*].id").value(hasItem(fileUpload.getId().intValue())))
@@ -334,7 +330,7 @@ class AppFileUploadResourceIT {
         fileUploadRepository.saveAndFlush(fileUpload);
 
         // Get the fileUpload
-        restFileUploadMockMvc.perform(get("/app/file-uploads/{id}", fileUpload.getId()))
+        restFileUploadMockMvc.perform(get("/api/app/file-uploads/{id}", fileUpload.getId()))
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                              .andExpect(jsonPath("$.id").value(fileUpload.getId().intValue()))
@@ -1006,7 +1002,7 @@ class AppFileUploadResourceIT {
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultFileUploadShouldBeFound(String filter) throws Exception {
-        restFileUploadMockMvc.perform(get("/app/file-uploads?sort=id,desc&" + filter))
+        restFileUploadMockMvc.perform(get("/api/app/file-uploads?sort=id,desc&" + filter))
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                              .andExpect(jsonPath("$.[*].id").value(hasItem(fileUpload.getId().intValue())))
@@ -1022,7 +1018,7 @@ class AppFileUploadResourceIT {
                              .andExpect(jsonPath("$.[*].uploadToken").value(hasItem(DEFAULT_UPLOAD_TOKEN)));
 
         // Check, that the count call also returns 1
-        restFileUploadMockMvc.perform(get("/app/file-uploads/count?sort=id,desc&" + filter))
+        restFileUploadMockMvc.perform(get("/api/app/file-uploads/count?sort=id,desc&" + filter))
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                              .andExpect(content().string("1"));
@@ -1032,14 +1028,14 @@ class AppFileUploadResourceIT {
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultFileUploadShouldNotBeFound(String filter) throws Exception {
-        restFileUploadMockMvc.perform(get("/app/file-uploads?sort=id,desc&" + filter))
+        restFileUploadMockMvc.perform(get("/api/app/file-uploads?sort=id,desc&" + filter))
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                              .andExpect(jsonPath("$").isArray())
                              .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restFileUploadMockMvc.perform(get("/app/file-uploads/count?sort=id,desc&" + filter))
+        restFileUploadMockMvc.perform(get("/api/app/file-uploads/count?sort=id,desc&" + filter))
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                              .andExpect(content().string("0"));
@@ -1050,7 +1046,7 @@ class AppFileUploadResourceIT {
     @Transactional
     public void getNonExistingFileUpload() throws Exception {
         // Get the fileUpload
-        restFileUploadMockMvc.perform(get("/app/file-uploads/{id}", Long.MAX_VALUE))
+        restFileUploadMockMvc.perform(get("/api/app/file-uploads/{id}", Long.MAX_VALUE))
                              .andExpect(status().isNotFound());
     }
 
@@ -1079,7 +1075,7 @@ class AppFileUploadResourceIT {
             .uploadToken(UPDATED_UPLOAD_TOKEN);
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(updatedFileUpload);
 
-        restFileUploadMockMvc.perform(put("/app/file-uploads")
+        restFileUploadMockMvc.perform(put("/api/app/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isOk());
@@ -1112,7 +1108,7 @@ class AppFileUploadResourceIT {
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restFileUploadMockMvc.perform(put("/app/file-uploads")
+        restFileUploadMockMvc.perform(put("/api/app/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
@@ -1134,7 +1130,7 @@ class AppFileUploadResourceIT {
         int databaseSizeBeforeDelete = fileUploadRepository.findAll().size();
 
         // Delete the fileUpload
-        restFileUploadMockMvc.perform(delete("/app/file-uploads/{id}", fileUpload.getId())
+        restFileUploadMockMvc.perform(delete("/api/app/file-uploads/{id}", fileUpload.getId())
                                           .accept(TestUtil.APPLICATION_JSON_UTF8))
                              .andExpect(status().isNoContent());
 
@@ -1154,7 +1150,7 @@ class AppFileUploadResourceIT {
         when(mockFileUploadSearchRepository.search(queryStringQuery("id:" + fileUpload.getId()), PageRequest.of(0, 20)))
             .thenReturn(new PageImpl<>(Collections.singletonList(fileUpload), PageRequest.of(0, 1), 1));
         // Search the fileUpload
-        restFileUploadMockMvc.perform(get("/app/_search/file-uploads?query=id:" + fileUpload.getId()))
+        restFileUploadMockMvc.perform(get("/api/app/_search/file-uploads?query=id:" + fileUpload.getId()))
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                              .andExpect(jsonPath("$.[*].id").value(hasItem(fileUpload.getId().intValue())))
