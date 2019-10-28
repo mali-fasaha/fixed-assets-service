@@ -3,13 +3,10 @@ package io.github.assets.app.messaging;
 import io.github.assets.app.file.FileNotification;
 import io.github.assets.app.file.Tokenizable;
 import io.github.assets.domain.MessageToken;
+import org.springframework.stereotype.Component;
 
+@Component
 public class FileNotificationMessageService extends DefaultMessageService implements MessageService<Tokenizable> {
-
-
-    public FileNotificationMessageService(FileNotificationStreams fileNotificationStreams) {
-        super(fileNotificationStreams.outboundNotifications());
-    }
 
     /**
      * This method sends a services of type T into a queue destination and returns a token id.
@@ -22,7 +19,7 @@ public class FileNotificationMessageService extends DefaultMessageService implem
         return super.sendMessage(fileNotification)
                     .description(fileNotification.getDescription())
                     .tokenValue(fileNotification.getMessageToken())
-                    .timeSent(fileNotification.getTimeOfUpload())
+                    .timeSent(Long.parseLong(fileNotification.getTimeOfUpload()))
                     .description(fileNotification.getFilename());
     }
 }

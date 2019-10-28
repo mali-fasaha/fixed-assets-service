@@ -1,7 +1,7 @@
 package io.github.assets.app.resource;
 
 import io.github.assets.FixedAssetServiceApp;
-import io.github.assets.app.resource.decorator.FileUploadResource;
+import io.github.assets.app.resource.decorator.FileUploadResourceDecorator;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.FileUpload;
@@ -128,7 +128,7 @@ class AppFileUploadResourceIT {
     private FileUpload fileUpload;
 
     @Autowired
-    private FileUploadResource fileUploadResource;
+    private FileUploadResourceDecorator fileUploadResource;
 
     @BeforeEach
     public void setup() {

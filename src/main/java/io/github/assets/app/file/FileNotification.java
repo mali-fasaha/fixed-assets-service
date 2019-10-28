@@ -6,15 +6,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
-public class FileNotification implements Tokenizable {
+public class FileNotification implements Tokenizable, Serializable {
+    private static final long serialVersionUID = -6472961232578342431L;
+    private String fileId;
 
-    private long fileId;
-
-    private long timeOfUpload;
+    private String timeOfUpload;
 
     private String filename;
 

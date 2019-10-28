@@ -1,17 +1,23 @@
-package io.github.assets.app.resource;
+package io.github.assets.app.resource.decorator;
 
-import io.github.assets.app.file.FileNotification;
-import io.github.assets.app.messaging.FileNotificationMessageService;
-import io.github.assets.app.messaging.MessageService;
-import io.github.assets.app.resource.decorator.IFileUploadResource;
-import io.github.assets.app.util.TokenGenerator;
+import io.github.assets.service.FileUploadQueryService;
+import io.github.assets.service.FileUploadService;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
+import io.github.assets.web.rest.FileUploadResource;
+import io.github.assets.web.rest.errors.BadRequestAlertException;
+import io.github.jhipster.web.util.HeaderUtil;
+import io.github.jhipster.web.util.PaginationUtil;
+import io.github.jhipster.web.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,29 +27,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing {@link io.github.assets.domain.FileUpload}.
- *
- * It is intended to enable asynchronous processing for PUT, POST and DELETE request
  */
 @Slf4j
-@RestController
-@RequestMapping("/api/app")
-public class AppFileUploadResource implements IFileUploadResource {
+@Component("fileUploadResourceDecorator")
+public class FileUploadResourceDecorator implements IFileUploadResource {
 
-    private final IFileUploadResource fileUploadResource;
-    @Autowired
-    private FileNotificationMessageService fileNotificationMessageService;
-    @Autowired
-    private TokenGenerator tokenGenerator;
+    private final FileUploadResource fileUploadResource;
 
-
-    public AppFileUploadResource(final @Qualifier("fileUploadResourceDecorator") IFileUploadResource fileUploadResource) {
+    public FileUploadResourceDecorator(final FileUploadResource fileUploadResource) {
         this.fileUploadResource = fileUploadResource;
     }
 
@@ -54,22 +55,10 @@ public class AppFileUploadResource implements IFileUploadResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new fileUploadDTO, or with status {@code 400 (Bad Request)} if the fileUpload has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @Override
     @PostMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> createFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
-        ResponseEntity<FileUploadDTO> res = fileUploadResource.createFileUpload(fileUploadDTO);
-
-        /* TODO fileNotificationMessageService.sendMessage(
-            FileNotification.builder()
-                            .fileId(String.valueOf(res.getBody().getId()))
-                            .timeOfUpload(String.valueOf(System.currentTimeMillis()))
-                            .filename(fileUploadDTO.getFileName())
-                            .messageToken(tokenGenerator.generateBase64Token())
-                            .description(fileUploadDTO.getDescription())
-                            .build());*/
-
-        return res;
+        return fileUploadResource.createFileUpload(fileUploadDTO);
     }
 
     /**
@@ -80,7 +69,6 @@ public class AppFileUploadResource implements IFileUploadResource {
      * status {@code 500 (Internal Server Error)} if the fileUploadDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @Override
     @PutMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> updateFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
@@ -97,7 +85,7 @@ public class AppFileUploadResource implements IFileUploadResource {
     @GetMapping("/file-uploads")
     public ResponseEntity<List<FileUploadDTO>> getAllFileUploads(FileUploadCriteria criteria, Pageable pageable) {
 
-        return this.fileUploadResource.getAllFileUploads(criteria, pageable);
+        return fileUploadResource.getAllFileUploads(criteria, pageable);
     }
 
     /**
@@ -109,7 +97,7 @@ public class AppFileUploadResource implements IFileUploadResource {
     @GetMapping("/file-uploads/count")
     public ResponseEntity<Long> countFileUploads(FileUploadCriteria criteria) {
 
-        return this.fileUploadResource.countFileUploads(criteria);
+        return fileUploadResource.countFileUploads(criteria);
     }
 
     /**
@@ -130,7 +118,6 @@ public class AppFileUploadResource implements IFileUploadResource {
      * @param id the id of the fileUploadDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @Override
     @DeleteMapping("/file-uploads/{id}")
     public ResponseEntity<Void> deleteFileUpload(@PathVariable Long id) {
 

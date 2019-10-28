@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-
+    
     <!--
         Added the entity ScannedDocument.
     -->
@@ -18,45 +18,38 @@
             <column name="description" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="approval_document" type="longblob">
                 <constraints nullable="true" />
             </column>
             <column name="approval_document_content_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="invoice_document" type="longblob">
                 <constraints nullable="true" />
             </column>
             <column name="invoice_document_content_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="lpo_document" type="longblob">
                 <constraints nullable="true" />
             </column>
             <column name="lpo_document_content_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="requisition_document" type="longblob">
                 <constraints nullable="true" />
             </column>
             <column name="requisition_document_content_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="other_documents" type="longblob">
                 <constraints nullable="true" />
             </column>
             <column name="other_documents_content_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-
     </changeSet>
 
     <changeSet id="20190716120832-1-relations" author="jhipster">
@@ -74,7 +67,7 @@
     -->
     <changeSet id="20190716120832-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/data/scanned_document.csv"
+                  file="config/liquibase/fake-data/scanned_document.csv"
                   separator=";"
                   tableName="scanned_document">
             <column name="id" type="numeric"/>
