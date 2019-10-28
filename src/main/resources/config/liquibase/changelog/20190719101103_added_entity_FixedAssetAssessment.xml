@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    
+
     <!--
         Added the entity FixedAssetAssessment.
     -->
@@ -18,56 +18,66 @@
             <column name="description" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="asset_condition" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+
             <column name="assessment_date" type="date">
                 <constraints nullable="true" />
             </column>
+
             <column name="assessment_remarks" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="name_of_assessing_staff" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="name_of_assessment_contractor" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="current_service_outlet_code" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="current_physical_address" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="next_assessment_date" type="date">
                 <constraints nullable="true" />
             </column>
+
             <column name="name_of_user" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="fixed_asset_picture" type="longblob">
                 <constraints nullable="true" />
             </column>
             <column name="fixed_asset_picture_content_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="fixed_asset_item_id" type="bigint">
                 <constraints nullable="true" />
             </column>
+
             <column name="estimated_value" type="decimal(21,2)">
                 <constraints nullable="true" />
             </column>
+
             <column name="estimated_useful_months" type="double">
                 <constraints nullable="true" />
             </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-    </changeSet>
-
-    <changeSet id="20190719101103-1-relations" author="jhipster">
 
     </changeSet>
-    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
     <!--
         Load sample data generated with Faker.js
@@ -79,9 +89,10 @@
     -->
     <changeSet id="20190719101103-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/fixed_asset_assessment.csv"
+                  file="config/liquibase/data/fixed_asset_assessment.csv"
                   separator=";"
-                  tableName="fixed_asset_assessment">
+                  tableName="fixed_asset_assessment"
+                  context="dev">
             <column name="id" type="numeric"/>
             <column name="description" type="string"/>
             <column name="asset_condition" type="string"/>
@@ -93,13 +104,16 @@
             <column name="current_physical_address" type="string"/>
             <column name="next_assessment_date" type="date"/>
             <column name="name_of_user" type="string"/>
-            <column name="fixed_asset_picture" type="blob"/>
+            <column name="fixed_asset_picture" type="string"/>
             <column name="fixed_asset_picture_content_type" type="string"/>
             <column name="fixed_asset_item_id" type="numeric"/>
             <column name="estimated_value" type="numeric"/>
             <column name="estimated_useful_months" type="numeric"/>
-            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>
 
+    <changeSet id="20190719101103-1-relations" author="jhipster">
+
+    </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 </databaseChangeLog>

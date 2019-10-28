@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    
+
     <!--
         Added the entity FixedAssetCategory.
     -->
@@ -18,26 +18,27 @@
             <column name="category_name" type="varchar(255)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="ux_fixed_asset_category_category_name" />
             </column>
+
             <column name="category_description" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
             <column name="category_asset_code" type="varchar(255)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="ux_fixed_asset_category_category_asset_code" />
             </column>
+
             <column name="category_depreciation_code" type="varchar(255)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="ux_fixed_asset_category_category_depreciation_code" />
             </column>
+
             <column name="depreciation_regime_id" type="bigint">
                 <constraints nullable="true" />
             </column>
+
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-    </changeSet>
-
-    <changeSet id="20190719093818-1-relations" author="jhipster">
 
     </changeSet>
-    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
     <!--
         Load sample data generated with Faker.js
@@ -49,17 +50,21 @@
     -->
     <changeSet id="20190719093818-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/fixed_asset_category.csv"
+                  file="config/liquibase/data/fixed_asset_category.csv"
                   separator=";"
-                  tableName="fixed_asset_category">
+                  tableName="fixed_asset_category"
+                  context="dev">
             <column name="id" type="numeric"/>
             <column name="category_name" type="string"/>
             <column name="category_description" type="string"/>
             <column name="category_asset_code" type="string"/>
             <column name="category_depreciation_code" type="string"/>
             <column name="depreciation_regime_id" type="numeric"/>
-            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>
 
+    <changeSet id="20190719093818-1-relations" author="jhipster">
+
+    </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 </databaseChangeLog>
