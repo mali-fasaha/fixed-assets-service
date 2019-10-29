@@ -2,9 +2,7 @@ package io.github.assets.app.messaging.core;
 
 import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
-import io.github.assets.service.FixedAssetServiceKafkaConsumer;
-import io.github.assets.service.FixedAssetServiceKafkaProducer;
-import io.github.assets.web.rest.FixedAssetServiceKafkaResource;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
 import org.assertj.core.api.Assertions;
@@ -18,19 +16,19 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.containers.KafkaContainer;
 
+import java.util.Collections;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static io.github.assets.app.AppConstants.GENERAL_KAFKA_STRING_TOPIC;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * This testing is done from the context that the Kafka-string-producer could work
- * just as well from the fixed-asset-service-kafka-resource
+ * This testing is done from the context that the Kafka-string-producer could work just as well from the fixed-asset-service-kafka-resource
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-public class KafkaStringProducerIT {
+public class KafkaStringProducerConsumerIT {
 
 
     private MockMvc restMockMvc;
@@ -43,7 +41,7 @@ public class KafkaStringProducerIT {
     private Producer<String> kafkaStringProducer;
 
     @Autowired
-    private FixedAssetServiceKafkaConsumer consumer;
+    private Consumer<KafkaConsumer<String, String>> kafkaStringConsumer;
 
     private static final int MAX_ATTEMPT = 5;
 
@@ -65,25 +63,19 @@ public class KafkaStringProducerIT {
     public void setup() {
         FixedAssetKafkaTestResource kafkaResource = new FixedAssetKafkaTestResource(kafkaStringProducer);
 
-        this.restMockMvc = MockMvcBuilders.standaloneSetup(kafkaResource)
-                                          .build();
+        this.restMockMvc = MockMvcBuilders.standaloneSetup(kafkaResource).build();
 
         kafkaStringProducer.init();
-        consumer.start();
+        kafkaStringConsumer.start(Collections.singleton(GENERAL_KAFKA_STRING_TOPIC));
     }
 
     @Test
     public void producedMessageHasBeenConsumed() throws Exception {
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=custom string message test"))
-                   .andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=custom string message test")).andExpect(status().isOk());
 
-        Map<MetricName, ? extends Metric> metrics = consumer.getKafkaConsumer().metrics();
+        Map<MetricName, ? extends Metric> metrics = kafkaStringConsumer.getKafkaConsumer().metrics();
 
-        Metric recordsConsumedTotalMetric = metrics.entrySet().stream()
-                                                   .filter(entry -> "records-consumed-total".equals(entry.getKey().name()))
-                                                   .findFirst()
-                                                   .get()
-                                                   .getValue();
+        Metric recordsConsumedTotalMetric = metrics.entrySet().stream().filter(entry -> "records-consumed-total".equals(entry.getKey().name())).findFirst().get().getValue();
 
         Double expectedTotalConsumedMessage = 1.0;
         Double totalConsumedMessage;
