@@ -12,7 +12,7 @@ public class AppConstants {
     public static DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern(DATETIME_FORMAT);
 
     // Kafka Topics
-    private static final String TOPIC = "topic_fixedassetservice";
+    public static final String GENERAL_KAFKA_STRING_TOPIC = "topic_fixedassetservice";
 
     private AppConstants() {
     }

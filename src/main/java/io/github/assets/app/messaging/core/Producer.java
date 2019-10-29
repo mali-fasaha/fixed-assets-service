@@ -1,5 +1,10 @@
 package io.github.assets.app.messaging.core;
 
+/**
+ * Generalised representation of a producer with type T message. Messages are sent to runtime topics
+ *
+ * @param <T>
+ */
 public interface Producer<T> {
 
     void init();
