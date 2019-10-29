@@ -1,6 +1,5 @@
 package io.github.assets.app.messaging.core;
 
-import io.github.assets.config.KafkaProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -14,21 +13,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Service("kafkaByteStreamConsumer")
-public class KafkaByteStreamConsumer implements ReadableConsumer<String,byte[]>, AppConsumer<KafkaConsumer<String, byte[]>, RecordReader<String, byte[]>> {
+public class KafkaByteStreamConsumer implements ReadableConsumer<byte[], byte[]>, AppConsumer<KafkaConsumer<byte[], byte[]>, RecordReader<byte[], byte[]>> {
 
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    private final KafkaProperties kafkaProperties;
+    private final KafkaByteArrayProperties kafkaByteArrayProperties;
 
-    private KafkaConsumer<String, byte[]> kafkaConsumer;
-
-    public KafkaByteStreamConsumer(final KafkaProperties kafkaProperties) {
-        this.kafkaProperties = kafkaProperties;
+    public KafkaByteStreamConsumer(final KafkaByteArrayProperties kafkaByteArrayProperties) {
+        this.kafkaByteArrayProperties = kafkaByteArrayProperties;
     }
 
-    public void start(Collection<String> topics, RecordReader<String, byte[]> consumer) {
+    private KafkaConsumer<byte[], byte[]> kafkaConsumer;
+
+
+    public void start(Collection<String> topics, RecordReader<byte[], byte[]> consumer) {
         log.info("Kafka consumer starting...");
-        this.kafkaConsumer = new KafkaConsumer<>(kafkaProperties.getConsumerProps());
+        this.kafkaConsumer = new KafkaConsumer<>(kafkaByteArrayProperties.getConsumerProps());
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 
         Thread consumerThread = new Thread(() -> {
@@ -36,9 +36,9 @@ public class KafkaByteStreamConsumer implements ReadableConsumer<String,byte[]>,
                 kafkaConsumer.subscribe(topics);
                 log.info("Kafka consumer started");
                 while (!closed.get()) {
-                    ConsumerRecords<String, byte[]> records = kafkaConsumer.poll(Duration.ofSeconds(3));
-                    for (ConsumerRecord<String, byte[]> record : records) {
-                        log.info("Consumed message in {} : {}", record.topic(), record.value());
+                    ConsumerRecords<byte[], byte[]> records = kafkaConsumer.poll(Duration.ofSeconds(3));
+                    for (ConsumerRecord<byte[], byte[]> record : records) {
+                        log.info("Consumed message in {} topic", record.topic());
                         consumer.accept(record);
                     }
                 }
@@ -57,7 +57,7 @@ public class KafkaByteStreamConsumer implements ReadableConsumer<String,byte[]>,
         consumerThread.start();
     }
 
-    public KafkaConsumer<String, byte[]> getKafkaConsumer() {
+    public KafkaConsumer<byte[], byte[]> getKafkaConsumer() {
         return kafkaConsumer;
     }
 

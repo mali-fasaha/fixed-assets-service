@@ -199,15 +199,26 @@ jhipster:
     license: GPL version 3
     license-url: https://github.com/ghacupha
 kafka:
-  consumer:
+  producer-props:
+    key.serializer: org.apache.kafka.common.serialization.StringSerializer
+    value.serializer: org.apache.kafka.common.serialization.StringSerializer
+    bootstrap.servers: localhost:9092
+  consumer-props:
     key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
     value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
     bootstrap.servers: localhost:9092
     group.id: fixed-asset-service
     auto.offset.reset: earliest
-  producer:
-    key.serializer: org.apache.kafka.common.serialization.StringSerializer
-    value.serializer: org.apache.kafka.common.serialization.StringSerializer
+kafka-byte-stream:
+  consumer-props:
+    key.deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    value.deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    bootstrap.servers: localhost:9092
+    group.id: fixed-asset-service
+    auto.offset.reset: earliest
+  producer-props:
+    key.serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    value.serializer: org.apache.kafka.common.serialization.ByteArraySerializer
     bootstrap.servers: localhost:9092
 # ===================================================================
 # Application specific properties

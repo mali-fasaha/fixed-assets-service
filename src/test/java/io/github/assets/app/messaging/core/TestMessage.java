@@ -4,7 +4,11 @@ import java.io.Serializable;
 
 public class TestMessage implements Serializable {
     private static final long serialVersionUID = 2159270365263883130L;
-    private final String message;
+
+    private String message;
+
+    public TestMessage() {
+    }
 
     public TestMessage(final String message) {
         this.message = message;

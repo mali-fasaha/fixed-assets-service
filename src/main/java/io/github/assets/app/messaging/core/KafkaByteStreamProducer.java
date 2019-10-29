@@ -1,6 +1,5 @@
 package io.github.assets.app.messaging.core;
 
-import io.github.assets.config.KafkaProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -10,20 +9,18 @@ import org.springframework.stereotype.Service;
 @Service("kafkaByteStreamProducer")
 public class KafkaByteStreamProducer implements AppProducer<byte[]> {
 
-    // TODO use correct properties
-    private final KafkaProperties kafkaProperties;
+    private final KafkaByteArrayProperties kafkaByteArrayProperties;
 
     private KafkaProducer<byte[], byte[]> kafkaProducer;
 
-    public KafkaByteStreamProducer(final KafkaProperties kafkaProperties) {
-        this.kafkaProperties = kafkaProperties;
+    public KafkaByteStreamProducer(final KafkaByteArrayProperties kafkaByteArrayProperties) {
+        this.kafkaByteArrayProperties = kafkaByteArrayProperties;
     }
 
     @Override
     public void init() {
         log.info("Kafka string producer initializing...");
-        // TODO use correct properties
-        kafkaProducer = new KafkaProducer<>(kafkaProperties.getProducerProps());
+        kafkaProducer = new KafkaProducer<>(kafkaByteArrayProperties.getProducerProps());
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
         log.info("Kafka string producer initialized");
     }

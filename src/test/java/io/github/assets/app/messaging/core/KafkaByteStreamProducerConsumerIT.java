@@ -48,7 +48,7 @@ public class KafkaByteStreamProducerConsumerIT {
     private AppProducer<byte[]> kafkaByteStreamProducer;
 
     @Autowired
-    private ReadableConsumer<String, String> kafkaStringConsumer;
+    private ReadableConsumer<byte[], byte[]> kafkaByteStreamConsumer;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -92,7 +92,21 @@ public class KafkaByteStreamProducerConsumerIT {
 
         consumedRecords = new LinkedList<>();
 
-        kafkaStringConsumer.start(Collections.singleton(GENERAL_KAFKA_STRING_TOPIC), consumerRecord -> consumedRecords.add(consumerRecord.value()));
+        kafkaByteStreamConsumer.start(Collections.singleton(GENERAL_KAFKA_STRING_TOPIC), consumerRecord -> {
+            TestMessage message = SerializationUtils.deserialize(consumerRecord.value());
+            consumedRecords.add(message.getMessage());});
+    }
+
+    @Test
+    void messageHasBeenSentByProducer() throws Exception {
+
+        // Messages
+        final TestMessage message_1 = new TestMessage("custom byte[] message test 1");
+
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes" )
+                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                .content(TestUtil.convertObjectToJsonBytes(message_1)))
+                   .andExpect(status().isOk());
     }
 
     @Test
@@ -106,7 +120,7 @@ public class KafkaByteStreamProducerConsumerIT {
                                 .content(TestUtil.convertObjectToJsonBytes(message_1)))
                    .andExpect(status().isOk());
 
-        Map<MetricName, ? extends Metric> metrics = kafkaStringConsumer.getKafkaConsumer().metrics();
+        Map<MetricName, ? extends Metric> metrics = kafkaByteStreamConsumer.getKafkaConsumer().metrics();
 
         Metric recordsConsumedTotalMetric = metrics.entrySet().stream().filter(entry -> "records-consumed-total".equals(entry.getKey().name())).findFirst().get().getValue();
 
