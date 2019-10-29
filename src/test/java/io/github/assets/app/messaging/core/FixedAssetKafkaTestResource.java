@@ -17,9 +17,9 @@ public class FixedAssetKafkaTestResource {
 
     private final Logger log = LoggerFactory.getLogger(FixedAssetServiceKafkaResource.class);
 
-    private Producer<String> kafkaProducer;
+    private AppProducer<String> kafkaProducer;
 
-    public FixedAssetKafkaTestResource(final Producer<String> kafkaProducer) {
+    public FixedAssetKafkaTestResource(final AppProducer<String> kafkaProducer) {
         this.kafkaProducer = kafkaProducer;
     }
 

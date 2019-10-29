@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service("kafkaStringProducer")
-public class KafkaStringProducer implements Producer<String> {
+public class KafkaStringProducer implements AppProducer<String> {
 
     private final KafkaProperties kafkaProperties;
 

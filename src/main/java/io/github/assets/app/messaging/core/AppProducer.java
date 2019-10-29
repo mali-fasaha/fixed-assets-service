@@ -5,7 +5,7 @@ package io.github.assets.app.messaging.core;
  *
  * @param <T>
  */
-public interface Producer<T> {
+public interface AppProducer<T> {
 
     void init();
 

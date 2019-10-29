@@ -2,7 +2,6 @@ package io.github.assets.app.messaging.core;
 
 import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
 import org.assertj.core.api.Assertions;
@@ -17,6 +16,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import static io.github.assets.app.AppConstants.GENERAL_KAFKA_STRING_TOPIC;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class KafkaStringProducerConsumerIT {
 
+    private List<String> consumedRecords;
 
     private MockMvc restMockMvc;
 
@@ -37,11 +39,13 @@ public class KafkaStringProducerConsumerIT {
 
     private static KafkaContainer kafkaContainer;
 
-    @Autowired
-    private Producer<String> kafkaStringProducer;
+    private static String message = "custom string message test";
 
     @Autowired
-    private Consumer<KafkaConsumer<String, String>> kafkaStringConsumer;
+    private AppProducer<String> kafkaStringProducer;
+
+    @Autowired
+    private ReadableConsumer<String> kafkaStringConsumer;
 
     private static final int MAX_ATTEMPT = 5;
 
@@ -66,12 +70,15 @@ public class KafkaStringProducerConsumerIT {
         this.restMockMvc = MockMvcBuilders.standaloneSetup(kafkaResource).build();
 
         kafkaStringProducer.init();
-        kafkaStringConsumer.start(Collections.singleton(GENERAL_KAFKA_STRING_TOPIC));
+
+        consumedRecords = new LinkedList<>();
+
+        kafkaStringConsumer.start(Collections.singleton(GENERAL_KAFKA_STRING_TOPIC), consumerRecord -> consumedRecords.add(consumerRecord.value()));
     }
 
     @Test
     public void producedMessageHasBeenConsumed() throws Exception {
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=custom string message test")).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=" + message)).andExpect(status().isOk());
 
         Map<MetricName, ? extends Metric> metrics = kafkaStringConsumer.getKafkaConsumer().metrics();
 
@@ -87,6 +94,7 @@ public class KafkaStringProducerConsumerIT {
 
         Assertions.assertThat(attempt).isLessThan(MAX_ATTEMPT);
         Assertions.assertThat(totalConsumedMessage).isEqualTo(expectedTotalConsumedMessage);
+        Assertions.assertThat(consumedRecords.get(0)).isEqualTo(message);
     }
 
 
