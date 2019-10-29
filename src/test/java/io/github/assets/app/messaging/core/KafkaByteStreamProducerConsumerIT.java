@@ -24,12 +24,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * This testing is done from the context that the Kafka-string-producer could work just as well from the fixed-asset-service-kafka-resource
- */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-public class KafkaStringProducerConsumerIT {
+public class KafkaByteStreamProducerConsumerIT {
 
     private List<String> consumedRecords;
 
@@ -40,7 +37,7 @@ public class KafkaStringProducerConsumerIT {
     private static KafkaContainer kafkaContainer;
 
     @Autowired
-    private AppProducer<String> kafkaStringProducer;
+    private AppProducer<byte[]> kafkaByteStreamProducer;
 
     @Autowired
     private ReadableConsumer<String> kafkaStringConsumer;
@@ -63,11 +60,11 @@ public class KafkaStringProducerConsumerIT {
 
     @BeforeEach
     public void setup() {
-        TestResourceKafkaString kafkaResource = new TestResourceKafkaString(kafkaStringProducer);
+        TestResourceKafkaByteStream kafkaResource = new TestResourceKafkaByteStream(kafkaByteStreamProducer);
 
         this.restMockMvc = MockMvcBuilders.standaloneSetup(kafkaResource).build();
 
-        kafkaStringProducer.init();
+        kafkaByteStreamProducer.init();
 
         consumedRecords = new LinkedList<>();
 
@@ -84,11 +81,11 @@ public class KafkaStringProducerConsumerIT {
         final String message_4 = "custom string message test 4";
         final String message_5 = "custom string message test 5";
 
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-string?message=" + message_1)).andExpect(status().isOk());
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-string?message=" + message_2)).andExpect(status().isOk());
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-string?message=" + message_3)).andExpect(status().isOk());
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-string?message=" + message_4)).andExpect(status().isOk());
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-string?message=" + message_5)).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes?message=" + message_1)).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes?message=" + message_2)).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes?message=" + message_3)).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes?message=" + message_4)).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes?message=" + message_5)).andExpect(status().isOk());
 
         Map<MetricName, ? extends Metric> metrics = kafkaStringConsumer.getKafkaConsumer().metrics();
 
