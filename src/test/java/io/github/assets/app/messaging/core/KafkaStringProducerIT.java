@@ -74,7 +74,7 @@ public class KafkaStringProducerIT {
 
     @Test
     public void producedMessageHasBeenConsumed() throws Exception {
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=test"))
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=custom string message test"))
                    .andExpect(status().isOk());
 
         Map<MetricName, ? extends Metric> metrics = consumer.getKafkaConsumer().metrics();
