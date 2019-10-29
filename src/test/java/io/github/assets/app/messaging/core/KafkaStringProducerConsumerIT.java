@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.github.assets.app.AppConstants.GENERAL_KAFKA_STRING_TOPIC;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,8 +38,6 @@ public class KafkaStringProducerConsumerIT {
     private static boolean started = false;
 
     private static KafkaContainer kafkaContainer;
-
-    private static String message = "custom string message test";
 
     @Autowired
     private AppProducer<String> kafkaStringProducer;
@@ -78,13 +76,25 @@ public class KafkaStringProducerConsumerIT {
 
     @Test
     public void producedMessageHasBeenConsumed() throws Exception {
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=" + message)).andExpect(status().isOk());
+
+        // Messages
+        final String message_1 = "custom string message test 1";
+        final String message_2 = "custom string message test 2";
+        final String message_3 = "custom string message test 3";
+        final String message_4 = "custom string message test 4";
+        final String message_5 = "custom string message test 5";
+
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=" + message_1)).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=" + message_2)).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=" + message_3)).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=" + message_4)).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test?message=" + message_5)).andExpect(status().isOk());
 
         Map<MetricName, ? extends Metric> metrics = kafkaStringConsumer.getKafkaConsumer().metrics();
 
         Metric recordsConsumedTotalMetric = metrics.entrySet().stream().filter(entry -> "records-consumed-total".equals(entry.getKey().name())).findFirst().get().getValue();
 
-        Double expectedTotalConsumedMessage = 1.0;
+        Double expectedTotalConsumedMessage = 5.0;
         Double totalConsumedMessage;
         int attempt = 0;
         do {
@@ -92,10 +102,12 @@ public class KafkaStringProducerConsumerIT {
             Thread.sleep(200);
         } while (!totalConsumedMessage.equals(expectedTotalConsumedMessage) && attempt++ < MAX_ATTEMPT);
 
-        Assertions.assertThat(attempt).isLessThan(MAX_ATTEMPT);
-        Assertions.assertThat(totalConsumedMessage).isEqualTo(expectedTotalConsumedMessage);
-        Assertions.assertThat(consumedRecords.get(0)).isEqualTo(message);
+        assertThat(attempt).isLessThan(MAX_ATTEMPT);
+        assertThat(totalConsumedMessage).isEqualTo(expectedTotalConsumedMessage);
+        assertThat(consumedRecords.get(0)).isEqualTo(message_1);
+        assertThat(consumedRecords.get(1)).isEqualTo(message_2);
+        assertThat(consumedRecords.get(2)).isEqualTo(message_3);
+        assertThat(consumedRecords.get(3)).isEqualTo(message_4);
+        assertThat(consumedRecords.get(4)).isEqualTo(message_5);
     }
-
-
 }
