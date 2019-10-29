@@ -43,7 +43,7 @@ public class KafkaStringProducerConsumerIT {
     private AppProducer<String> kafkaStringProducer;
 
     @Autowired
-    private ReadableConsumer<String> kafkaStringConsumer;
+    private ReadableConsumer<String, String> kafkaStringConsumer;
 
     private static final int MAX_ATTEMPT = 5;
 

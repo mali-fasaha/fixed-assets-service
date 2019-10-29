@@ -12,11 +12,11 @@ import java.util.Collection;
  *
  * @param <T>
  */
-public interface ReadableConsumer<T> extends AppConsumer<KafkaConsumer<T, T>,RecordReader<T>> {
+public interface ReadableConsumer<K,T> extends AppConsumer<KafkaConsumer<K, T>,RecordReader<K,T>> {
 
     /**
      * Start the consume and subscribe to the topics in the collection and consume the message through the interface implemented for record consumer
      */
     @Override
-    void start(Collection<String> topics, RecordReader<T> recordConsumer);
+    void start(Collection<String> topics, RecordReader<K,T> recordConsumer);
 }

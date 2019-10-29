@@ -12,25 +12,21 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * App-Consumer interface implementation that recursively implements the readable consumer to allow runtime
- * message consumer definition, when the consumer starts
- */
 @Slf4j
-@Service("kafkaStringConsumer")
-public class KafkaStringConsumer implements ReadableConsumer<String, String>, AppConsumer<KafkaConsumer<String, String>, RecordReader<String, String>> {
+@Service("kafkaByteStreamConsumer")
+public class KafkaByteStreamConsumer implements ReadableConsumer<String,byte[]>, AppConsumer<KafkaConsumer<String, byte[]>, RecordReader<String, byte[]>> {
 
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private final KafkaProperties kafkaProperties;
 
-    private KafkaConsumer<String, String> kafkaConsumer;
+    private KafkaConsumer<String, byte[]> kafkaConsumer;
 
-    public KafkaStringConsumer(KafkaProperties kafkaProperties) {
+    public KafkaByteStreamConsumer(final KafkaProperties kafkaProperties) {
         this.kafkaProperties = kafkaProperties;
     }
 
-    public void start(Collection<String> topics, RecordReader<String, String> consumer) {
+    public void start(Collection<String> topics, RecordReader<String, byte[]> consumer) {
         log.info("Kafka consumer starting...");
         this.kafkaConsumer = new KafkaConsumer<>(kafkaProperties.getConsumerProps());
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
@@ -40,8 +36,8 @@ public class KafkaStringConsumer implements ReadableConsumer<String, String>, Ap
                 kafkaConsumer.subscribe(topics);
                 log.info("Kafka consumer started");
                 while (!closed.get()) {
-                    ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(3));
-                    for (ConsumerRecord<String, String> record : records) {
+                    ConsumerRecords<String, byte[]> records = kafkaConsumer.poll(Duration.ofSeconds(3));
+                    for (ConsumerRecord<String, byte[]> record : records) {
                         log.info("Consumed message in {} : {}", record.topic(), record.value());
                         consumer.accept(record);
                     }
@@ -61,7 +57,7 @@ public class KafkaStringConsumer implements ReadableConsumer<String, String>, Ap
         consumerThread.start();
     }
 
-    public KafkaConsumer<String, String> getKafkaConsumer() {
+    public KafkaConsumer<String, byte[]> getKafkaConsumer() {
         return kafkaConsumer;
     }
 

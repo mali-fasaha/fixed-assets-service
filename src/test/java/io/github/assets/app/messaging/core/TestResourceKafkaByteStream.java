@@ -1,9 +1,11 @@
 package io.github.assets.app.messaging.core;
 
 import io.github.assets.web.rest.FixedAssetServiceKafkaResource;
+import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +24,7 @@ public class TestResourceKafkaByteStream {
     }
 
     @PostMapping("/publish-test-bytes")
-    public void sendMessageToKafkaTopic(@RequestParam("message") byte[] message) {
-        this.kafkaProducer.send(message, GENERAL_KAFKA_STRING_TOPIC);
+    public void sendMessageToKafkaTopic(@RequestBody TestMessage message) {
+        this.kafkaProducer.send(SerializationUtils.serialize(message), GENERAL_KAFKA_STRING_TOPIC);
     }
 }

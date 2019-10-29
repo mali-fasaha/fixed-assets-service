@@ -2,6 +2,9 @@ package io.github.assets.app.messaging.core;
 
 import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
+import io.github.assets.web.rest.TestUtil;
+import io.github.assets.web.rest.errors.ExceptionTranslator;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
 import org.junit.jupiter.api.BeforeAll;
@@ -9,9 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.Validator;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.util.Collections;
@@ -20,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import static io.github.assets.app.AppConstants.GENERAL_KAFKA_STRING_TOPIC;
+import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
+import static org.apache.commons.lang3.SerializationUtils.serialize;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,7 +48,19 @@ public class KafkaByteStreamProducerConsumerIT {
     private AppProducer<byte[]> kafkaByteStreamProducer;
 
     @Autowired
-    private ReadableConsumer<String> kafkaStringConsumer;
+    private ReadableConsumer<String, String> kafkaStringConsumer;
+
+    @Autowired
+    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
+
+    @Autowired
+    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+
+    @Autowired
+    private ExceptionTranslator exceptionTranslator;
+
+    @Autowired
+    private Validator validator;
 
     private static final int MAX_ATTEMPT = 5;
 
@@ -62,7 +82,11 @@ public class KafkaByteStreamProducerConsumerIT {
     public void setup() {
         TestResourceKafkaByteStream kafkaResource = new TestResourceKafkaByteStream(kafkaByteStreamProducer);
 
-        this.restMockMvc = MockMvcBuilders.standaloneSetup(kafkaResource).build();
+        this.restMockMvc = MockMvcBuilders.standaloneSetup(kafkaResource)
+                                          .setControllerAdvice(exceptionTranslator)
+                                          .setConversionService(createFormattingConversionService())
+                                          .setMessageConverters(jacksonMessageConverter)
+                                          .setValidator(validator).build();
 
         kafkaByteStreamProducer.init();
 
@@ -75,17 +99,12 @@ public class KafkaByteStreamProducerConsumerIT {
     public void producedMessageHasBeenConsumed() throws Exception {
 
         // Messages
-        final String message_1 = "custom string message test 1";
-        final String message_2 = "custom string message test 2";
-        final String message_3 = "custom string message test 3";
-        final String message_4 = "custom string message test 4";
-        final String message_5 = "custom string message test 5";
+        final TestMessage message_1 = new TestMessage("custom byte[] message test 1");
 
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes?message=" + message_1)).andExpect(status().isOk());
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes?message=" + message_2)).andExpect(status().isOk());
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes?message=" + message_3)).andExpect(status().isOk());
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes?message=" + message_4)).andExpect(status().isOk());
-        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes?message=" + message_5)).andExpect(status().isOk());
+        restMockMvc.perform(post("/api/fixed-asset-service-kafka/publish-test-bytes" )
+                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                .content(TestUtil.convertObjectToJsonBytes(message_1)))
+                   .andExpect(status().isOk());
 
         Map<MetricName, ? extends Metric> metrics = kafkaStringConsumer.getKafkaConsumer().metrics();
 
@@ -101,10 +120,6 @@ public class KafkaByteStreamProducerConsumerIT {
 
         assertThat(attempt).isLessThan(MAX_ATTEMPT);
         assertThat(totalConsumedMessage).isEqualTo(expectedTotalConsumedMessage);
-        assertThat(consumedRecords.get(0)).isEqualTo(message_1);
-        assertThat(consumedRecords.get(1)).isEqualTo(message_2);
-        assertThat(consumedRecords.get(2)).isEqualTo(message_3);
-        assertThat(consumedRecords.get(3)).isEqualTo(message_4);
-        assertThat(consumedRecords.get(4)).isEqualTo(message_5);
+        assertThat(consumedRecords.get(0)).isEqualTo(message_1.getMessage());
     }
 }
