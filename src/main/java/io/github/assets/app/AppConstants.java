@@ -11,6 +11,9 @@ public class AppConstants {
     public static final String DATETIME_FORMAT = "yyyy/MM/dd";
     public static DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern(DATETIME_FORMAT);
 
+    // Kafka Topics
+    private static final String TOPIC = "topic_fixedassetservice";
+
     private AppConstants() {
     }
 }
