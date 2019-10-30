@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@link AssetDisposalResource} REST controller.
+ * Integration tests for the {@Link AssetDisposalResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class AssetDisposalResourceIT {
@@ -54,35 +54,27 @@ public class AssetDisposalResourceIT {
 
     private static final LocalDate DEFAULT_DISPOSAL_MONTH = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_DISPOSAL_MONTH = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_DISPOSAL_MONTH = LocalDate.ofEpochDay(-1L);
 
     private static final Long DEFAULT_ASSET_CATEGORY_ID = 1L;
     private static final Long UPDATED_ASSET_CATEGORY_ID = 2L;
-    private static final Long SMALLER_ASSET_CATEGORY_ID = 1L - 1L;
 
     private static final Long DEFAULT_ASSET_ITEM_ID = 1L;
     private static final Long UPDATED_ASSET_ITEM_ID = 2L;
-    private static final Long SMALLER_ASSET_ITEM_ID = 1L - 1L;
 
     private static final BigDecimal DEFAULT_DISPOSAL_PROCEEDS = new BigDecimal(1);
     private static final BigDecimal UPDATED_DISPOSAL_PROCEEDS = new BigDecimal(2);
-    private static final BigDecimal SMALLER_DISPOSAL_PROCEEDS = new BigDecimal(1 - 1);
 
     private static final BigDecimal DEFAULT_NET_BOOK_VALUE = new BigDecimal(1);
     private static final BigDecimal UPDATED_NET_BOOK_VALUE = new BigDecimal(2);
-    private static final BigDecimal SMALLER_NET_BOOK_VALUE = new BigDecimal(1 - 1);
 
     private static final BigDecimal DEFAULT_PROFIT_ON_DISPOSAL = new BigDecimal(1);
     private static final BigDecimal UPDATED_PROFIT_ON_DISPOSAL = new BigDecimal(2);
-    private static final BigDecimal SMALLER_PROFIT_ON_DISPOSAL = new BigDecimal(1 - 1);
 
     private static final Long DEFAULT_SCANNED_DOCUMENT_ID = 1L;
     private static final Long UPDATED_SCANNED_DOCUMENT_ID = 2L;
-    private static final Long SMALLER_SCANNED_DOCUMENT_ID = 1L - 1L;
 
     private static final Long DEFAULT_ASSET_DEALER_ID = 1L;
     private static final Long UPDATED_ASSET_DEALER_ID = 2L;
-    private static final Long SMALLER_ASSET_DEALER_ID = 1L - 1L;
 
     private static final byte[] DEFAULT_ASSET_PICTURE = TestUtil.createByteArray(1, "0");
     private static final byte[] UPDATED_ASSET_PICTURE = TestUtil.createByteArray(1, "1");
@@ -350,7 +342,7 @@ public class AssetDisposalResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(assetDisposal.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
             .andExpect(jsonPath("$.[*].disposalMonth").value(hasItem(DEFAULT_DISPOSAL_MONTH.toString())))
             .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
             .andExpect(jsonPath("$.[*].assetItemId").value(hasItem(DEFAULT_ASSET_ITEM_ID.intValue())))
@@ -374,7 +366,7 @@ public class AssetDisposalResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(assetDisposal.getId().intValue()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
             .andExpect(jsonPath("$.disposalMonth").value(DEFAULT_DISPOSAL_MONTH.toString()))
             .andExpect(jsonPath("$.assetCategoryId").value(DEFAULT_ASSET_CATEGORY_ID.intValue()))
             .andExpect(jsonPath("$.assetItemId").value(DEFAULT_ASSET_ITEM_ID.intValue()))
@@ -402,19 +394,6 @@ public class AssetDisposalResourceIT {
 
     @Test
     @Transactional
-    public void getAllAssetDisposalsByDescriptionIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where description not equals to DEFAULT_DESCRIPTION
-        defaultAssetDisposalShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
-
-        // Get all the assetDisposalList where description not equals to UPDATED_DESCRIPTION
-        defaultAssetDisposalShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
     public void getAllAssetDisposalsByDescriptionIsInShouldWork() throws Exception {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
@@ -438,32 +417,6 @@ public class AssetDisposalResourceIT {
         // Get all the assetDisposalList where description is null
         defaultAssetDisposalShouldNotBeFound("description.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllAssetDisposalsByDescriptionContainsSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where description contains DEFAULT_DESCRIPTION
-        defaultAssetDisposalShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
-
-        // Get all the assetDisposalList where description contains UPDATED_DESCRIPTION
-        defaultAssetDisposalShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByDescriptionNotContainsSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where description does not contain DEFAULT_DESCRIPTION
-        defaultAssetDisposalShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
-
-        // Get all the assetDisposalList where description does not contain UPDATED_DESCRIPTION
-        defaultAssetDisposalShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
-    }
-
 
     @Test
     @Transactional
@@ -476,19 +429,6 @@ public class AssetDisposalResourceIT {
 
         // Get all the assetDisposalList where disposalMonth equals to UPDATED_DISPOSAL_MONTH
         defaultAssetDisposalShouldNotBeFound("disposalMonth.equals=" + UPDATED_DISPOSAL_MONTH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByDisposalMonthIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where disposalMonth not equals to DEFAULT_DISPOSAL_MONTH
-        defaultAssetDisposalShouldNotBeFound("disposalMonth.notEquals=" + DEFAULT_DISPOSAL_MONTH);
-
-        // Get all the assetDisposalList where disposalMonth not equals to UPDATED_DISPOSAL_MONTH
-        defaultAssetDisposalShouldBeFound("disposalMonth.notEquals=" + UPDATED_DISPOSAL_MONTH);
     }
 
     @Test
@@ -523,24 +463,11 @@ public class AssetDisposalResourceIT {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
 
-        // Get all the assetDisposalList where disposalMonth is greater than or equal to DEFAULT_DISPOSAL_MONTH
-        defaultAssetDisposalShouldBeFound("disposalMonth.greaterThanOrEqual=" + DEFAULT_DISPOSAL_MONTH);
+        // Get all the assetDisposalList where disposalMonth greater than or equals to DEFAULT_DISPOSAL_MONTH
+        defaultAssetDisposalShouldBeFound("disposalMonth.greaterOrEqualThan=" + DEFAULT_DISPOSAL_MONTH);
 
-        // Get all the assetDisposalList where disposalMonth is greater than or equal to UPDATED_DISPOSAL_MONTH
-        defaultAssetDisposalShouldNotBeFound("disposalMonth.greaterThanOrEqual=" + UPDATED_DISPOSAL_MONTH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByDisposalMonthIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where disposalMonth is less than or equal to DEFAULT_DISPOSAL_MONTH
-        defaultAssetDisposalShouldBeFound("disposalMonth.lessThanOrEqual=" + DEFAULT_DISPOSAL_MONTH);
-
-        // Get all the assetDisposalList where disposalMonth is less than or equal to SMALLER_DISPOSAL_MONTH
-        defaultAssetDisposalShouldNotBeFound("disposalMonth.lessThanOrEqual=" + SMALLER_DISPOSAL_MONTH);
+        // Get all the assetDisposalList where disposalMonth greater than or equals to UPDATED_DISPOSAL_MONTH
+        defaultAssetDisposalShouldNotBeFound("disposalMonth.greaterOrEqualThan=" + UPDATED_DISPOSAL_MONTH);
     }
 
     @Test
@@ -549,24 +476,11 @@ public class AssetDisposalResourceIT {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
 
-        // Get all the assetDisposalList where disposalMonth is less than DEFAULT_DISPOSAL_MONTH
+        // Get all the assetDisposalList where disposalMonth less than or equals to DEFAULT_DISPOSAL_MONTH
         defaultAssetDisposalShouldNotBeFound("disposalMonth.lessThan=" + DEFAULT_DISPOSAL_MONTH);
 
-        // Get all the assetDisposalList where disposalMonth is less than UPDATED_DISPOSAL_MONTH
+        // Get all the assetDisposalList where disposalMonth less than or equals to UPDATED_DISPOSAL_MONTH
         defaultAssetDisposalShouldBeFound("disposalMonth.lessThan=" + UPDATED_DISPOSAL_MONTH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByDisposalMonthIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where disposalMonth is greater than DEFAULT_DISPOSAL_MONTH
-        defaultAssetDisposalShouldNotBeFound("disposalMonth.greaterThan=" + DEFAULT_DISPOSAL_MONTH);
-
-        // Get all the assetDisposalList where disposalMonth is greater than SMALLER_DISPOSAL_MONTH
-        defaultAssetDisposalShouldBeFound("disposalMonth.greaterThan=" + SMALLER_DISPOSAL_MONTH);
     }
 
 
@@ -581,19 +495,6 @@ public class AssetDisposalResourceIT {
 
         // Get all the assetDisposalList where assetCategoryId equals to UPDATED_ASSET_CATEGORY_ID
         defaultAssetDisposalShouldNotBeFound("assetCategoryId.equals=" + UPDATED_ASSET_CATEGORY_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByAssetCategoryIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where assetCategoryId not equals to DEFAULT_ASSET_CATEGORY_ID
-        defaultAssetDisposalShouldNotBeFound("assetCategoryId.notEquals=" + DEFAULT_ASSET_CATEGORY_ID);
-
-        // Get all the assetDisposalList where assetCategoryId not equals to UPDATED_ASSET_CATEGORY_ID
-        defaultAssetDisposalShouldBeFound("assetCategoryId.notEquals=" + UPDATED_ASSET_CATEGORY_ID);
     }
 
     @Test
@@ -628,24 +529,11 @@ public class AssetDisposalResourceIT {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
 
-        // Get all the assetDisposalList where assetCategoryId is greater than or equal to DEFAULT_ASSET_CATEGORY_ID
-        defaultAssetDisposalShouldBeFound("assetCategoryId.greaterThanOrEqual=" + DEFAULT_ASSET_CATEGORY_ID);
+        // Get all the assetDisposalList where assetCategoryId greater than or equals to DEFAULT_ASSET_CATEGORY_ID
+        defaultAssetDisposalShouldBeFound("assetCategoryId.greaterOrEqualThan=" + DEFAULT_ASSET_CATEGORY_ID);
 
-        // Get all the assetDisposalList where assetCategoryId is greater than or equal to UPDATED_ASSET_CATEGORY_ID
-        defaultAssetDisposalShouldNotBeFound("assetCategoryId.greaterThanOrEqual=" + UPDATED_ASSET_CATEGORY_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByAssetCategoryIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where assetCategoryId is less than or equal to DEFAULT_ASSET_CATEGORY_ID
-        defaultAssetDisposalShouldBeFound("assetCategoryId.lessThanOrEqual=" + DEFAULT_ASSET_CATEGORY_ID);
-
-        // Get all the assetDisposalList where assetCategoryId is less than or equal to SMALLER_ASSET_CATEGORY_ID
-        defaultAssetDisposalShouldNotBeFound("assetCategoryId.lessThanOrEqual=" + SMALLER_ASSET_CATEGORY_ID);
+        // Get all the assetDisposalList where assetCategoryId greater than or equals to UPDATED_ASSET_CATEGORY_ID
+        defaultAssetDisposalShouldNotBeFound("assetCategoryId.greaterOrEqualThan=" + UPDATED_ASSET_CATEGORY_ID);
     }
 
     @Test
@@ -654,24 +542,11 @@ public class AssetDisposalResourceIT {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
 
-        // Get all the assetDisposalList where assetCategoryId is less than DEFAULT_ASSET_CATEGORY_ID
+        // Get all the assetDisposalList where assetCategoryId less than or equals to DEFAULT_ASSET_CATEGORY_ID
         defaultAssetDisposalShouldNotBeFound("assetCategoryId.lessThan=" + DEFAULT_ASSET_CATEGORY_ID);
 
-        // Get all the assetDisposalList where assetCategoryId is less than UPDATED_ASSET_CATEGORY_ID
+        // Get all the assetDisposalList where assetCategoryId less than or equals to UPDATED_ASSET_CATEGORY_ID
         defaultAssetDisposalShouldBeFound("assetCategoryId.lessThan=" + UPDATED_ASSET_CATEGORY_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByAssetCategoryIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where assetCategoryId is greater than DEFAULT_ASSET_CATEGORY_ID
-        defaultAssetDisposalShouldNotBeFound("assetCategoryId.greaterThan=" + DEFAULT_ASSET_CATEGORY_ID);
-
-        // Get all the assetDisposalList where assetCategoryId is greater than SMALLER_ASSET_CATEGORY_ID
-        defaultAssetDisposalShouldBeFound("assetCategoryId.greaterThan=" + SMALLER_ASSET_CATEGORY_ID);
     }
 
 
@@ -686,19 +561,6 @@ public class AssetDisposalResourceIT {
 
         // Get all the assetDisposalList where assetItemId equals to UPDATED_ASSET_ITEM_ID
         defaultAssetDisposalShouldNotBeFound("assetItemId.equals=" + UPDATED_ASSET_ITEM_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByAssetItemIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where assetItemId not equals to DEFAULT_ASSET_ITEM_ID
-        defaultAssetDisposalShouldNotBeFound("assetItemId.notEquals=" + DEFAULT_ASSET_ITEM_ID);
-
-        // Get all the assetDisposalList where assetItemId not equals to UPDATED_ASSET_ITEM_ID
-        defaultAssetDisposalShouldBeFound("assetItemId.notEquals=" + UPDATED_ASSET_ITEM_ID);
     }
 
     @Test
@@ -733,24 +595,11 @@ public class AssetDisposalResourceIT {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
 
-        // Get all the assetDisposalList where assetItemId is greater than or equal to DEFAULT_ASSET_ITEM_ID
-        defaultAssetDisposalShouldBeFound("assetItemId.greaterThanOrEqual=" + DEFAULT_ASSET_ITEM_ID);
+        // Get all the assetDisposalList where assetItemId greater than or equals to DEFAULT_ASSET_ITEM_ID
+        defaultAssetDisposalShouldBeFound("assetItemId.greaterOrEqualThan=" + DEFAULT_ASSET_ITEM_ID);
 
-        // Get all the assetDisposalList where assetItemId is greater than or equal to UPDATED_ASSET_ITEM_ID
-        defaultAssetDisposalShouldNotBeFound("assetItemId.greaterThanOrEqual=" + UPDATED_ASSET_ITEM_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByAssetItemIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where assetItemId is less than or equal to DEFAULT_ASSET_ITEM_ID
-        defaultAssetDisposalShouldBeFound("assetItemId.lessThanOrEqual=" + DEFAULT_ASSET_ITEM_ID);
-
-        // Get all the assetDisposalList where assetItemId is less than or equal to SMALLER_ASSET_ITEM_ID
-        defaultAssetDisposalShouldNotBeFound("assetItemId.lessThanOrEqual=" + SMALLER_ASSET_ITEM_ID);
+        // Get all the assetDisposalList where assetItemId greater than or equals to UPDATED_ASSET_ITEM_ID
+        defaultAssetDisposalShouldNotBeFound("assetItemId.greaterOrEqualThan=" + UPDATED_ASSET_ITEM_ID);
     }
 
     @Test
@@ -759,24 +608,11 @@ public class AssetDisposalResourceIT {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
 
-        // Get all the assetDisposalList where assetItemId is less than DEFAULT_ASSET_ITEM_ID
+        // Get all the assetDisposalList where assetItemId less than or equals to DEFAULT_ASSET_ITEM_ID
         defaultAssetDisposalShouldNotBeFound("assetItemId.lessThan=" + DEFAULT_ASSET_ITEM_ID);
 
-        // Get all the assetDisposalList where assetItemId is less than UPDATED_ASSET_ITEM_ID
+        // Get all the assetDisposalList where assetItemId less than or equals to UPDATED_ASSET_ITEM_ID
         defaultAssetDisposalShouldBeFound("assetItemId.lessThan=" + UPDATED_ASSET_ITEM_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByAssetItemIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where assetItemId is greater than DEFAULT_ASSET_ITEM_ID
-        defaultAssetDisposalShouldNotBeFound("assetItemId.greaterThan=" + DEFAULT_ASSET_ITEM_ID);
-
-        // Get all the assetDisposalList where assetItemId is greater than SMALLER_ASSET_ITEM_ID
-        defaultAssetDisposalShouldBeFound("assetItemId.greaterThan=" + SMALLER_ASSET_ITEM_ID);
     }
 
 
@@ -791,19 +627,6 @@ public class AssetDisposalResourceIT {
 
         // Get all the assetDisposalList where disposalProceeds equals to UPDATED_DISPOSAL_PROCEEDS
         defaultAssetDisposalShouldNotBeFound("disposalProceeds.equals=" + UPDATED_DISPOSAL_PROCEEDS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByDisposalProceedsIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where disposalProceeds not equals to DEFAULT_DISPOSAL_PROCEEDS
-        defaultAssetDisposalShouldNotBeFound("disposalProceeds.notEquals=" + DEFAULT_DISPOSAL_PROCEEDS);
-
-        // Get all the assetDisposalList where disposalProceeds not equals to UPDATED_DISPOSAL_PROCEEDS
-        defaultAssetDisposalShouldBeFound("disposalProceeds.notEquals=" + UPDATED_DISPOSAL_PROCEEDS);
     }
 
     @Test
@@ -834,59 +657,6 @@ public class AssetDisposalResourceIT {
 
     @Test
     @Transactional
-    public void getAllAssetDisposalsByDisposalProceedsIsGreaterThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where disposalProceeds is greater than or equal to DEFAULT_DISPOSAL_PROCEEDS
-        defaultAssetDisposalShouldBeFound("disposalProceeds.greaterThanOrEqual=" + DEFAULT_DISPOSAL_PROCEEDS);
-
-        // Get all the assetDisposalList where disposalProceeds is greater than or equal to UPDATED_DISPOSAL_PROCEEDS
-        defaultAssetDisposalShouldNotBeFound("disposalProceeds.greaterThanOrEqual=" + UPDATED_DISPOSAL_PROCEEDS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByDisposalProceedsIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where disposalProceeds is less than or equal to DEFAULT_DISPOSAL_PROCEEDS
-        defaultAssetDisposalShouldBeFound("disposalProceeds.lessThanOrEqual=" + DEFAULT_DISPOSAL_PROCEEDS);
-
-        // Get all the assetDisposalList where disposalProceeds is less than or equal to SMALLER_DISPOSAL_PROCEEDS
-        defaultAssetDisposalShouldNotBeFound("disposalProceeds.lessThanOrEqual=" + SMALLER_DISPOSAL_PROCEEDS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByDisposalProceedsIsLessThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where disposalProceeds is less than DEFAULT_DISPOSAL_PROCEEDS
-        defaultAssetDisposalShouldNotBeFound("disposalProceeds.lessThan=" + DEFAULT_DISPOSAL_PROCEEDS);
-
-        // Get all the assetDisposalList where disposalProceeds is less than UPDATED_DISPOSAL_PROCEEDS
-        defaultAssetDisposalShouldBeFound("disposalProceeds.lessThan=" + UPDATED_DISPOSAL_PROCEEDS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByDisposalProceedsIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where disposalProceeds is greater than DEFAULT_DISPOSAL_PROCEEDS
-        defaultAssetDisposalShouldNotBeFound("disposalProceeds.greaterThan=" + DEFAULT_DISPOSAL_PROCEEDS);
-
-        // Get all the assetDisposalList where disposalProceeds is greater than SMALLER_DISPOSAL_PROCEEDS
-        defaultAssetDisposalShouldBeFound("disposalProceeds.greaterThan=" + SMALLER_DISPOSAL_PROCEEDS);
-    }
-
-
-    @Test
-    @Transactional
     public void getAllAssetDisposalsByNetBookValueIsEqualToSomething() throws Exception {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
@@ -896,19 +666,6 @@ public class AssetDisposalResourceIT {
 
         // Get all the assetDisposalList where netBookValue equals to UPDATED_NET_BOOK_VALUE
         defaultAssetDisposalShouldNotBeFound("netBookValue.equals=" + UPDATED_NET_BOOK_VALUE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByNetBookValueIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where netBookValue not equals to DEFAULT_NET_BOOK_VALUE
-        defaultAssetDisposalShouldNotBeFound("netBookValue.notEquals=" + DEFAULT_NET_BOOK_VALUE);
-
-        // Get all the assetDisposalList where netBookValue not equals to UPDATED_NET_BOOK_VALUE
-        defaultAssetDisposalShouldBeFound("netBookValue.notEquals=" + UPDATED_NET_BOOK_VALUE);
     }
 
     @Test
@@ -939,59 +696,6 @@ public class AssetDisposalResourceIT {
 
     @Test
     @Transactional
-    public void getAllAssetDisposalsByNetBookValueIsGreaterThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where netBookValue is greater than or equal to DEFAULT_NET_BOOK_VALUE
-        defaultAssetDisposalShouldBeFound("netBookValue.greaterThanOrEqual=" + DEFAULT_NET_BOOK_VALUE);
-
-        // Get all the assetDisposalList where netBookValue is greater than or equal to UPDATED_NET_BOOK_VALUE
-        defaultAssetDisposalShouldNotBeFound("netBookValue.greaterThanOrEqual=" + UPDATED_NET_BOOK_VALUE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByNetBookValueIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where netBookValue is less than or equal to DEFAULT_NET_BOOK_VALUE
-        defaultAssetDisposalShouldBeFound("netBookValue.lessThanOrEqual=" + DEFAULT_NET_BOOK_VALUE);
-
-        // Get all the assetDisposalList where netBookValue is less than or equal to SMALLER_NET_BOOK_VALUE
-        defaultAssetDisposalShouldNotBeFound("netBookValue.lessThanOrEqual=" + SMALLER_NET_BOOK_VALUE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByNetBookValueIsLessThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where netBookValue is less than DEFAULT_NET_BOOK_VALUE
-        defaultAssetDisposalShouldNotBeFound("netBookValue.lessThan=" + DEFAULT_NET_BOOK_VALUE);
-
-        // Get all the assetDisposalList where netBookValue is less than UPDATED_NET_BOOK_VALUE
-        defaultAssetDisposalShouldBeFound("netBookValue.lessThan=" + UPDATED_NET_BOOK_VALUE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByNetBookValueIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where netBookValue is greater than DEFAULT_NET_BOOK_VALUE
-        defaultAssetDisposalShouldNotBeFound("netBookValue.greaterThan=" + DEFAULT_NET_BOOK_VALUE);
-
-        // Get all the assetDisposalList where netBookValue is greater than SMALLER_NET_BOOK_VALUE
-        defaultAssetDisposalShouldBeFound("netBookValue.greaterThan=" + SMALLER_NET_BOOK_VALUE);
-    }
-
-
-    @Test
-    @Transactional
     public void getAllAssetDisposalsByProfitOnDisposalIsEqualToSomething() throws Exception {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
@@ -1001,19 +705,6 @@ public class AssetDisposalResourceIT {
 
         // Get all the assetDisposalList where profitOnDisposal equals to UPDATED_PROFIT_ON_DISPOSAL
         defaultAssetDisposalShouldNotBeFound("profitOnDisposal.equals=" + UPDATED_PROFIT_ON_DISPOSAL);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByProfitOnDisposalIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where profitOnDisposal not equals to DEFAULT_PROFIT_ON_DISPOSAL
-        defaultAssetDisposalShouldNotBeFound("profitOnDisposal.notEquals=" + DEFAULT_PROFIT_ON_DISPOSAL);
-
-        // Get all the assetDisposalList where profitOnDisposal not equals to UPDATED_PROFIT_ON_DISPOSAL
-        defaultAssetDisposalShouldBeFound("profitOnDisposal.notEquals=" + UPDATED_PROFIT_ON_DISPOSAL);
     }
 
     @Test
@@ -1044,59 +735,6 @@ public class AssetDisposalResourceIT {
 
     @Test
     @Transactional
-    public void getAllAssetDisposalsByProfitOnDisposalIsGreaterThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where profitOnDisposal is greater than or equal to DEFAULT_PROFIT_ON_DISPOSAL
-        defaultAssetDisposalShouldBeFound("profitOnDisposal.greaterThanOrEqual=" + DEFAULT_PROFIT_ON_DISPOSAL);
-
-        // Get all the assetDisposalList where profitOnDisposal is greater than or equal to UPDATED_PROFIT_ON_DISPOSAL
-        defaultAssetDisposalShouldNotBeFound("profitOnDisposal.greaterThanOrEqual=" + UPDATED_PROFIT_ON_DISPOSAL);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByProfitOnDisposalIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where profitOnDisposal is less than or equal to DEFAULT_PROFIT_ON_DISPOSAL
-        defaultAssetDisposalShouldBeFound("profitOnDisposal.lessThanOrEqual=" + DEFAULT_PROFIT_ON_DISPOSAL);
-
-        // Get all the assetDisposalList where profitOnDisposal is less than or equal to SMALLER_PROFIT_ON_DISPOSAL
-        defaultAssetDisposalShouldNotBeFound("profitOnDisposal.lessThanOrEqual=" + SMALLER_PROFIT_ON_DISPOSAL);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByProfitOnDisposalIsLessThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where profitOnDisposal is less than DEFAULT_PROFIT_ON_DISPOSAL
-        defaultAssetDisposalShouldNotBeFound("profitOnDisposal.lessThan=" + DEFAULT_PROFIT_ON_DISPOSAL);
-
-        // Get all the assetDisposalList where profitOnDisposal is less than UPDATED_PROFIT_ON_DISPOSAL
-        defaultAssetDisposalShouldBeFound("profitOnDisposal.lessThan=" + UPDATED_PROFIT_ON_DISPOSAL);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByProfitOnDisposalIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where profitOnDisposal is greater than DEFAULT_PROFIT_ON_DISPOSAL
-        defaultAssetDisposalShouldNotBeFound("profitOnDisposal.greaterThan=" + DEFAULT_PROFIT_ON_DISPOSAL);
-
-        // Get all the assetDisposalList where profitOnDisposal is greater than SMALLER_PROFIT_ON_DISPOSAL
-        defaultAssetDisposalShouldBeFound("profitOnDisposal.greaterThan=" + SMALLER_PROFIT_ON_DISPOSAL);
-    }
-
-
-    @Test
-    @Transactional
     public void getAllAssetDisposalsByScannedDocumentIdIsEqualToSomething() throws Exception {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
@@ -1106,19 +744,6 @@ public class AssetDisposalResourceIT {
 
         // Get all the assetDisposalList where scannedDocumentId equals to UPDATED_SCANNED_DOCUMENT_ID
         defaultAssetDisposalShouldNotBeFound("scannedDocumentId.equals=" + UPDATED_SCANNED_DOCUMENT_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByScannedDocumentIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where scannedDocumentId not equals to DEFAULT_SCANNED_DOCUMENT_ID
-        defaultAssetDisposalShouldNotBeFound("scannedDocumentId.notEquals=" + DEFAULT_SCANNED_DOCUMENT_ID);
-
-        // Get all the assetDisposalList where scannedDocumentId not equals to UPDATED_SCANNED_DOCUMENT_ID
-        defaultAssetDisposalShouldBeFound("scannedDocumentId.notEquals=" + UPDATED_SCANNED_DOCUMENT_ID);
     }
 
     @Test
@@ -1153,24 +778,11 @@ public class AssetDisposalResourceIT {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
 
-        // Get all the assetDisposalList where scannedDocumentId is greater than or equal to DEFAULT_SCANNED_DOCUMENT_ID
-        defaultAssetDisposalShouldBeFound("scannedDocumentId.greaterThanOrEqual=" + DEFAULT_SCANNED_DOCUMENT_ID);
+        // Get all the assetDisposalList where scannedDocumentId greater than or equals to DEFAULT_SCANNED_DOCUMENT_ID
+        defaultAssetDisposalShouldBeFound("scannedDocumentId.greaterOrEqualThan=" + DEFAULT_SCANNED_DOCUMENT_ID);
 
-        // Get all the assetDisposalList where scannedDocumentId is greater than or equal to UPDATED_SCANNED_DOCUMENT_ID
-        defaultAssetDisposalShouldNotBeFound("scannedDocumentId.greaterThanOrEqual=" + UPDATED_SCANNED_DOCUMENT_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByScannedDocumentIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where scannedDocumentId is less than or equal to DEFAULT_SCANNED_DOCUMENT_ID
-        defaultAssetDisposalShouldBeFound("scannedDocumentId.lessThanOrEqual=" + DEFAULT_SCANNED_DOCUMENT_ID);
-
-        // Get all the assetDisposalList where scannedDocumentId is less than or equal to SMALLER_SCANNED_DOCUMENT_ID
-        defaultAssetDisposalShouldNotBeFound("scannedDocumentId.lessThanOrEqual=" + SMALLER_SCANNED_DOCUMENT_ID);
+        // Get all the assetDisposalList where scannedDocumentId greater than or equals to UPDATED_SCANNED_DOCUMENT_ID
+        defaultAssetDisposalShouldNotBeFound("scannedDocumentId.greaterOrEqualThan=" + UPDATED_SCANNED_DOCUMENT_ID);
     }
 
     @Test
@@ -1179,24 +791,11 @@ public class AssetDisposalResourceIT {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
 
-        // Get all the assetDisposalList where scannedDocumentId is less than DEFAULT_SCANNED_DOCUMENT_ID
+        // Get all the assetDisposalList where scannedDocumentId less than or equals to DEFAULT_SCANNED_DOCUMENT_ID
         defaultAssetDisposalShouldNotBeFound("scannedDocumentId.lessThan=" + DEFAULT_SCANNED_DOCUMENT_ID);
 
-        // Get all the assetDisposalList where scannedDocumentId is less than UPDATED_SCANNED_DOCUMENT_ID
+        // Get all the assetDisposalList where scannedDocumentId less than or equals to UPDATED_SCANNED_DOCUMENT_ID
         defaultAssetDisposalShouldBeFound("scannedDocumentId.lessThan=" + UPDATED_SCANNED_DOCUMENT_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByScannedDocumentIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where scannedDocumentId is greater than DEFAULT_SCANNED_DOCUMENT_ID
-        defaultAssetDisposalShouldNotBeFound("scannedDocumentId.greaterThan=" + DEFAULT_SCANNED_DOCUMENT_ID);
-
-        // Get all the assetDisposalList where scannedDocumentId is greater than SMALLER_SCANNED_DOCUMENT_ID
-        defaultAssetDisposalShouldBeFound("scannedDocumentId.greaterThan=" + SMALLER_SCANNED_DOCUMENT_ID);
     }
 
 
@@ -1211,19 +810,6 @@ public class AssetDisposalResourceIT {
 
         // Get all the assetDisposalList where assetDealerId equals to UPDATED_ASSET_DEALER_ID
         defaultAssetDisposalShouldNotBeFound("assetDealerId.equals=" + UPDATED_ASSET_DEALER_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByAssetDealerIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where assetDealerId not equals to DEFAULT_ASSET_DEALER_ID
-        defaultAssetDisposalShouldNotBeFound("assetDealerId.notEquals=" + DEFAULT_ASSET_DEALER_ID);
-
-        // Get all the assetDisposalList where assetDealerId not equals to UPDATED_ASSET_DEALER_ID
-        defaultAssetDisposalShouldBeFound("assetDealerId.notEquals=" + UPDATED_ASSET_DEALER_ID);
     }
 
     @Test
@@ -1258,24 +844,11 @@ public class AssetDisposalResourceIT {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
 
-        // Get all the assetDisposalList where assetDealerId is greater than or equal to DEFAULT_ASSET_DEALER_ID
-        defaultAssetDisposalShouldBeFound("assetDealerId.greaterThanOrEqual=" + DEFAULT_ASSET_DEALER_ID);
+        // Get all the assetDisposalList where assetDealerId greater than or equals to DEFAULT_ASSET_DEALER_ID
+        defaultAssetDisposalShouldBeFound("assetDealerId.greaterOrEqualThan=" + DEFAULT_ASSET_DEALER_ID);
 
-        // Get all the assetDisposalList where assetDealerId is greater than or equal to UPDATED_ASSET_DEALER_ID
-        defaultAssetDisposalShouldNotBeFound("assetDealerId.greaterThanOrEqual=" + UPDATED_ASSET_DEALER_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByAssetDealerIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where assetDealerId is less than or equal to DEFAULT_ASSET_DEALER_ID
-        defaultAssetDisposalShouldBeFound("assetDealerId.lessThanOrEqual=" + DEFAULT_ASSET_DEALER_ID);
-
-        // Get all the assetDisposalList where assetDealerId is less than or equal to SMALLER_ASSET_DEALER_ID
-        defaultAssetDisposalShouldNotBeFound("assetDealerId.lessThanOrEqual=" + SMALLER_ASSET_DEALER_ID);
+        // Get all the assetDisposalList where assetDealerId greater than or equals to UPDATED_ASSET_DEALER_ID
+        defaultAssetDisposalShouldNotBeFound("assetDealerId.greaterOrEqualThan=" + UPDATED_ASSET_DEALER_ID);
     }
 
     @Test
@@ -1284,24 +857,11 @@ public class AssetDisposalResourceIT {
         // Initialize the database
         assetDisposalRepository.saveAndFlush(assetDisposal);
 
-        // Get all the assetDisposalList where assetDealerId is less than DEFAULT_ASSET_DEALER_ID
+        // Get all the assetDisposalList where assetDealerId less than or equals to DEFAULT_ASSET_DEALER_ID
         defaultAssetDisposalShouldNotBeFound("assetDealerId.lessThan=" + DEFAULT_ASSET_DEALER_ID);
 
-        // Get all the assetDisposalList where assetDealerId is less than UPDATED_ASSET_DEALER_ID
+        // Get all the assetDisposalList where assetDealerId less than or equals to UPDATED_ASSET_DEALER_ID
         defaultAssetDisposalShouldBeFound("assetDealerId.lessThan=" + UPDATED_ASSET_DEALER_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDisposalsByAssetDealerIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-
-        // Get all the assetDisposalList where assetDealerId is greater than DEFAULT_ASSET_DEALER_ID
-        defaultAssetDisposalShouldNotBeFound("assetDealerId.greaterThan=" + DEFAULT_ASSET_DEALER_ID);
-
-        // Get all the assetDisposalList where assetDealerId is greater than SMALLER_ASSET_DEALER_ID
-        defaultAssetDisposalShouldBeFound("assetDealerId.greaterThan=" + SMALLER_ASSET_DEALER_ID);
     }
 
     /**
@@ -1443,7 +1003,7 @@ public class AssetDisposalResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
+        // Validate the database is empty
         List<AssetDisposal> assetDisposalList = assetDisposalRepository.findAll();
         assertThat(assetDisposalList).hasSize(databaseSizeBeforeDelete - 1);
 

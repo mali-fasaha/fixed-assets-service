@@ -16,7 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -96,17 +97,15 @@ public class CwipTransferResource {
     /**
      * {@code GET  /cwip-transfers} : get all the cwipTransfers.
      *
-
      * @param pageable the pagination information.
-
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of cwipTransfers in body.
      */
     @GetMapping("/cwip-transfers")
-    public ResponseEntity<List<CwipTransferDTO>> getAllCwipTransfers(CwipTransferCriteria criteria, Pageable pageable) {
+    public ResponseEntity<List<CwipTransferDTO>> getAllCwipTransfers(CwipTransferCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get CwipTransfers by criteria: {}", criteria);
         Page<CwipTransferDTO> page = cwipTransferQueryService.findByCriteria(criteria, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -157,10 +156,11 @@ public class CwipTransferResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/cwip-transfers")
-    public ResponseEntity<List<CwipTransferDTO>> searchCwipTransfers(@RequestParam String query, Pageable pageable) {
+    public ResponseEntity<List<CwipTransferDTO>> searchCwipTransfers(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to search for a page of CwipTransfers for query {}", query);
         Page<CwipTransferDTO> page = cwipTransferService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
+
 }

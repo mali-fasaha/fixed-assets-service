@@ -85,11 +85,9 @@ public class CwipTransferQueryService extends QueryService<CwipTransfer> {
     }
 
     /**
-     * Function to convert {@link CwipTransferCriteria} to a {@link Specification}
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the matching {@link Specification} of the entity.
+     * Function to convert CwipTransferCriteria to a {@link Specification}.
      */
-    protected Specification<CwipTransfer> createSpecification(CwipTransferCriteria criteria) {
+    private Specification<CwipTransfer> createSpecification(CwipTransferCriteria criteria) {
         Specification<CwipTransfer> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@link FixedAssetCategoryResource} REST controller.
+ * Integration tests for the {@Link FixedAssetCategoryResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class FixedAssetCategoryResourceIT {
@@ -59,7 +59,6 @@ public class FixedAssetCategoryResourceIT {
 
     private static final Long DEFAULT_DEPRECIATION_REGIME_ID = 1L;
     private static final Long UPDATED_DEPRECIATION_REGIME_ID = 2L;
-    private static final Long SMALLER_DEPRECIATION_REGIME_ID = 1L - 1L;
 
     @Autowired
     private FixedAssetCategoryRepository fixedAssetCategoryRepository;
@@ -266,10 +265,10 @@ public class FixedAssetCategoryResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(fixedAssetCategory.getId().intValue())))
-            .andExpect(jsonPath("$.[*].categoryName").value(hasItem(DEFAULT_CATEGORY_NAME)))
-            .andExpect(jsonPath("$.[*].categoryDescription").value(hasItem(DEFAULT_CATEGORY_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].categoryAssetCode").value(hasItem(DEFAULT_CATEGORY_ASSET_CODE)))
-            .andExpect(jsonPath("$.[*].categoryDepreciationCode").value(hasItem(DEFAULT_CATEGORY_DEPRECIATION_CODE)))
+            .andExpect(jsonPath("$.[*].categoryName").value(hasItem(DEFAULT_CATEGORY_NAME.toString())))
+            .andExpect(jsonPath("$.[*].categoryDescription").value(hasItem(DEFAULT_CATEGORY_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].categoryAssetCode").value(hasItem(DEFAULT_CATEGORY_ASSET_CODE.toString())))
+            .andExpect(jsonPath("$.[*].categoryDepreciationCode").value(hasItem(DEFAULT_CATEGORY_DEPRECIATION_CODE.toString())))
             .andExpect(jsonPath("$.[*].depreciationRegimeId").value(hasItem(DEFAULT_DEPRECIATION_REGIME_ID.intValue())));
     }
     
@@ -284,10 +283,10 @@ public class FixedAssetCategoryResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(fixedAssetCategory.getId().intValue()))
-            .andExpect(jsonPath("$.categoryName").value(DEFAULT_CATEGORY_NAME))
-            .andExpect(jsonPath("$.categoryDescription").value(DEFAULT_CATEGORY_DESCRIPTION))
-            .andExpect(jsonPath("$.categoryAssetCode").value(DEFAULT_CATEGORY_ASSET_CODE))
-            .andExpect(jsonPath("$.categoryDepreciationCode").value(DEFAULT_CATEGORY_DEPRECIATION_CODE))
+            .andExpect(jsonPath("$.categoryName").value(DEFAULT_CATEGORY_NAME.toString()))
+            .andExpect(jsonPath("$.categoryDescription").value(DEFAULT_CATEGORY_DESCRIPTION.toString()))
+            .andExpect(jsonPath("$.categoryAssetCode").value(DEFAULT_CATEGORY_ASSET_CODE.toString()))
+            .andExpect(jsonPath("$.categoryDepreciationCode").value(DEFAULT_CATEGORY_DEPRECIATION_CODE.toString()))
             .andExpect(jsonPath("$.depreciationRegimeId").value(DEFAULT_DEPRECIATION_REGIME_ID.intValue()));
     }
 
@@ -302,19 +301,6 @@ public class FixedAssetCategoryResourceIT {
 
         // Get all the fixedAssetCategoryList where categoryName equals to UPDATED_CATEGORY_NAME
         defaultFixedAssetCategoryShouldNotBeFound("categoryName.equals=" + UPDATED_CATEGORY_NAME);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryNameIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryName not equals to DEFAULT_CATEGORY_NAME
-        defaultFixedAssetCategoryShouldNotBeFound("categoryName.notEquals=" + DEFAULT_CATEGORY_NAME);
-
-        // Get all the fixedAssetCategoryList where categoryName not equals to UPDATED_CATEGORY_NAME
-        defaultFixedAssetCategoryShouldBeFound("categoryName.notEquals=" + UPDATED_CATEGORY_NAME);
     }
 
     @Test
@@ -342,32 +328,6 @@ public class FixedAssetCategoryResourceIT {
         // Get all the fixedAssetCategoryList where categoryName is null
         defaultFixedAssetCategoryShouldNotBeFound("categoryName.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryNameContainsSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryName contains DEFAULT_CATEGORY_NAME
-        defaultFixedAssetCategoryShouldBeFound("categoryName.contains=" + DEFAULT_CATEGORY_NAME);
-
-        // Get all the fixedAssetCategoryList where categoryName contains UPDATED_CATEGORY_NAME
-        defaultFixedAssetCategoryShouldNotBeFound("categoryName.contains=" + UPDATED_CATEGORY_NAME);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryNameNotContainsSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryName does not contain DEFAULT_CATEGORY_NAME
-        defaultFixedAssetCategoryShouldNotBeFound("categoryName.doesNotContain=" + DEFAULT_CATEGORY_NAME);
-
-        // Get all the fixedAssetCategoryList where categoryName does not contain UPDATED_CATEGORY_NAME
-        defaultFixedAssetCategoryShouldBeFound("categoryName.doesNotContain=" + UPDATED_CATEGORY_NAME);
-    }
-
 
     @Test
     @Transactional
@@ -380,19 +340,6 @@ public class FixedAssetCategoryResourceIT {
 
         // Get all the fixedAssetCategoryList where categoryDescription equals to UPDATED_CATEGORY_DESCRIPTION
         defaultFixedAssetCategoryShouldNotBeFound("categoryDescription.equals=" + UPDATED_CATEGORY_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryDescriptionIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryDescription not equals to DEFAULT_CATEGORY_DESCRIPTION
-        defaultFixedAssetCategoryShouldNotBeFound("categoryDescription.notEquals=" + DEFAULT_CATEGORY_DESCRIPTION);
-
-        // Get all the fixedAssetCategoryList where categoryDescription not equals to UPDATED_CATEGORY_DESCRIPTION
-        defaultFixedAssetCategoryShouldBeFound("categoryDescription.notEquals=" + UPDATED_CATEGORY_DESCRIPTION);
     }
 
     @Test
@@ -420,32 +367,6 @@ public class FixedAssetCategoryResourceIT {
         // Get all the fixedAssetCategoryList where categoryDescription is null
         defaultFixedAssetCategoryShouldNotBeFound("categoryDescription.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryDescriptionContainsSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryDescription contains DEFAULT_CATEGORY_DESCRIPTION
-        defaultFixedAssetCategoryShouldBeFound("categoryDescription.contains=" + DEFAULT_CATEGORY_DESCRIPTION);
-
-        // Get all the fixedAssetCategoryList where categoryDescription contains UPDATED_CATEGORY_DESCRIPTION
-        defaultFixedAssetCategoryShouldNotBeFound("categoryDescription.contains=" + UPDATED_CATEGORY_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryDescriptionNotContainsSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryDescription does not contain DEFAULT_CATEGORY_DESCRIPTION
-        defaultFixedAssetCategoryShouldNotBeFound("categoryDescription.doesNotContain=" + DEFAULT_CATEGORY_DESCRIPTION);
-
-        // Get all the fixedAssetCategoryList where categoryDescription does not contain UPDATED_CATEGORY_DESCRIPTION
-        defaultFixedAssetCategoryShouldBeFound("categoryDescription.doesNotContain=" + UPDATED_CATEGORY_DESCRIPTION);
-    }
-
 
     @Test
     @Transactional
@@ -458,19 +379,6 @@ public class FixedAssetCategoryResourceIT {
 
         // Get all the fixedAssetCategoryList where categoryAssetCode equals to UPDATED_CATEGORY_ASSET_CODE
         defaultFixedAssetCategoryShouldNotBeFound("categoryAssetCode.equals=" + UPDATED_CATEGORY_ASSET_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryAssetCodeIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryAssetCode not equals to DEFAULT_CATEGORY_ASSET_CODE
-        defaultFixedAssetCategoryShouldNotBeFound("categoryAssetCode.notEquals=" + DEFAULT_CATEGORY_ASSET_CODE);
-
-        // Get all the fixedAssetCategoryList where categoryAssetCode not equals to UPDATED_CATEGORY_ASSET_CODE
-        defaultFixedAssetCategoryShouldBeFound("categoryAssetCode.notEquals=" + UPDATED_CATEGORY_ASSET_CODE);
     }
 
     @Test
@@ -498,32 +406,6 @@ public class FixedAssetCategoryResourceIT {
         // Get all the fixedAssetCategoryList where categoryAssetCode is null
         defaultFixedAssetCategoryShouldNotBeFound("categoryAssetCode.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryAssetCodeContainsSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryAssetCode contains DEFAULT_CATEGORY_ASSET_CODE
-        defaultFixedAssetCategoryShouldBeFound("categoryAssetCode.contains=" + DEFAULT_CATEGORY_ASSET_CODE);
-
-        // Get all the fixedAssetCategoryList where categoryAssetCode contains UPDATED_CATEGORY_ASSET_CODE
-        defaultFixedAssetCategoryShouldNotBeFound("categoryAssetCode.contains=" + UPDATED_CATEGORY_ASSET_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryAssetCodeNotContainsSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryAssetCode does not contain DEFAULT_CATEGORY_ASSET_CODE
-        defaultFixedAssetCategoryShouldNotBeFound("categoryAssetCode.doesNotContain=" + DEFAULT_CATEGORY_ASSET_CODE);
-
-        // Get all the fixedAssetCategoryList where categoryAssetCode does not contain UPDATED_CATEGORY_ASSET_CODE
-        defaultFixedAssetCategoryShouldBeFound("categoryAssetCode.doesNotContain=" + UPDATED_CATEGORY_ASSET_CODE);
-    }
-
 
     @Test
     @Transactional
@@ -536,19 +418,6 @@ public class FixedAssetCategoryResourceIT {
 
         // Get all the fixedAssetCategoryList where categoryDepreciationCode equals to UPDATED_CATEGORY_DEPRECIATION_CODE
         defaultFixedAssetCategoryShouldNotBeFound("categoryDepreciationCode.equals=" + UPDATED_CATEGORY_DEPRECIATION_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryDepreciationCodeIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryDepreciationCode not equals to DEFAULT_CATEGORY_DEPRECIATION_CODE
-        defaultFixedAssetCategoryShouldNotBeFound("categoryDepreciationCode.notEquals=" + DEFAULT_CATEGORY_DEPRECIATION_CODE);
-
-        // Get all the fixedAssetCategoryList where categoryDepreciationCode not equals to UPDATED_CATEGORY_DEPRECIATION_CODE
-        defaultFixedAssetCategoryShouldBeFound("categoryDepreciationCode.notEquals=" + UPDATED_CATEGORY_DEPRECIATION_CODE);
     }
 
     @Test
@@ -576,32 +445,6 @@ public class FixedAssetCategoryResourceIT {
         // Get all the fixedAssetCategoryList where categoryDepreciationCode is null
         defaultFixedAssetCategoryShouldNotBeFound("categoryDepreciationCode.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryDepreciationCodeContainsSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryDepreciationCode contains DEFAULT_CATEGORY_DEPRECIATION_CODE
-        defaultFixedAssetCategoryShouldBeFound("categoryDepreciationCode.contains=" + DEFAULT_CATEGORY_DEPRECIATION_CODE);
-
-        // Get all the fixedAssetCategoryList where categoryDepreciationCode contains UPDATED_CATEGORY_DEPRECIATION_CODE
-        defaultFixedAssetCategoryShouldNotBeFound("categoryDepreciationCode.contains=" + UPDATED_CATEGORY_DEPRECIATION_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByCategoryDepreciationCodeNotContainsSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where categoryDepreciationCode does not contain DEFAULT_CATEGORY_DEPRECIATION_CODE
-        defaultFixedAssetCategoryShouldNotBeFound("categoryDepreciationCode.doesNotContain=" + DEFAULT_CATEGORY_DEPRECIATION_CODE);
-
-        // Get all the fixedAssetCategoryList where categoryDepreciationCode does not contain UPDATED_CATEGORY_DEPRECIATION_CODE
-        defaultFixedAssetCategoryShouldBeFound("categoryDepreciationCode.doesNotContain=" + UPDATED_CATEGORY_DEPRECIATION_CODE);
-    }
-
 
     @Test
     @Transactional
@@ -614,19 +457,6 @@ public class FixedAssetCategoryResourceIT {
 
         // Get all the fixedAssetCategoryList where depreciationRegimeId equals to UPDATED_DEPRECIATION_REGIME_ID
         defaultFixedAssetCategoryShouldNotBeFound("depreciationRegimeId.equals=" + UPDATED_DEPRECIATION_REGIME_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByDepreciationRegimeIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where depreciationRegimeId not equals to DEFAULT_DEPRECIATION_REGIME_ID
-        defaultFixedAssetCategoryShouldNotBeFound("depreciationRegimeId.notEquals=" + DEFAULT_DEPRECIATION_REGIME_ID);
-
-        // Get all the fixedAssetCategoryList where depreciationRegimeId not equals to UPDATED_DEPRECIATION_REGIME_ID
-        defaultFixedAssetCategoryShouldBeFound("depreciationRegimeId.notEquals=" + UPDATED_DEPRECIATION_REGIME_ID);
     }
 
     @Test
@@ -661,24 +491,11 @@ public class FixedAssetCategoryResourceIT {
         // Initialize the database
         fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
 
-        // Get all the fixedAssetCategoryList where depreciationRegimeId is greater than or equal to DEFAULT_DEPRECIATION_REGIME_ID
-        defaultFixedAssetCategoryShouldBeFound("depreciationRegimeId.greaterThanOrEqual=" + DEFAULT_DEPRECIATION_REGIME_ID);
+        // Get all the fixedAssetCategoryList where depreciationRegimeId greater than or equals to DEFAULT_DEPRECIATION_REGIME_ID
+        defaultFixedAssetCategoryShouldBeFound("depreciationRegimeId.greaterOrEqualThan=" + DEFAULT_DEPRECIATION_REGIME_ID);
 
-        // Get all the fixedAssetCategoryList where depreciationRegimeId is greater than or equal to UPDATED_DEPRECIATION_REGIME_ID
-        defaultFixedAssetCategoryShouldNotBeFound("depreciationRegimeId.greaterThanOrEqual=" + UPDATED_DEPRECIATION_REGIME_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByDepreciationRegimeIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where depreciationRegimeId is less than or equal to DEFAULT_DEPRECIATION_REGIME_ID
-        defaultFixedAssetCategoryShouldBeFound("depreciationRegimeId.lessThanOrEqual=" + DEFAULT_DEPRECIATION_REGIME_ID);
-
-        // Get all the fixedAssetCategoryList where depreciationRegimeId is less than or equal to SMALLER_DEPRECIATION_REGIME_ID
-        defaultFixedAssetCategoryShouldNotBeFound("depreciationRegimeId.lessThanOrEqual=" + SMALLER_DEPRECIATION_REGIME_ID);
+        // Get all the fixedAssetCategoryList where depreciationRegimeId greater than or equals to UPDATED_DEPRECIATION_REGIME_ID
+        defaultFixedAssetCategoryShouldNotBeFound("depreciationRegimeId.greaterOrEqualThan=" + UPDATED_DEPRECIATION_REGIME_ID);
     }
 
     @Test
@@ -687,24 +504,11 @@ public class FixedAssetCategoryResourceIT {
         // Initialize the database
         fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
 
-        // Get all the fixedAssetCategoryList where depreciationRegimeId is less than DEFAULT_DEPRECIATION_REGIME_ID
+        // Get all the fixedAssetCategoryList where depreciationRegimeId less than or equals to DEFAULT_DEPRECIATION_REGIME_ID
         defaultFixedAssetCategoryShouldNotBeFound("depreciationRegimeId.lessThan=" + DEFAULT_DEPRECIATION_REGIME_ID);
 
-        // Get all the fixedAssetCategoryList where depreciationRegimeId is less than UPDATED_DEPRECIATION_REGIME_ID
+        // Get all the fixedAssetCategoryList where depreciationRegimeId less than or equals to UPDATED_DEPRECIATION_REGIME_ID
         defaultFixedAssetCategoryShouldBeFound("depreciationRegimeId.lessThan=" + UPDATED_DEPRECIATION_REGIME_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFixedAssetCategoriesByDepreciationRegimeIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-
-        // Get all the fixedAssetCategoryList where depreciationRegimeId is greater than DEFAULT_DEPRECIATION_REGIME_ID
-        defaultFixedAssetCategoryShouldNotBeFound("depreciationRegimeId.greaterThan=" + DEFAULT_DEPRECIATION_REGIME_ID);
-
-        // Get all the fixedAssetCategoryList where depreciationRegimeId is greater than SMALLER_DEPRECIATION_REGIME_ID
-        defaultFixedAssetCategoryShouldBeFound("depreciationRegimeId.greaterThan=" + SMALLER_DEPRECIATION_REGIME_ID);
     }
 
     /**
@@ -828,7 +632,7 @@ public class FixedAssetCategoryResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
+        // Validate the database is empty
         List<FixedAssetCategory> fixedAssetCategoryList = fixedAssetCategoryRepository.findAll();
         assertThat(fixedAssetCategoryList).hasSize(databaseSizeBeforeDelete - 1);
 

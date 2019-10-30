@@ -206,24 +206,13 @@ jhipster:
     default-include-pattern: /api/.*
     title: Fixed Asset Service API
     description: API for main fixed assets service
-    version: 0.0.4
+    version: 0.0.5-SNAPSHOT
     terms-of-service-url: https://www.gnu.org/licenses/gpl-3.0.txt
     contact-name: Edwin Njeru
     contact-url: https://github.com/ghacupha
     contact-email: mailnjeru@gmail.com
     license: GPL version 3
     license-url: https://github.com/ghacupha
-kafka:
-  consumer:
-    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    bootstrap.servers: localhost:9092
-    group.id: fixed-asset-service
-    auto.offset.reset: earliest
-  producer:
-    key.serializer: org.apache.kafka.common.serialization.StringSerializer
-    value.serializer: org.apache.kafka.common.serialization.StringSerializer
-    bootstrap.servers: localhost:9092
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

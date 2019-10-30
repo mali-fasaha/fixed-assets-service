@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@link TransactionApprovalResource} REST controller.
+ * Integration tests for the {@Link TransactionApprovalResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class TransactionApprovalResourceIT {
@@ -50,7 +50,6 @@ public class TransactionApprovalResourceIT {
 
     private static final Long DEFAULT_REQUESTED_BY = 1L;
     private static final Long UPDATED_REQUESTED_BY = 2L;
-    private static final Long SMALLER_REQUESTED_BY = 1L - 1L;
 
     private static final String DEFAULT_RECOMMENDED_BY = "AAAAAAAAAA";
     private static final String UPDATED_RECOMMENDED_BY = "BBBBBBBBBB";
@@ -227,14 +226,14 @@ public class TransactionApprovalResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(transactionApproval.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
             .andExpect(jsonPath("$.[*].requestedBy").value(hasItem(DEFAULT_REQUESTED_BY.intValue())))
-            .andExpect(jsonPath("$.[*].recommendedBy").value(hasItem(DEFAULT_RECOMMENDED_BY)))
-            .andExpect(jsonPath("$.[*].reviewedBy").value(hasItem(DEFAULT_REVIEWED_BY)))
-            .andExpect(jsonPath("$.[*].firstApprover").value(hasItem(DEFAULT_FIRST_APPROVER)))
-            .andExpect(jsonPath("$.[*].secondApprover").value(hasItem(DEFAULT_SECOND_APPROVER)))
-            .andExpect(jsonPath("$.[*].thirdApprover").value(hasItem(DEFAULT_THIRD_APPROVER)))
-            .andExpect(jsonPath("$.[*].fourthApprover").value(hasItem(DEFAULT_FOURTH_APPROVER)));
+            .andExpect(jsonPath("$.[*].recommendedBy").value(hasItem(DEFAULT_RECOMMENDED_BY.toString())))
+            .andExpect(jsonPath("$.[*].reviewedBy").value(hasItem(DEFAULT_REVIEWED_BY.toString())))
+            .andExpect(jsonPath("$.[*].firstApprover").value(hasItem(DEFAULT_FIRST_APPROVER.toString())))
+            .andExpect(jsonPath("$.[*].secondApprover").value(hasItem(DEFAULT_SECOND_APPROVER.toString())))
+            .andExpect(jsonPath("$.[*].thirdApprover").value(hasItem(DEFAULT_THIRD_APPROVER.toString())))
+            .andExpect(jsonPath("$.[*].fourthApprover").value(hasItem(DEFAULT_FOURTH_APPROVER.toString())));
     }
     
     @Test
@@ -248,14 +247,14 @@ public class TransactionApprovalResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(transactionApproval.getId().intValue()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
             .andExpect(jsonPath("$.requestedBy").value(DEFAULT_REQUESTED_BY.intValue()))
-            .andExpect(jsonPath("$.recommendedBy").value(DEFAULT_RECOMMENDED_BY))
-            .andExpect(jsonPath("$.reviewedBy").value(DEFAULT_REVIEWED_BY))
-            .andExpect(jsonPath("$.firstApprover").value(DEFAULT_FIRST_APPROVER))
-            .andExpect(jsonPath("$.secondApprover").value(DEFAULT_SECOND_APPROVER))
-            .andExpect(jsonPath("$.thirdApprover").value(DEFAULT_THIRD_APPROVER))
-            .andExpect(jsonPath("$.fourthApprover").value(DEFAULT_FOURTH_APPROVER));
+            .andExpect(jsonPath("$.recommendedBy").value(DEFAULT_RECOMMENDED_BY.toString()))
+            .andExpect(jsonPath("$.reviewedBy").value(DEFAULT_REVIEWED_BY.toString()))
+            .andExpect(jsonPath("$.firstApprover").value(DEFAULT_FIRST_APPROVER.toString()))
+            .andExpect(jsonPath("$.secondApprover").value(DEFAULT_SECOND_APPROVER.toString()))
+            .andExpect(jsonPath("$.thirdApprover").value(DEFAULT_THIRD_APPROVER.toString()))
+            .andExpect(jsonPath("$.fourthApprover").value(DEFAULT_FOURTH_APPROVER.toString()));
     }
 
     @Test
@@ -269,19 +268,6 @@ public class TransactionApprovalResourceIT {
 
         // Get all the transactionApprovalList where description equals to UPDATED_DESCRIPTION
         defaultTransactionApprovalShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByDescriptionIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where description not equals to DEFAULT_DESCRIPTION
-        defaultTransactionApprovalShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
-
-        // Get all the transactionApprovalList where description not equals to UPDATED_DESCRIPTION
-        defaultTransactionApprovalShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -309,32 +295,6 @@ public class TransactionApprovalResourceIT {
         // Get all the transactionApprovalList where description is null
         defaultTransactionApprovalShouldNotBeFound("description.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllTransactionApprovalsByDescriptionContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where description contains DEFAULT_DESCRIPTION
-        defaultTransactionApprovalShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
-
-        // Get all the transactionApprovalList where description contains UPDATED_DESCRIPTION
-        defaultTransactionApprovalShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByDescriptionNotContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where description does not contain DEFAULT_DESCRIPTION
-        defaultTransactionApprovalShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
-
-        // Get all the transactionApprovalList where description does not contain UPDATED_DESCRIPTION
-        defaultTransactionApprovalShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
-    }
-
 
     @Test
     @Transactional
@@ -347,19 +307,6 @@ public class TransactionApprovalResourceIT {
 
         // Get all the transactionApprovalList where requestedBy equals to UPDATED_REQUESTED_BY
         defaultTransactionApprovalShouldNotBeFound("requestedBy.equals=" + UPDATED_REQUESTED_BY);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByRequestedByIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where requestedBy not equals to DEFAULT_REQUESTED_BY
-        defaultTransactionApprovalShouldNotBeFound("requestedBy.notEquals=" + DEFAULT_REQUESTED_BY);
-
-        // Get all the transactionApprovalList where requestedBy not equals to UPDATED_REQUESTED_BY
-        defaultTransactionApprovalShouldBeFound("requestedBy.notEquals=" + UPDATED_REQUESTED_BY);
     }
 
     @Test
@@ -394,24 +341,11 @@ public class TransactionApprovalResourceIT {
         // Initialize the database
         transactionApprovalRepository.saveAndFlush(transactionApproval);
 
-        // Get all the transactionApprovalList where requestedBy is greater than or equal to DEFAULT_REQUESTED_BY
-        defaultTransactionApprovalShouldBeFound("requestedBy.greaterThanOrEqual=" + DEFAULT_REQUESTED_BY);
+        // Get all the transactionApprovalList where requestedBy greater than or equals to DEFAULT_REQUESTED_BY
+        defaultTransactionApprovalShouldBeFound("requestedBy.greaterOrEqualThan=" + DEFAULT_REQUESTED_BY);
 
-        // Get all the transactionApprovalList where requestedBy is greater than or equal to UPDATED_REQUESTED_BY
-        defaultTransactionApprovalShouldNotBeFound("requestedBy.greaterThanOrEqual=" + UPDATED_REQUESTED_BY);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByRequestedByIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where requestedBy is less than or equal to DEFAULT_REQUESTED_BY
-        defaultTransactionApprovalShouldBeFound("requestedBy.lessThanOrEqual=" + DEFAULT_REQUESTED_BY);
-
-        // Get all the transactionApprovalList where requestedBy is less than or equal to SMALLER_REQUESTED_BY
-        defaultTransactionApprovalShouldNotBeFound("requestedBy.lessThanOrEqual=" + SMALLER_REQUESTED_BY);
+        // Get all the transactionApprovalList where requestedBy greater than or equals to UPDATED_REQUESTED_BY
+        defaultTransactionApprovalShouldNotBeFound("requestedBy.greaterOrEqualThan=" + UPDATED_REQUESTED_BY);
     }
 
     @Test
@@ -420,24 +354,11 @@ public class TransactionApprovalResourceIT {
         // Initialize the database
         transactionApprovalRepository.saveAndFlush(transactionApproval);
 
-        // Get all the transactionApprovalList where requestedBy is less than DEFAULT_REQUESTED_BY
+        // Get all the transactionApprovalList where requestedBy less than or equals to DEFAULT_REQUESTED_BY
         defaultTransactionApprovalShouldNotBeFound("requestedBy.lessThan=" + DEFAULT_REQUESTED_BY);
 
-        // Get all the transactionApprovalList where requestedBy is less than UPDATED_REQUESTED_BY
+        // Get all the transactionApprovalList where requestedBy less than or equals to UPDATED_REQUESTED_BY
         defaultTransactionApprovalShouldBeFound("requestedBy.lessThan=" + UPDATED_REQUESTED_BY);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByRequestedByIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where requestedBy is greater than DEFAULT_REQUESTED_BY
-        defaultTransactionApprovalShouldNotBeFound("requestedBy.greaterThan=" + DEFAULT_REQUESTED_BY);
-
-        // Get all the transactionApprovalList where requestedBy is greater than SMALLER_REQUESTED_BY
-        defaultTransactionApprovalShouldBeFound("requestedBy.greaterThan=" + SMALLER_REQUESTED_BY);
     }
 
 
@@ -452,19 +373,6 @@ public class TransactionApprovalResourceIT {
 
         // Get all the transactionApprovalList where recommendedBy equals to UPDATED_RECOMMENDED_BY
         defaultTransactionApprovalShouldNotBeFound("recommendedBy.equals=" + UPDATED_RECOMMENDED_BY);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByRecommendedByIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where recommendedBy not equals to DEFAULT_RECOMMENDED_BY
-        defaultTransactionApprovalShouldNotBeFound("recommendedBy.notEquals=" + DEFAULT_RECOMMENDED_BY);
-
-        // Get all the transactionApprovalList where recommendedBy not equals to UPDATED_RECOMMENDED_BY
-        defaultTransactionApprovalShouldBeFound("recommendedBy.notEquals=" + UPDATED_RECOMMENDED_BY);
     }
 
     @Test
@@ -492,32 +400,6 @@ public class TransactionApprovalResourceIT {
         // Get all the transactionApprovalList where recommendedBy is null
         defaultTransactionApprovalShouldNotBeFound("recommendedBy.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllTransactionApprovalsByRecommendedByContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where recommendedBy contains DEFAULT_RECOMMENDED_BY
-        defaultTransactionApprovalShouldBeFound("recommendedBy.contains=" + DEFAULT_RECOMMENDED_BY);
-
-        // Get all the transactionApprovalList where recommendedBy contains UPDATED_RECOMMENDED_BY
-        defaultTransactionApprovalShouldNotBeFound("recommendedBy.contains=" + UPDATED_RECOMMENDED_BY);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByRecommendedByNotContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where recommendedBy does not contain DEFAULT_RECOMMENDED_BY
-        defaultTransactionApprovalShouldNotBeFound("recommendedBy.doesNotContain=" + DEFAULT_RECOMMENDED_BY);
-
-        // Get all the transactionApprovalList where recommendedBy does not contain UPDATED_RECOMMENDED_BY
-        defaultTransactionApprovalShouldBeFound("recommendedBy.doesNotContain=" + UPDATED_RECOMMENDED_BY);
-    }
-
 
     @Test
     @Transactional
@@ -530,19 +412,6 @@ public class TransactionApprovalResourceIT {
 
         // Get all the transactionApprovalList where reviewedBy equals to UPDATED_REVIEWED_BY
         defaultTransactionApprovalShouldNotBeFound("reviewedBy.equals=" + UPDATED_REVIEWED_BY);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByReviewedByIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where reviewedBy not equals to DEFAULT_REVIEWED_BY
-        defaultTransactionApprovalShouldNotBeFound("reviewedBy.notEquals=" + DEFAULT_REVIEWED_BY);
-
-        // Get all the transactionApprovalList where reviewedBy not equals to UPDATED_REVIEWED_BY
-        defaultTransactionApprovalShouldBeFound("reviewedBy.notEquals=" + UPDATED_REVIEWED_BY);
     }
 
     @Test
@@ -570,32 +439,6 @@ public class TransactionApprovalResourceIT {
         // Get all the transactionApprovalList where reviewedBy is null
         defaultTransactionApprovalShouldNotBeFound("reviewedBy.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllTransactionApprovalsByReviewedByContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where reviewedBy contains DEFAULT_REVIEWED_BY
-        defaultTransactionApprovalShouldBeFound("reviewedBy.contains=" + DEFAULT_REVIEWED_BY);
-
-        // Get all the transactionApprovalList where reviewedBy contains UPDATED_REVIEWED_BY
-        defaultTransactionApprovalShouldNotBeFound("reviewedBy.contains=" + UPDATED_REVIEWED_BY);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByReviewedByNotContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where reviewedBy does not contain DEFAULT_REVIEWED_BY
-        defaultTransactionApprovalShouldNotBeFound("reviewedBy.doesNotContain=" + DEFAULT_REVIEWED_BY);
-
-        // Get all the transactionApprovalList where reviewedBy does not contain UPDATED_REVIEWED_BY
-        defaultTransactionApprovalShouldBeFound("reviewedBy.doesNotContain=" + UPDATED_REVIEWED_BY);
-    }
-
 
     @Test
     @Transactional
@@ -608,19 +451,6 @@ public class TransactionApprovalResourceIT {
 
         // Get all the transactionApprovalList where firstApprover equals to UPDATED_FIRST_APPROVER
         defaultTransactionApprovalShouldNotBeFound("firstApprover.equals=" + UPDATED_FIRST_APPROVER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByFirstApproverIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where firstApprover not equals to DEFAULT_FIRST_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("firstApprover.notEquals=" + DEFAULT_FIRST_APPROVER);
-
-        // Get all the transactionApprovalList where firstApprover not equals to UPDATED_FIRST_APPROVER
-        defaultTransactionApprovalShouldBeFound("firstApprover.notEquals=" + UPDATED_FIRST_APPROVER);
     }
 
     @Test
@@ -648,32 +478,6 @@ public class TransactionApprovalResourceIT {
         // Get all the transactionApprovalList where firstApprover is null
         defaultTransactionApprovalShouldNotBeFound("firstApprover.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllTransactionApprovalsByFirstApproverContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where firstApprover contains DEFAULT_FIRST_APPROVER
-        defaultTransactionApprovalShouldBeFound("firstApprover.contains=" + DEFAULT_FIRST_APPROVER);
-
-        // Get all the transactionApprovalList where firstApprover contains UPDATED_FIRST_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("firstApprover.contains=" + UPDATED_FIRST_APPROVER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByFirstApproverNotContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where firstApprover does not contain DEFAULT_FIRST_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("firstApprover.doesNotContain=" + DEFAULT_FIRST_APPROVER);
-
-        // Get all the transactionApprovalList where firstApprover does not contain UPDATED_FIRST_APPROVER
-        defaultTransactionApprovalShouldBeFound("firstApprover.doesNotContain=" + UPDATED_FIRST_APPROVER);
-    }
-
 
     @Test
     @Transactional
@@ -686,19 +490,6 @@ public class TransactionApprovalResourceIT {
 
         // Get all the transactionApprovalList where secondApprover equals to UPDATED_SECOND_APPROVER
         defaultTransactionApprovalShouldNotBeFound("secondApprover.equals=" + UPDATED_SECOND_APPROVER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsBySecondApproverIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where secondApprover not equals to DEFAULT_SECOND_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("secondApprover.notEquals=" + DEFAULT_SECOND_APPROVER);
-
-        // Get all the transactionApprovalList where secondApprover not equals to UPDATED_SECOND_APPROVER
-        defaultTransactionApprovalShouldBeFound("secondApprover.notEquals=" + UPDATED_SECOND_APPROVER);
     }
 
     @Test
@@ -726,32 +517,6 @@ public class TransactionApprovalResourceIT {
         // Get all the transactionApprovalList where secondApprover is null
         defaultTransactionApprovalShouldNotBeFound("secondApprover.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllTransactionApprovalsBySecondApproverContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where secondApprover contains DEFAULT_SECOND_APPROVER
-        defaultTransactionApprovalShouldBeFound("secondApprover.contains=" + DEFAULT_SECOND_APPROVER);
-
-        // Get all the transactionApprovalList where secondApprover contains UPDATED_SECOND_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("secondApprover.contains=" + UPDATED_SECOND_APPROVER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsBySecondApproverNotContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where secondApprover does not contain DEFAULT_SECOND_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("secondApprover.doesNotContain=" + DEFAULT_SECOND_APPROVER);
-
-        // Get all the transactionApprovalList where secondApprover does not contain UPDATED_SECOND_APPROVER
-        defaultTransactionApprovalShouldBeFound("secondApprover.doesNotContain=" + UPDATED_SECOND_APPROVER);
-    }
-
 
     @Test
     @Transactional
@@ -764,19 +529,6 @@ public class TransactionApprovalResourceIT {
 
         // Get all the transactionApprovalList where thirdApprover equals to UPDATED_THIRD_APPROVER
         defaultTransactionApprovalShouldNotBeFound("thirdApprover.equals=" + UPDATED_THIRD_APPROVER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByThirdApproverIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where thirdApprover not equals to DEFAULT_THIRD_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("thirdApprover.notEquals=" + DEFAULT_THIRD_APPROVER);
-
-        // Get all the transactionApprovalList where thirdApprover not equals to UPDATED_THIRD_APPROVER
-        defaultTransactionApprovalShouldBeFound("thirdApprover.notEquals=" + UPDATED_THIRD_APPROVER);
     }
 
     @Test
@@ -804,32 +556,6 @@ public class TransactionApprovalResourceIT {
         // Get all the transactionApprovalList where thirdApprover is null
         defaultTransactionApprovalShouldNotBeFound("thirdApprover.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllTransactionApprovalsByThirdApproverContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where thirdApprover contains DEFAULT_THIRD_APPROVER
-        defaultTransactionApprovalShouldBeFound("thirdApprover.contains=" + DEFAULT_THIRD_APPROVER);
-
-        // Get all the transactionApprovalList where thirdApprover contains UPDATED_THIRD_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("thirdApprover.contains=" + UPDATED_THIRD_APPROVER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByThirdApproverNotContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where thirdApprover does not contain DEFAULT_THIRD_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("thirdApprover.doesNotContain=" + DEFAULT_THIRD_APPROVER);
-
-        // Get all the transactionApprovalList where thirdApprover does not contain UPDATED_THIRD_APPROVER
-        defaultTransactionApprovalShouldBeFound("thirdApprover.doesNotContain=" + UPDATED_THIRD_APPROVER);
-    }
-
 
     @Test
     @Transactional
@@ -842,19 +568,6 @@ public class TransactionApprovalResourceIT {
 
         // Get all the transactionApprovalList where fourthApprover equals to UPDATED_FOURTH_APPROVER
         defaultTransactionApprovalShouldNotBeFound("fourthApprover.equals=" + UPDATED_FOURTH_APPROVER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByFourthApproverIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where fourthApprover not equals to DEFAULT_FOURTH_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("fourthApprover.notEquals=" + DEFAULT_FOURTH_APPROVER);
-
-        // Get all the transactionApprovalList where fourthApprover not equals to UPDATED_FOURTH_APPROVER
-        defaultTransactionApprovalShouldBeFound("fourthApprover.notEquals=" + UPDATED_FOURTH_APPROVER);
     }
 
     @Test
@@ -882,32 +595,6 @@ public class TransactionApprovalResourceIT {
         // Get all the transactionApprovalList where fourthApprover is null
         defaultTransactionApprovalShouldNotBeFound("fourthApprover.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllTransactionApprovalsByFourthApproverContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where fourthApprover contains DEFAULT_FOURTH_APPROVER
-        defaultTransactionApprovalShouldBeFound("fourthApprover.contains=" + DEFAULT_FOURTH_APPROVER);
-
-        // Get all the transactionApprovalList where fourthApprover contains UPDATED_FOURTH_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("fourthApprover.contains=" + UPDATED_FOURTH_APPROVER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllTransactionApprovalsByFourthApproverNotContainsSomething() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-
-        // Get all the transactionApprovalList where fourthApprover does not contain DEFAULT_FOURTH_APPROVER
-        defaultTransactionApprovalShouldNotBeFound("fourthApprover.doesNotContain=" + DEFAULT_FOURTH_APPROVER);
-
-        // Get all the transactionApprovalList where fourthApprover does not contain UPDATED_FOURTH_APPROVER
-        defaultTransactionApprovalShouldBeFound("fourthApprover.doesNotContain=" + UPDATED_FOURTH_APPROVER);
-    }
-
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -1038,7 +725,7 @@ public class TransactionApprovalResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
+        // Validate the database is empty
         List<TransactionApproval> transactionApprovalList = transactionApprovalRepository.findAll();
         assertThat(transactionApprovalList).hasSize(databaseSizeBeforeDelete - 1);
 

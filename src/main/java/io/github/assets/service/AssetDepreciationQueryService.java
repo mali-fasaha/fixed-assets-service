@@ -85,11 +85,9 @@ public class AssetDepreciationQueryService extends QueryService<AssetDepreciatio
     }
 
     /**
-     * Function to convert {@link AssetDepreciationCriteria} to a {@link Specification}
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the matching {@link Specification} of the entity.
+     * Function to convert AssetDepreciationCriteria to a {@link Specification}.
      */
-    protected Specification<AssetDepreciation> createSpecification(AssetDepreciationCriteria criteria) {
+    private Specification<AssetDepreciation> createSpecification(AssetDepreciationCriteria criteria) {
         Specification<AssetDepreciation> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

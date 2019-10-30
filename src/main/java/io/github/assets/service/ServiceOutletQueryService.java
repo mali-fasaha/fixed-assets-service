@@ -85,11 +85,9 @@ public class ServiceOutletQueryService extends QueryService<ServiceOutlet> {
     }
 
     /**
-     * Function to convert {@link ServiceOutletCriteria} to a {@link Specification}
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the matching {@link Specification} of the entity.
+     * Function to convert ServiceOutletCriteria to a {@link Specification}.
      */
-    protected Specification<ServiceOutlet> createSpecification(ServiceOutletCriteria criteria) {
+    private Specification<ServiceOutlet> createSpecification(ServiceOutletCriteria criteria) {
         Specification<ServiceOutlet> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

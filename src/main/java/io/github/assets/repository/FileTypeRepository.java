@@ -1,4 +1,5 @@
 package io.github.assets.repository;
+
 import io.github.assets.domain.FileType;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;

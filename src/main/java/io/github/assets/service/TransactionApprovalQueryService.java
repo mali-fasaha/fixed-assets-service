@@ -85,11 +85,9 @@ public class TransactionApprovalQueryService extends QueryService<TransactionApp
     }
 
     /**
-     * Function to convert {@link TransactionApprovalCriteria} to a {@link Specification}
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the matching {@link Specification} of the entity.
+     * Function to convert TransactionApprovalCriteria to a {@link Specification}.
      */
-    protected Specification<TransactionApproval> createSpecification(TransactionApprovalCriteria criteria) {
+    private Specification<TransactionApproval> createSpecification(TransactionApprovalCriteria criteria) {
         Specification<TransactionApproval> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

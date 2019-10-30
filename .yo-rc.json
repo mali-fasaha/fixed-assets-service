@@ -3,7 +3,7 @@
     "promptValues": {
       "packageName": "io.github.assets"
     },
-    "jhipsterVersion": "6.4.1",
+    "jhipsterVersion": "6.0.1",
     "applicationType": "microservice",
     "baseName": "fixedAssetService",
     "packageName": "io.github.assets",
@@ -22,8 +22,7 @@
     "serviceDiscoveryType": "eureka",
     "buildTool": "maven",
     "enableSwaggerCodegen": true,
-    "jwtSecretKey": "MDlkZmIyOTFhNzQ0Yjk5ZTAxMDlmNWViOTY3N2JhZTZhOGZhYjZhMDRiZTQzOWRiN2YwYzg0MjhjYWNmMmFkZmE3MTk0MDA4NWZlZGJlMDliZWMxOWY4MjU5MjNmYzkyZmE2M2I5ODM0ZTE2NmNkNDFkNDc0NTRlODBlNTU1MDU=",
-    "embeddableLaunchScript": true,
+    "jwtSecretKey": "NDk2NzZjYzA5YjJmZDkzZTQ1MzM0MGE5OWM4MTQ5ZDU5OGY4N2EyM2NmNTdiZjI4ZGQxNzg2MGU3ODhiZWIxYWEzMGIxNGUzOTMwOThmMWE0MTQwYzgxOGVjNzEyODY0ZGZjZDc3YzA0MWZjYzY5NzQ2YmUxZWFkNWI4NzQ1ZWQ=",
     "testFrameworks": [
       "gatling",
       "cucumber"
@@ -103,7 +102,6 @@
     ],
     "enableTranslation": false,
     "clientPackageManager": "npm",
-    "blueprints": [],
     "skipClient": true,
     "skipUserManagement": true
   }

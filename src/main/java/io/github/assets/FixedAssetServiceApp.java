@@ -4,9 +4,6 @@ import io.github.assets.client.OAuth2InterceptedFeignConfiguration;
 import io.github.assets.config.ApplicationProperties;
 import io.github.assets.config.DefaultProfileUtil;
 
-import io.github.assets.service.FixedAssetServiceKafkaConsumer;
-import io.github.assets.service.FixedAssetServiceKafkaProducer;
-import org.springframework.context.ConfigurableApplicationContext;
 import io.github.jhipster.config.JHipsterConstants;
 
 import org.apache.commons.lang3.StringUtils;
@@ -71,10 +68,7 @@ public class FixedAssetServiceApp implements InitializingBean {
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(FixedAssetServiceApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
-        ConfigurableApplicationContext applicationContext = app.run(args);
-        applicationContext.getBean(FixedAssetServiceKafkaProducer.class).init();
-        applicationContext.getBean(FixedAssetServiceKafkaConsumer.class).start();
-        Environment env = applicationContext.getEnvironment();
+        Environment env = app.run(args).getEnvironment();
         logApplicationStartup(env);
     }
 

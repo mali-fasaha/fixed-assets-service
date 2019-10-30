@@ -85,11 +85,9 @@ public class CapitalWorkInProgressQueryService extends QueryService<CapitalWorkI
     }
 
     /**
-     * Function to convert {@link CapitalWorkInProgressCriteria} to a {@link Specification}
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the matching {@link Specification} of the entity.
+     * Function to convert CapitalWorkInProgressCriteria to a {@link Specification}.
      */
-    protected Specification<CapitalWorkInProgress> createSpecification(CapitalWorkInProgressCriteria criteria) {
+    private Specification<CapitalWorkInProgress> createSpecification(CapitalWorkInProgressCriteria criteria) {
         Specification<CapitalWorkInProgress> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

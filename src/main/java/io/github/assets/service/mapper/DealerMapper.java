@@ -13,7 +13,6 @@ public interface DealerMapper extends EntityMapper<DealerDTO, Dealer> {
 
 
     @Mapping(target = "fixedAssetInvoices", ignore = true)
-    @Mapping(target = "removeFixedAssetInvoice", ignore = true)
     Dealer toEntity(DealerDTO dealerDTO);
 
     default Dealer fromId(Long id) {

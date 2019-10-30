@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@link AssetDepreciationResource} REST controller.
+ * Integration tests for the {@Link AssetDepreciationResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class AssetDepreciationResourceIT {
@@ -53,19 +53,15 @@ public class AssetDepreciationResourceIT {
 
     private static final BigDecimal DEFAULT_DEPRECIATION_AMOUNT = new BigDecimal(1);
     private static final BigDecimal UPDATED_DEPRECIATION_AMOUNT = new BigDecimal(2);
-    private static final BigDecimal SMALLER_DEPRECIATION_AMOUNT = new BigDecimal(1 - 1);
 
     private static final LocalDate DEFAULT_DEPRECIATION_DATE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_DEPRECIATION_DATE = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_DEPRECIATION_DATE = LocalDate.ofEpochDay(-1L);
 
     private static final Long DEFAULT_CATEGORY_ID = 1L;
     private static final Long UPDATED_CATEGORY_ID = 2L;
-    private static final Long SMALLER_CATEGORY_ID = 1L - 1L;
 
     private static final Long DEFAULT_ASSET_ITEM_ID = 1L;
     private static final Long UPDATED_ASSET_ITEM_ID = 2L;
-    private static final Long SMALLER_ASSET_ITEM_ID = 1L - 1L;
 
     @Autowired
     private AssetDepreciationRepository assetDepreciationRepository;
@@ -253,7 +249,7 @@ public class AssetDepreciationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(assetDepreciation.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
             .andExpect(jsonPath("$.[*].depreciationAmount").value(hasItem(DEFAULT_DEPRECIATION_AMOUNT.intValue())))
             .andExpect(jsonPath("$.[*].depreciationDate").value(hasItem(DEFAULT_DEPRECIATION_DATE.toString())))
             .andExpect(jsonPath("$.[*].categoryId").value(hasItem(DEFAULT_CATEGORY_ID.intValue())))
@@ -271,7 +267,7 @@ public class AssetDepreciationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(assetDepreciation.getId().intValue()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
             .andExpect(jsonPath("$.depreciationAmount").value(DEFAULT_DEPRECIATION_AMOUNT.intValue()))
             .andExpect(jsonPath("$.depreciationDate").value(DEFAULT_DEPRECIATION_DATE.toString()))
             .andExpect(jsonPath("$.categoryId").value(DEFAULT_CATEGORY_ID.intValue()))
@@ -289,19 +285,6 @@ public class AssetDepreciationResourceIT {
 
         // Get all the assetDepreciationList where description equals to UPDATED_DESCRIPTION
         defaultAssetDepreciationShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByDescriptionIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where description not equals to DEFAULT_DESCRIPTION
-        defaultAssetDepreciationShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
-
-        // Get all the assetDepreciationList where description not equals to UPDATED_DESCRIPTION
-        defaultAssetDepreciationShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -329,32 +312,6 @@ public class AssetDepreciationResourceIT {
         // Get all the assetDepreciationList where description is null
         defaultAssetDepreciationShouldNotBeFound("description.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllAssetDepreciationsByDescriptionContainsSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where description contains DEFAULT_DESCRIPTION
-        defaultAssetDepreciationShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
-
-        // Get all the assetDepreciationList where description contains UPDATED_DESCRIPTION
-        defaultAssetDepreciationShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByDescriptionNotContainsSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where description does not contain DEFAULT_DESCRIPTION
-        defaultAssetDepreciationShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
-
-        // Get all the assetDepreciationList where description does not contain UPDATED_DESCRIPTION
-        defaultAssetDepreciationShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
-    }
-
 
     @Test
     @Transactional
@@ -367,19 +324,6 @@ public class AssetDepreciationResourceIT {
 
         // Get all the assetDepreciationList where depreciationAmount equals to UPDATED_DEPRECIATION_AMOUNT
         defaultAssetDepreciationShouldNotBeFound("depreciationAmount.equals=" + UPDATED_DEPRECIATION_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByDepreciationAmountIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where depreciationAmount not equals to DEFAULT_DEPRECIATION_AMOUNT
-        defaultAssetDepreciationShouldNotBeFound("depreciationAmount.notEquals=" + DEFAULT_DEPRECIATION_AMOUNT);
-
-        // Get all the assetDepreciationList where depreciationAmount not equals to UPDATED_DEPRECIATION_AMOUNT
-        defaultAssetDepreciationShouldBeFound("depreciationAmount.notEquals=" + UPDATED_DEPRECIATION_AMOUNT);
     }
 
     @Test
@@ -410,59 +354,6 @@ public class AssetDepreciationResourceIT {
 
     @Test
     @Transactional
-    public void getAllAssetDepreciationsByDepreciationAmountIsGreaterThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where depreciationAmount is greater than or equal to DEFAULT_DEPRECIATION_AMOUNT
-        defaultAssetDepreciationShouldBeFound("depreciationAmount.greaterThanOrEqual=" + DEFAULT_DEPRECIATION_AMOUNT);
-
-        // Get all the assetDepreciationList where depreciationAmount is greater than or equal to UPDATED_DEPRECIATION_AMOUNT
-        defaultAssetDepreciationShouldNotBeFound("depreciationAmount.greaterThanOrEqual=" + UPDATED_DEPRECIATION_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByDepreciationAmountIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where depreciationAmount is less than or equal to DEFAULT_DEPRECIATION_AMOUNT
-        defaultAssetDepreciationShouldBeFound("depreciationAmount.lessThanOrEqual=" + DEFAULT_DEPRECIATION_AMOUNT);
-
-        // Get all the assetDepreciationList where depreciationAmount is less than or equal to SMALLER_DEPRECIATION_AMOUNT
-        defaultAssetDepreciationShouldNotBeFound("depreciationAmount.lessThanOrEqual=" + SMALLER_DEPRECIATION_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByDepreciationAmountIsLessThanSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where depreciationAmount is less than DEFAULT_DEPRECIATION_AMOUNT
-        defaultAssetDepreciationShouldNotBeFound("depreciationAmount.lessThan=" + DEFAULT_DEPRECIATION_AMOUNT);
-
-        // Get all the assetDepreciationList where depreciationAmount is less than UPDATED_DEPRECIATION_AMOUNT
-        defaultAssetDepreciationShouldBeFound("depreciationAmount.lessThan=" + UPDATED_DEPRECIATION_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByDepreciationAmountIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where depreciationAmount is greater than DEFAULT_DEPRECIATION_AMOUNT
-        defaultAssetDepreciationShouldNotBeFound("depreciationAmount.greaterThan=" + DEFAULT_DEPRECIATION_AMOUNT);
-
-        // Get all the assetDepreciationList where depreciationAmount is greater than SMALLER_DEPRECIATION_AMOUNT
-        defaultAssetDepreciationShouldBeFound("depreciationAmount.greaterThan=" + SMALLER_DEPRECIATION_AMOUNT);
-    }
-
-
-    @Test
-    @Transactional
     public void getAllAssetDepreciationsByDepreciationDateIsEqualToSomething() throws Exception {
         // Initialize the database
         assetDepreciationRepository.saveAndFlush(assetDepreciation);
@@ -472,19 +363,6 @@ public class AssetDepreciationResourceIT {
 
         // Get all the assetDepreciationList where depreciationDate equals to UPDATED_DEPRECIATION_DATE
         defaultAssetDepreciationShouldNotBeFound("depreciationDate.equals=" + UPDATED_DEPRECIATION_DATE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByDepreciationDateIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where depreciationDate not equals to DEFAULT_DEPRECIATION_DATE
-        defaultAssetDepreciationShouldNotBeFound("depreciationDate.notEquals=" + DEFAULT_DEPRECIATION_DATE);
-
-        // Get all the assetDepreciationList where depreciationDate not equals to UPDATED_DEPRECIATION_DATE
-        defaultAssetDepreciationShouldBeFound("depreciationDate.notEquals=" + UPDATED_DEPRECIATION_DATE);
     }
 
     @Test
@@ -519,24 +397,11 @@ public class AssetDepreciationResourceIT {
         // Initialize the database
         assetDepreciationRepository.saveAndFlush(assetDepreciation);
 
-        // Get all the assetDepreciationList where depreciationDate is greater than or equal to DEFAULT_DEPRECIATION_DATE
-        defaultAssetDepreciationShouldBeFound("depreciationDate.greaterThanOrEqual=" + DEFAULT_DEPRECIATION_DATE);
+        // Get all the assetDepreciationList where depreciationDate greater than or equals to DEFAULT_DEPRECIATION_DATE
+        defaultAssetDepreciationShouldBeFound("depreciationDate.greaterOrEqualThan=" + DEFAULT_DEPRECIATION_DATE);
 
-        // Get all the assetDepreciationList where depreciationDate is greater than or equal to UPDATED_DEPRECIATION_DATE
-        defaultAssetDepreciationShouldNotBeFound("depreciationDate.greaterThanOrEqual=" + UPDATED_DEPRECIATION_DATE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByDepreciationDateIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where depreciationDate is less than or equal to DEFAULT_DEPRECIATION_DATE
-        defaultAssetDepreciationShouldBeFound("depreciationDate.lessThanOrEqual=" + DEFAULT_DEPRECIATION_DATE);
-
-        // Get all the assetDepreciationList where depreciationDate is less than or equal to SMALLER_DEPRECIATION_DATE
-        defaultAssetDepreciationShouldNotBeFound("depreciationDate.lessThanOrEqual=" + SMALLER_DEPRECIATION_DATE);
+        // Get all the assetDepreciationList where depreciationDate greater than or equals to UPDATED_DEPRECIATION_DATE
+        defaultAssetDepreciationShouldNotBeFound("depreciationDate.greaterOrEqualThan=" + UPDATED_DEPRECIATION_DATE);
     }
 
     @Test
@@ -545,24 +410,11 @@ public class AssetDepreciationResourceIT {
         // Initialize the database
         assetDepreciationRepository.saveAndFlush(assetDepreciation);
 
-        // Get all the assetDepreciationList where depreciationDate is less than DEFAULT_DEPRECIATION_DATE
+        // Get all the assetDepreciationList where depreciationDate less than or equals to DEFAULT_DEPRECIATION_DATE
         defaultAssetDepreciationShouldNotBeFound("depreciationDate.lessThan=" + DEFAULT_DEPRECIATION_DATE);
 
-        // Get all the assetDepreciationList where depreciationDate is less than UPDATED_DEPRECIATION_DATE
+        // Get all the assetDepreciationList where depreciationDate less than or equals to UPDATED_DEPRECIATION_DATE
         defaultAssetDepreciationShouldBeFound("depreciationDate.lessThan=" + UPDATED_DEPRECIATION_DATE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByDepreciationDateIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where depreciationDate is greater than DEFAULT_DEPRECIATION_DATE
-        defaultAssetDepreciationShouldNotBeFound("depreciationDate.greaterThan=" + DEFAULT_DEPRECIATION_DATE);
-
-        // Get all the assetDepreciationList where depreciationDate is greater than SMALLER_DEPRECIATION_DATE
-        defaultAssetDepreciationShouldBeFound("depreciationDate.greaterThan=" + SMALLER_DEPRECIATION_DATE);
     }
 
 
@@ -577,19 +429,6 @@ public class AssetDepreciationResourceIT {
 
         // Get all the assetDepreciationList where categoryId equals to UPDATED_CATEGORY_ID
         defaultAssetDepreciationShouldNotBeFound("categoryId.equals=" + UPDATED_CATEGORY_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByCategoryIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where categoryId not equals to DEFAULT_CATEGORY_ID
-        defaultAssetDepreciationShouldNotBeFound("categoryId.notEquals=" + DEFAULT_CATEGORY_ID);
-
-        // Get all the assetDepreciationList where categoryId not equals to UPDATED_CATEGORY_ID
-        defaultAssetDepreciationShouldBeFound("categoryId.notEquals=" + UPDATED_CATEGORY_ID);
     }
 
     @Test
@@ -624,24 +463,11 @@ public class AssetDepreciationResourceIT {
         // Initialize the database
         assetDepreciationRepository.saveAndFlush(assetDepreciation);
 
-        // Get all the assetDepreciationList where categoryId is greater than or equal to DEFAULT_CATEGORY_ID
-        defaultAssetDepreciationShouldBeFound("categoryId.greaterThanOrEqual=" + DEFAULT_CATEGORY_ID);
+        // Get all the assetDepreciationList where categoryId greater than or equals to DEFAULT_CATEGORY_ID
+        defaultAssetDepreciationShouldBeFound("categoryId.greaterOrEqualThan=" + DEFAULT_CATEGORY_ID);
 
-        // Get all the assetDepreciationList where categoryId is greater than or equal to UPDATED_CATEGORY_ID
-        defaultAssetDepreciationShouldNotBeFound("categoryId.greaterThanOrEqual=" + UPDATED_CATEGORY_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByCategoryIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where categoryId is less than or equal to DEFAULT_CATEGORY_ID
-        defaultAssetDepreciationShouldBeFound("categoryId.lessThanOrEqual=" + DEFAULT_CATEGORY_ID);
-
-        // Get all the assetDepreciationList where categoryId is less than or equal to SMALLER_CATEGORY_ID
-        defaultAssetDepreciationShouldNotBeFound("categoryId.lessThanOrEqual=" + SMALLER_CATEGORY_ID);
+        // Get all the assetDepreciationList where categoryId greater than or equals to UPDATED_CATEGORY_ID
+        defaultAssetDepreciationShouldNotBeFound("categoryId.greaterOrEqualThan=" + UPDATED_CATEGORY_ID);
     }
 
     @Test
@@ -650,24 +476,11 @@ public class AssetDepreciationResourceIT {
         // Initialize the database
         assetDepreciationRepository.saveAndFlush(assetDepreciation);
 
-        // Get all the assetDepreciationList where categoryId is less than DEFAULT_CATEGORY_ID
+        // Get all the assetDepreciationList where categoryId less than or equals to DEFAULT_CATEGORY_ID
         defaultAssetDepreciationShouldNotBeFound("categoryId.lessThan=" + DEFAULT_CATEGORY_ID);
 
-        // Get all the assetDepreciationList where categoryId is less than UPDATED_CATEGORY_ID
+        // Get all the assetDepreciationList where categoryId less than or equals to UPDATED_CATEGORY_ID
         defaultAssetDepreciationShouldBeFound("categoryId.lessThan=" + UPDATED_CATEGORY_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByCategoryIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where categoryId is greater than DEFAULT_CATEGORY_ID
-        defaultAssetDepreciationShouldNotBeFound("categoryId.greaterThan=" + DEFAULT_CATEGORY_ID);
-
-        // Get all the assetDepreciationList where categoryId is greater than SMALLER_CATEGORY_ID
-        defaultAssetDepreciationShouldBeFound("categoryId.greaterThan=" + SMALLER_CATEGORY_ID);
     }
 
 
@@ -682,19 +495,6 @@ public class AssetDepreciationResourceIT {
 
         // Get all the assetDepreciationList where assetItemId equals to UPDATED_ASSET_ITEM_ID
         defaultAssetDepreciationShouldNotBeFound("assetItemId.equals=" + UPDATED_ASSET_ITEM_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByAssetItemIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where assetItemId not equals to DEFAULT_ASSET_ITEM_ID
-        defaultAssetDepreciationShouldNotBeFound("assetItemId.notEquals=" + DEFAULT_ASSET_ITEM_ID);
-
-        // Get all the assetDepreciationList where assetItemId not equals to UPDATED_ASSET_ITEM_ID
-        defaultAssetDepreciationShouldBeFound("assetItemId.notEquals=" + UPDATED_ASSET_ITEM_ID);
     }
 
     @Test
@@ -729,24 +529,11 @@ public class AssetDepreciationResourceIT {
         // Initialize the database
         assetDepreciationRepository.saveAndFlush(assetDepreciation);
 
-        // Get all the assetDepreciationList where assetItemId is greater than or equal to DEFAULT_ASSET_ITEM_ID
-        defaultAssetDepreciationShouldBeFound("assetItemId.greaterThanOrEqual=" + DEFAULT_ASSET_ITEM_ID);
+        // Get all the assetDepreciationList where assetItemId greater than or equals to DEFAULT_ASSET_ITEM_ID
+        defaultAssetDepreciationShouldBeFound("assetItemId.greaterOrEqualThan=" + DEFAULT_ASSET_ITEM_ID);
 
-        // Get all the assetDepreciationList where assetItemId is greater than or equal to UPDATED_ASSET_ITEM_ID
-        defaultAssetDepreciationShouldNotBeFound("assetItemId.greaterThanOrEqual=" + UPDATED_ASSET_ITEM_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByAssetItemIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where assetItemId is less than or equal to DEFAULT_ASSET_ITEM_ID
-        defaultAssetDepreciationShouldBeFound("assetItemId.lessThanOrEqual=" + DEFAULT_ASSET_ITEM_ID);
-
-        // Get all the assetDepreciationList where assetItemId is less than or equal to SMALLER_ASSET_ITEM_ID
-        defaultAssetDepreciationShouldNotBeFound("assetItemId.lessThanOrEqual=" + SMALLER_ASSET_ITEM_ID);
+        // Get all the assetDepreciationList where assetItemId greater than or equals to UPDATED_ASSET_ITEM_ID
+        defaultAssetDepreciationShouldNotBeFound("assetItemId.greaterOrEqualThan=" + UPDATED_ASSET_ITEM_ID);
     }
 
     @Test
@@ -755,24 +542,11 @@ public class AssetDepreciationResourceIT {
         // Initialize the database
         assetDepreciationRepository.saveAndFlush(assetDepreciation);
 
-        // Get all the assetDepreciationList where assetItemId is less than DEFAULT_ASSET_ITEM_ID
+        // Get all the assetDepreciationList where assetItemId less than or equals to DEFAULT_ASSET_ITEM_ID
         defaultAssetDepreciationShouldNotBeFound("assetItemId.lessThan=" + DEFAULT_ASSET_ITEM_ID);
 
-        // Get all the assetDepreciationList where assetItemId is less than UPDATED_ASSET_ITEM_ID
+        // Get all the assetDepreciationList where assetItemId less than or equals to UPDATED_ASSET_ITEM_ID
         defaultAssetDepreciationShouldBeFound("assetItemId.lessThan=" + UPDATED_ASSET_ITEM_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllAssetDepreciationsByAssetItemIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-
-        // Get all the assetDepreciationList where assetItemId is greater than DEFAULT_ASSET_ITEM_ID
-        defaultAssetDepreciationShouldNotBeFound("assetItemId.greaterThan=" + DEFAULT_ASSET_ITEM_ID);
-
-        // Get all the assetDepreciationList where assetItemId is greater than SMALLER_ASSET_ITEM_ID
-        defaultAssetDepreciationShouldBeFound("assetItemId.greaterThan=" + SMALLER_ASSET_ITEM_ID);
     }
 
     /**
@@ -896,7 +670,7 @@ public class AssetDepreciationResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
+        // Validate the database is empty
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeDelete - 1);
 

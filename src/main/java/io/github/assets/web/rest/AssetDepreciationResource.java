@@ -16,7 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -96,17 +97,15 @@ public class AssetDepreciationResource {
     /**
      * {@code GET  /asset-depreciations} : get all the assetDepreciations.
      *
-
      * @param pageable the pagination information.
-
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of assetDepreciations in body.
      */
     @GetMapping("/asset-depreciations")
-    public ResponseEntity<List<AssetDepreciationDTO>> getAllAssetDepreciations(AssetDepreciationCriteria criteria, Pageable pageable) {
+    public ResponseEntity<List<AssetDepreciationDTO>> getAllAssetDepreciations(AssetDepreciationCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get AssetDepreciations by criteria: {}", criteria);
         Page<AssetDepreciationDTO> page = assetDepreciationQueryService.findByCriteria(criteria, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -157,10 +156,11 @@ public class AssetDepreciationResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/asset-depreciations")
-    public ResponseEntity<List<AssetDepreciationDTO>> searchAssetDepreciations(@RequestParam String query, Pageable pageable) {
+    public ResponseEntity<List<AssetDepreciationDTO>> searchAssetDepreciations(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to search for a page of AssetDepreciations for query {}", query);
         Page<AssetDepreciationDTO> page = assetDepreciationService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
+
 }

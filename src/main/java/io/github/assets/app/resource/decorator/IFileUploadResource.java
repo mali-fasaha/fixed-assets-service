@@ -1,15 +1,17 @@
 package io.github.assets.app.resource.decorator;
 
-import io.github.assets.app.resource.QueuedResource;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URISyntaxException;
 import java.util.List;
 
-public interface IFileUploadResource extends QueuedResource<FileUploadDTO> {
+public interface IFileUploadResource {
     /**
      * {@code POST  /file-uploads} : Create a new fileUpload.
      *
@@ -39,7 +41,7 @@ public interface IFileUploadResource extends QueuedResource<FileUploadDTO> {
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of fileUploads in body.
      */
-    ResponseEntity<List<FileUploadDTO>> getAllFileUploads(FileUploadCriteria criteria, Pageable pageable);
+    ResponseEntity<List<FileUploadDTO>> getAllFileUploads(FileUploadCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder);
 
     /**
     * {@code GET  /file-uploads/count} : count all the fileUploads.
@@ -73,23 +75,5 @@ public interface IFileUploadResource extends QueuedResource<FileUploadDTO> {
      * @param pageable the pagination information.
      * @return the result of the search.
      */
-    ResponseEntity<List<FileUploadDTO>> searchFileUploads(String query, Pageable pageable);
-
-    @Override
-    default ResponseEntity<FileUploadDTO> createEntity(FileUploadDTO requestDTO) throws URISyntaxException {
-
-        return this.createFileUpload(requestDTO);
-    }
-
-    @Override
-    default ResponseEntity<FileUploadDTO> updateEntity(FileUploadDTO requestDTO) throws URISyntaxException {
-
-        return this.updateFileUpload(requestDTO);
-    }
-
-    @Override
-    default ResponseEntity<Void> deleteEntity(Long id) {
-
-        return this.deleteFileUpload(id);
-    }
+    ResponseEntity<List<FileUploadDTO>> searchFileUploads(String query, Pageable pageable, MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder);
 }

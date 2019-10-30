@@ -1,4 +1,5 @@
 package io.github.assets.repository.search;
+
 import io.github.assets.domain.AssetAcquisition;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 

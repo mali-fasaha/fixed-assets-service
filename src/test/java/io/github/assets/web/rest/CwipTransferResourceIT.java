@@ -43,14 +43,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@link CwipTransferResource} REST controller.
+ * Integration tests for the {@Link CwipTransferResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class CwipTransferResourceIT {
 
     private static final LocalDate DEFAULT_TRANSFER_MONTH = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_TRANSFER_MONTH = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_TRANSFER_MONTH = LocalDate.ofEpochDay(-1L);
 
     private static final String DEFAULT_ASSET_SERIAL_TAG = "AAAAAAAAAA";
     private static final String UPDATED_ASSET_SERIAL_TAG = "BBBBBBBBBB";
@@ -60,30 +59,24 @@ public class CwipTransferResourceIT {
 
     private static final Long DEFAULT_TRANSFER_TRANSACTION_ID = 1L;
     private static final Long UPDATED_TRANSFER_TRANSACTION_ID = 2L;
-    private static final Long SMALLER_TRANSFER_TRANSACTION_ID = 1L - 1L;
 
     private static final Long DEFAULT_ASSET_CATEGORY_ID = 1L;
     private static final Long UPDATED_ASSET_CATEGORY_ID = 2L;
-    private static final Long SMALLER_ASSET_CATEGORY_ID = 1L - 1L;
 
     private static final Long DEFAULT_CWIP_TRANSACTION_ID = 1L;
     private static final Long UPDATED_CWIP_TRANSACTION_ID = 2L;
-    private static final Long SMALLER_CWIP_TRANSACTION_ID = 1L - 1L;
 
     private static final String DEFAULT_TRANSFER_DETAILS = "AAAAAAAAAA";
     private static final String UPDATED_TRANSFER_DETAILS = "BBBBBBBBBB";
 
     private static final BigDecimal DEFAULT_TRANSFER_AMOUNT = new BigDecimal(1);
     private static final BigDecimal UPDATED_TRANSFER_AMOUNT = new BigDecimal(2);
-    private static final BigDecimal SMALLER_TRANSFER_AMOUNT = new BigDecimal(1 - 1);
 
     private static final Long DEFAULT_DEALER_ID = 1L;
     private static final Long UPDATED_DEALER_ID = 2L;
-    private static final Long SMALLER_DEALER_ID = 1L - 1L;
 
     private static final Long DEFAULT_TRANSACTION_INVOICE_ID = 1L;
     private static final Long UPDATED_TRANSACTION_INVOICE_ID = 2L;
-    private static final Long SMALLER_TRANSACTION_INVOICE_ID = 1L - 1L;
 
     @Autowired
     private CwipTransferRepository cwipTransferRepository;
@@ -401,12 +394,12 @@ public class CwipTransferResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(cwipTransfer.getId().intValue())))
             .andExpect(jsonPath("$.[*].transferMonth").value(hasItem(DEFAULT_TRANSFER_MONTH.toString())))
-            .andExpect(jsonPath("$.[*].assetSerialTag").value(hasItem(DEFAULT_ASSET_SERIAL_TAG)))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
+            .andExpect(jsonPath("$.[*].assetSerialTag").value(hasItem(DEFAULT_ASSET_SERIAL_TAG.toString())))
+            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE.toString())))
             .andExpect(jsonPath("$.[*].transferTransactionId").value(hasItem(DEFAULT_TRANSFER_TRANSACTION_ID.intValue())))
             .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
             .andExpect(jsonPath("$.[*].cwipTransactionId").value(hasItem(DEFAULT_CWIP_TRANSACTION_ID.intValue())))
-            .andExpect(jsonPath("$.[*].transferDetails").value(hasItem(DEFAULT_TRANSFER_DETAILS)))
+            .andExpect(jsonPath("$.[*].transferDetails").value(hasItem(DEFAULT_TRANSFER_DETAILS.toString())))
             .andExpect(jsonPath("$.[*].transferAmount").value(hasItem(DEFAULT_TRANSFER_AMOUNT.intValue())))
             .andExpect(jsonPath("$.[*].dealerId").value(hasItem(DEFAULT_DEALER_ID.intValue())))
             .andExpect(jsonPath("$.[*].transactionInvoiceId").value(hasItem(DEFAULT_TRANSACTION_INVOICE_ID.intValue())));
@@ -424,12 +417,12 @@ public class CwipTransferResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(cwipTransfer.getId().intValue()))
             .andExpect(jsonPath("$.transferMonth").value(DEFAULT_TRANSFER_MONTH.toString()))
-            .andExpect(jsonPath("$.assetSerialTag").value(DEFAULT_ASSET_SERIAL_TAG))
-            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE))
+            .andExpect(jsonPath("$.assetSerialTag").value(DEFAULT_ASSET_SERIAL_TAG.toString()))
+            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE.toString()))
             .andExpect(jsonPath("$.transferTransactionId").value(DEFAULT_TRANSFER_TRANSACTION_ID.intValue()))
             .andExpect(jsonPath("$.assetCategoryId").value(DEFAULT_ASSET_CATEGORY_ID.intValue()))
             .andExpect(jsonPath("$.cwipTransactionId").value(DEFAULT_CWIP_TRANSACTION_ID.intValue()))
-            .andExpect(jsonPath("$.transferDetails").value(DEFAULT_TRANSFER_DETAILS))
+            .andExpect(jsonPath("$.transferDetails").value(DEFAULT_TRANSFER_DETAILS.toString()))
             .andExpect(jsonPath("$.transferAmount").value(DEFAULT_TRANSFER_AMOUNT.intValue()))
             .andExpect(jsonPath("$.dealerId").value(DEFAULT_DEALER_ID.intValue()))
             .andExpect(jsonPath("$.transactionInvoiceId").value(DEFAULT_TRANSACTION_INVOICE_ID.intValue()));
@@ -446,19 +439,6 @@ public class CwipTransferResourceIT {
 
         // Get all the cwipTransferList where transferMonth equals to UPDATED_TRANSFER_MONTH
         defaultCwipTransferShouldNotBeFound("transferMonth.equals=" + UPDATED_TRANSFER_MONTH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferMonthIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferMonth not equals to DEFAULT_TRANSFER_MONTH
-        defaultCwipTransferShouldNotBeFound("transferMonth.notEquals=" + DEFAULT_TRANSFER_MONTH);
-
-        // Get all the cwipTransferList where transferMonth not equals to UPDATED_TRANSFER_MONTH
-        defaultCwipTransferShouldBeFound("transferMonth.notEquals=" + UPDATED_TRANSFER_MONTH);
     }
 
     @Test
@@ -493,24 +473,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where transferMonth is greater than or equal to DEFAULT_TRANSFER_MONTH
-        defaultCwipTransferShouldBeFound("transferMonth.greaterThanOrEqual=" + DEFAULT_TRANSFER_MONTH);
+        // Get all the cwipTransferList where transferMonth greater than or equals to DEFAULT_TRANSFER_MONTH
+        defaultCwipTransferShouldBeFound("transferMonth.greaterOrEqualThan=" + DEFAULT_TRANSFER_MONTH);
 
-        // Get all the cwipTransferList where transferMonth is greater than or equal to UPDATED_TRANSFER_MONTH
-        defaultCwipTransferShouldNotBeFound("transferMonth.greaterThanOrEqual=" + UPDATED_TRANSFER_MONTH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferMonthIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferMonth is less than or equal to DEFAULT_TRANSFER_MONTH
-        defaultCwipTransferShouldBeFound("transferMonth.lessThanOrEqual=" + DEFAULT_TRANSFER_MONTH);
-
-        // Get all the cwipTransferList where transferMonth is less than or equal to SMALLER_TRANSFER_MONTH
-        defaultCwipTransferShouldNotBeFound("transferMonth.lessThanOrEqual=" + SMALLER_TRANSFER_MONTH);
+        // Get all the cwipTransferList where transferMonth greater than or equals to UPDATED_TRANSFER_MONTH
+        defaultCwipTransferShouldNotBeFound("transferMonth.greaterOrEqualThan=" + UPDATED_TRANSFER_MONTH);
     }
 
     @Test
@@ -519,24 +486,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where transferMonth is less than DEFAULT_TRANSFER_MONTH
+        // Get all the cwipTransferList where transferMonth less than or equals to DEFAULT_TRANSFER_MONTH
         defaultCwipTransferShouldNotBeFound("transferMonth.lessThan=" + DEFAULT_TRANSFER_MONTH);
 
-        // Get all the cwipTransferList where transferMonth is less than UPDATED_TRANSFER_MONTH
+        // Get all the cwipTransferList where transferMonth less than or equals to UPDATED_TRANSFER_MONTH
         defaultCwipTransferShouldBeFound("transferMonth.lessThan=" + UPDATED_TRANSFER_MONTH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferMonthIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferMonth is greater than DEFAULT_TRANSFER_MONTH
-        defaultCwipTransferShouldNotBeFound("transferMonth.greaterThan=" + DEFAULT_TRANSFER_MONTH);
-
-        // Get all the cwipTransferList where transferMonth is greater than SMALLER_TRANSFER_MONTH
-        defaultCwipTransferShouldBeFound("transferMonth.greaterThan=" + SMALLER_TRANSFER_MONTH);
     }
 
 
@@ -551,19 +505,6 @@ public class CwipTransferResourceIT {
 
         // Get all the cwipTransferList where assetSerialTag equals to UPDATED_ASSET_SERIAL_TAG
         defaultCwipTransferShouldNotBeFound("assetSerialTag.equals=" + UPDATED_ASSET_SERIAL_TAG);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByAssetSerialTagIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where assetSerialTag not equals to DEFAULT_ASSET_SERIAL_TAG
-        defaultCwipTransferShouldNotBeFound("assetSerialTag.notEquals=" + DEFAULT_ASSET_SERIAL_TAG);
-
-        // Get all the cwipTransferList where assetSerialTag not equals to UPDATED_ASSET_SERIAL_TAG
-        defaultCwipTransferShouldBeFound("assetSerialTag.notEquals=" + UPDATED_ASSET_SERIAL_TAG);
     }
 
     @Test
@@ -591,32 +532,6 @@ public class CwipTransferResourceIT {
         // Get all the cwipTransferList where assetSerialTag is null
         defaultCwipTransferShouldNotBeFound("assetSerialTag.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllCwipTransfersByAssetSerialTagContainsSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where assetSerialTag contains DEFAULT_ASSET_SERIAL_TAG
-        defaultCwipTransferShouldBeFound("assetSerialTag.contains=" + DEFAULT_ASSET_SERIAL_TAG);
-
-        // Get all the cwipTransferList where assetSerialTag contains UPDATED_ASSET_SERIAL_TAG
-        defaultCwipTransferShouldNotBeFound("assetSerialTag.contains=" + UPDATED_ASSET_SERIAL_TAG);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByAssetSerialTagNotContainsSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where assetSerialTag does not contain DEFAULT_ASSET_SERIAL_TAG
-        defaultCwipTransferShouldNotBeFound("assetSerialTag.doesNotContain=" + DEFAULT_ASSET_SERIAL_TAG);
-
-        // Get all the cwipTransferList where assetSerialTag does not contain UPDATED_ASSET_SERIAL_TAG
-        defaultCwipTransferShouldBeFound("assetSerialTag.doesNotContain=" + UPDATED_ASSET_SERIAL_TAG);
-    }
-
 
     @Test
     @Transactional
@@ -629,19 +544,6 @@ public class CwipTransferResourceIT {
 
         // Get all the cwipTransferList where serviceOutletCode equals to UPDATED_SERVICE_OUTLET_CODE
         defaultCwipTransferShouldNotBeFound("serviceOutletCode.equals=" + UPDATED_SERVICE_OUTLET_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByServiceOutletCodeIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where serviceOutletCode not equals to DEFAULT_SERVICE_OUTLET_CODE
-        defaultCwipTransferShouldNotBeFound("serviceOutletCode.notEquals=" + DEFAULT_SERVICE_OUTLET_CODE);
-
-        // Get all the cwipTransferList where serviceOutletCode not equals to UPDATED_SERVICE_OUTLET_CODE
-        defaultCwipTransferShouldBeFound("serviceOutletCode.notEquals=" + UPDATED_SERVICE_OUTLET_CODE);
     }
 
     @Test
@@ -669,32 +571,6 @@ public class CwipTransferResourceIT {
         // Get all the cwipTransferList where serviceOutletCode is null
         defaultCwipTransferShouldNotBeFound("serviceOutletCode.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllCwipTransfersByServiceOutletCodeContainsSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where serviceOutletCode contains DEFAULT_SERVICE_OUTLET_CODE
-        defaultCwipTransferShouldBeFound("serviceOutletCode.contains=" + DEFAULT_SERVICE_OUTLET_CODE);
-
-        // Get all the cwipTransferList where serviceOutletCode contains UPDATED_SERVICE_OUTLET_CODE
-        defaultCwipTransferShouldNotBeFound("serviceOutletCode.contains=" + UPDATED_SERVICE_OUTLET_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByServiceOutletCodeNotContainsSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where serviceOutletCode does not contain DEFAULT_SERVICE_OUTLET_CODE
-        defaultCwipTransferShouldNotBeFound("serviceOutletCode.doesNotContain=" + DEFAULT_SERVICE_OUTLET_CODE);
-
-        // Get all the cwipTransferList where serviceOutletCode does not contain UPDATED_SERVICE_OUTLET_CODE
-        defaultCwipTransferShouldBeFound("serviceOutletCode.doesNotContain=" + UPDATED_SERVICE_OUTLET_CODE);
-    }
-
 
     @Test
     @Transactional
@@ -707,19 +583,6 @@ public class CwipTransferResourceIT {
 
         // Get all the cwipTransferList where transferTransactionId equals to UPDATED_TRANSFER_TRANSACTION_ID
         defaultCwipTransferShouldNotBeFound("transferTransactionId.equals=" + UPDATED_TRANSFER_TRANSACTION_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferTransactionIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferTransactionId not equals to DEFAULT_TRANSFER_TRANSACTION_ID
-        defaultCwipTransferShouldNotBeFound("transferTransactionId.notEquals=" + DEFAULT_TRANSFER_TRANSACTION_ID);
-
-        // Get all the cwipTransferList where transferTransactionId not equals to UPDATED_TRANSFER_TRANSACTION_ID
-        defaultCwipTransferShouldBeFound("transferTransactionId.notEquals=" + UPDATED_TRANSFER_TRANSACTION_ID);
     }
 
     @Test
@@ -754,24 +617,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where transferTransactionId is greater than or equal to DEFAULT_TRANSFER_TRANSACTION_ID
-        defaultCwipTransferShouldBeFound("transferTransactionId.greaterThanOrEqual=" + DEFAULT_TRANSFER_TRANSACTION_ID);
+        // Get all the cwipTransferList where transferTransactionId greater than or equals to DEFAULT_TRANSFER_TRANSACTION_ID
+        defaultCwipTransferShouldBeFound("transferTransactionId.greaterOrEqualThan=" + DEFAULT_TRANSFER_TRANSACTION_ID);
 
-        // Get all the cwipTransferList where transferTransactionId is greater than or equal to UPDATED_TRANSFER_TRANSACTION_ID
-        defaultCwipTransferShouldNotBeFound("transferTransactionId.greaterThanOrEqual=" + UPDATED_TRANSFER_TRANSACTION_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferTransactionIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferTransactionId is less than or equal to DEFAULT_TRANSFER_TRANSACTION_ID
-        defaultCwipTransferShouldBeFound("transferTransactionId.lessThanOrEqual=" + DEFAULT_TRANSFER_TRANSACTION_ID);
-
-        // Get all the cwipTransferList where transferTransactionId is less than or equal to SMALLER_TRANSFER_TRANSACTION_ID
-        defaultCwipTransferShouldNotBeFound("transferTransactionId.lessThanOrEqual=" + SMALLER_TRANSFER_TRANSACTION_ID);
+        // Get all the cwipTransferList where transferTransactionId greater than or equals to UPDATED_TRANSFER_TRANSACTION_ID
+        defaultCwipTransferShouldNotBeFound("transferTransactionId.greaterOrEqualThan=" + UPDATED_TRANSFER_TRANSACTION_ID);
     }
 
     @Test
@@ -780,24 +630,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where transferTransactionId is less than DEFAULT_TRANSFER_TRANSACTION_ID
+        // Get all the cwipTransferList where transferTransactionId less than or equals to DEFAULT_TRANSFER_TRANSACTION_ID
         defaultCwipTransferShouldNotBeFound("transferTransactionId.lessThan=" + DEFAULT_TRANSFER_TRANSACTION_ID);
 
-        // Get all the cwipTransferList where transferTransactionId is less than UPDATED_TRANSFER_TRANSACTION_ID
+        // Get all the cwipTransferList where transferTransactionId less than or equals to UPDATED_TRANSFER_TRANSACTION_ID
         defaultCwipTransferShouldBeFound("transferTransactionId.lessThan=" + UPDATED_TRANSFER_TRANSACTION_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferTransactionIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferTransactionId is greater than DEFAULT_TRANSFER_TRANSACTION_ID
-        defaultCwipTransferShouldNotBeFound("transferTransactionId.greaterThan=" + DEFAULT_TRANSFER_TRANSACTION_ID);
-
-        // Get all the cwipTransferList where transferTransactionId is greater than SMALLER_TRANSFER_TRANSACTION_ID
-        defaultCwipTransferShouldBeFound("transferTransactionId.greaterThan=" + SMALLER_TRANSFER_TRANSACTION_ID);
     }
 
 
@@ -812,19 +649,6 @@ public class CwipTransferResourceIT {
 
         // Get all the cwipTransferList where assetCategoryId equals to UPDATED_ASSET_CATEGORY_ID
         defaultCwipTransferShouldNotBeFound("assetCategoryId.equals=" + UPDATED_ASSET_CATEGORY_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByAssetCategoryIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where assetCategoryId not equals to DEFAULT_ASSET_CATEGORY_ID
-        defaultCwipTransferShouldNotBeFound("assetCategoryId.notEquals=" + DEFAULT_ASSET_CATEGORY_ID);
-
-        // Get all the cwipTransferList where assetCategoryId not equals to UPDATED_ASSET_CATEGORY_ID
-        defaultCwipTransferShouldBeFound("assetCategoryId.notEquals=" + UPDATED_ASSET_CATEGORY_ID);
     }
 
     @Test
@@ -859,24 +683,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where assetCategoryId is greater than or equal to DEFAULT_ASSET_CATEGORY_ID
-        defaultCwipTransferShouldBeFound("assetCategoryId.greaterThanOrEqual=" + DEFAULT_ASSET_CATEGORY_ID);
+        // Get all the cwipTransferList where assetCategoryId greater than or equals to DEFAULT_ASSET_CATEGORY_ID
+        defaultCwipTransferShouldBeFound("assetCategoryId.greaterOrEqualThan=" + DEFAULT_ASSET_CATEGORY_ID);
 
-        // Get all the cwipTransferList where assetCategoryId is greater than or equal to UPDATED_ASSET_CATEGORY_ID
-        defaultCwipTransferShouldNotBeFound("assetCategoryId.greaterThanOrEqual=" + UPDATED_ASSET_CATEGORY_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByAssetCategoryIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where assetCategoryId is less than or equal to DEFAULT_ASSET_CATEGORY_ID
-        defaultCwipTransferShouldBeFound("assetCategoryId.lessThanOrEqual=" + DEFAULT_ASSET_CATEGORY_ID);
-
-        // Get all the cwipTransferList where assetCategoryId is less than or equal to SMALLER_ASSET_CATEGORY_ID
-        defaultCwipTransferShouldNotBeFound("assetCategoryId.lessThanOrEqual=" + SMALLER_ASSET_CATEGORY_ID);
+        // Get all the cwipTransferList where assetCategoryId greater than or equals to UPDATED_ASSET_CATEGORY_ID
+        defaultCwipTransferShouldNotBeFound("assetCategoryId.greaterOrEqualThan=" + UPDATED_ASSET_CATEGORY_ID);
     }
 
     @Test
@@ -885,24 +696,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where assetCategoryId is less than DEFAULT_ASSET_CATEGORY_ID
+        // Get all the cwipTransferList where assetCategoryId less than or equals to DEFAULT_ASSET_CATEGORY_ID
         defaultCwipTransferShouldNotBeFound("assetCategoryId.lessThan=" + DEFAULT_ASSET_CATEGORY_ID);
 
-        // Get all the cwipTransferList where assetCategoryId is less than UPDATED_ASSET_CATEGORY_ID
+        // Get all the cwipTransferList where assetCategoryId less than or equals to UPDATED_ASSET_CATEGORY_ID
         defaultCwipTransferShouldBeFound("assetCategoryId.lessThan=" + UPDATED_ASSET_CATEGORY_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByAssetCategoryIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where assetCategoryId is greater than DEFAULT_ASSET_CATEGORY_ID
-        defaultCwipTransferShouldNotBeFound("assetCategoryId.greaterThan=" + DEFAULT_ASSET_CATEGORY_ID);
-
-        // Get all the cwipTransferList where assetCategoryId is greater than SMALLER_ASSET_CATEGORY_ID
-        defaultCwipTransferShouldBeFound("assetCategoryId.greaterThan=" + SMALLER_ASSET_CATEGORY_ID);
     }
 
 
@@ -917,19 +715,6 @@ public class CwipTransferResourceIT {
 
         // Get all the cwipTransferList where cwipTransactionId equals to UPDATED_CWIP_TRANSACTION_ID
         defaultCwipTransferShouldNotBeFound("cwipTransactionId.equals=" + UPDATED_CWIP_TRANSACTION_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByCwipTransactionIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where cwipTransactionId not equals to DEFAULT_CWIP_TRANSACTION_ID
-        defaultCwipTransferShouldNotBeFound("cwipTransactionId.notEquals=" + DEFAULT_CWIP_TRANSACTION_ID);
-
-        // Get all the cwipTransferList where cwipTransactionId not equals to UPDATED_CWIP_TRANSACTION_ID
-        defaultCwipTransferShouldBeFound("cwipTransactionId.notEquals=" + UPDATED_CWIP_TRANSACTION_ID);
     }
 
     @Test
@@ -964,24 +749,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where cwipTransactionId is greater than or equal to DEFAULT_CWIP_TRANSACTION_ID
-        defaultCwipTransferShouldBeFound("cwipTransactionId.greaterThanOrEqual=" + DEFAULT_CWIP_TRANSACTION_ID);
+        // Get all the cwipTransferList where cwipTransactionId greater than or equals to DEFAULT_CWIP_TRANSACTION_ID
+        defaultCwipTransferShouldBeFound("cwipTransactionId.greaterOrEqualThan=" + DEFAULT_CWIP_TRANSACTION_ID);
 
-        // Get all the cwipTransferList where cwipTransactionId is greater than or equal to UPDATED_CWIP_TRANSACTION_ID
-        defaultCwipTransferShouldNotBeFound("cwipTransactionId.greaterThanOrEqual=" + UPDATED_CWIP_TRANSACTION_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByCwipTransactionIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where cwipTransactionId is less than or equal to DEFAULT_CWIP_TRANSACTION_ID
-        defaultCwipTransferShouldBeFound("cwipTransactionId.lessThanOrEqual=" + DEFAULT_CWIP_TRANSACTION_ID);
-
-        // Get all the cwipTransferList where cwipTransactionId is less than or equal to SMALLER_CWIP_TRANSACTION_ID
-        defaultCwipTransferShouldNotBeFound("cwipTransactionId.lessThanOrEqual=" + SMALLER_CWIP_TRANSACTION_ID);
+        // Get all the cwipTransferList where cwipTransactionId greater than or equals to UPDATED_CWIP_TRANSACTION_ID
+        defaultCwipTransferShouldNotBeFound("cwipTransactionId.greaterOrEqualThan=" + UPDATED_CWIP_TRANSACTION_ID);
     }
 
     @Test
@@ -990,24 +762,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where cwipTransactionId is less than DEFAULT_CWIP_TRANSACTION_ID
+        // Get all the cwipTransferList where cwipTransactionId less than or equals to DEFAULT_CWIP_TRANSACTION_ID
         defaultCwipTransferShouldNotBeFound("cwipTransactionId.lessThan=" + DEFAULT_CWIP_TRANSACTION_ID);
 
-        // Get all the cwipTransferList where cwipTransactionId is less than UPDATED_CWIP_TRANSACTION_ID
+        // Get all the cwipTransferList where cwipTransactionId less than or equals to UPDATED_CWIP_TRANSACTION_ID
         defaultCwipTransferShouldBeFound("cwipTransactionId.lessThan=" + UPDATED_CWIP_TRANSACTION_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByCwipTransactionIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where cwipTransactionId is greater than DEFAULT_CWIP_TRANSACTION_ID
-        defaultCwipTransferShouldNotBeFound("cwipTransactionId.greaterThan=" + DEFAULT_CWIP_TRANSACTION_ID);
-
-        // Get all the cwipTransferList where cwipTransactionId is greater than SMALLER_CWIP_TRANSACTION_ID
-        defaultCwipTransferShouldBeFound("cwipTransactionId.greaterThan=" + SMALLER_CWIP_TRANSACTION_ID);
     }
 
 
@@ -1022,19 +781,6 @@ public class CwipTransferResourceIT {
 
         // Get all the cwipTransferList where transferDetails equals to UPDATED_TRANSFER_DETAILS
         defaultCwipTransferShouldNotBeFound("transferDetails.equals=" + UPDATED_TRANSFER_DETAILS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferDetailsIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferDetails not equals to DEFAULT_TRANSFER_DETAILS
-        defaultCwipTransferShouldNotBeFound("transferDetails.notEquals=" + DEFAULT_TRANSFER_DETAILS);
-
-        // Get all the cwipTransferList where transferDetails not equals to UPDATED_TRANSFER_DETAILS
-        defaultCwipTransferShouldBeFound("transferDetails.notEquals=" + UPDATED_TRANSFER_DETAILS);
     }
 
     @Test
@@ -1062,32 +808,6 @@ public class CwipTransferResourceIT {
         // Get all the cwipTransferList where transferDetails is null
         defaultCwipTransferShouldNotBeFound("transferDetails.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferDetailsContainsSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferDetails contains DEFAULT_TRANSFER_DETAILS
-        defaultCwipTransferShouldBeFound("transferDetails.contains=" + DEFAULT_TRANSFER_DETAILS);
-
-        // Get all the cwipTransferList where transferDetails contains UPDATED_TRANSFER_DETAILS
-        defaultCwipTransferShouldNotBeFound("transferDetails.contains=" + UPDATED_TRANSFER_DETAILS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferDetailsNotContainsSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferDetails does not contain DEFAULT_TRANSFER_DETAILS
-        defaultCwipTransferShouldNotBeFound("transferDetails.doesNotContain=" + DEFAULT_TRANSFER_DETAILS);
-
-        // Get all the cwipTransferList where transferDetails does not contain UPDATED_TRANSFER_DETAILS
-        defaultCwipTransferShouldBeFound("transferDetails.doesNotContain=" + UPDATED_TRANSFER_DETAILS);
-    }
-
 
     @Test
     @Transactional
@@ -1100,19 +820,6 @@ public class CwipTransferResourceIT {
 
         // Get all the cwipTransferList where transferAmount equals to UPDATED_TRANSFER_AMOUNT
         defaultCwipTransferShouldNotBeFound("transferAmount.equals=" + UPDATED_TRANSFER_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferAmountIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferAmount not equals to DEFAULT_TRANSFER_AMOUNT
-        defaultCwipTransferShouldNotBeFound("transferAmount.notEquals=" + DEFAULT_TRANSFER_AMOUNT);
-
-        // Get all the cwipTransferList where transferAmount not equals to UPDATED_TRANSFER_AMOUNT
-        defaultCwipTransferShouldBeFound("transferAmount.notEquals=" + UPDATED_TRANSFER_AMOUNT);
     }
 
     @Test
@@ -1143,59 +850,6 @@ public class CwipTransferResourceIT {
 
     @Test
     @Transactional
-    public void getAllCwipTransfersByTransferAmountIsGreaterThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferAmount is greater than or equal to DEFAULT_TRANSFER_AMOUNT
-        defaultCwipTransferShouldBeFound("transferAmount.greaterThanOrEqual=" + DEFAULT_TRANSFER_AMOUNT);
-
-        // Get all the cwipTransferList where transferAmount is greater than or equal to UPDATED_TRANSFER_AMOUNT
-        defaultCwipTransferShouldNotBeFound("transferAmount.greaterThanOrEqual=" + UPDATED_TRANSFER_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferAmountIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferAmount is less than or equal to DEFAULT_TRANSFER_AMOUNT
-        defaultCwipTransferShouldBeFound("transferAmount.lessThanOrEqual=" + DEFAULT_TRANSFER_AMOUNT);
-
-        // Get all the cwipTransferList where transferAmount is less than or equal to SMALLER_TRANSFER_AMOUNT
-        defaultCwipTransferShouldNotBeFound("transferAmount.lessThanOrEqual=" + SMALLER_TRANSFER_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferAmountIsLessThanSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferAmount is less than DEFAULT_TRANSFER_AMOUNT
-        defaultCwipTransferShouldNotBeFound("transferAmount.lessThan=" + DEFAULT_TRANSFER_AMOUNT);
-
-        // Get all the cwipTransferList where transferAmount is less than UPDATED_TRANSFER_AMOUNT
-        defaultCwipTransferShouldBeFound("transferAmount.lessThan=" + UPDATED_TRANSFER_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransferAmountIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transferAmount is greater than DEFAULT_TRANSFER_AMOUNT
-        defaultCwipTransferShouldNotBeFound("transferAmount.greaterThan=" + DEFAULT_TRANSFER_AMOUNT);
-
-        // Get all the cwipTransferList where transferAmount is greater than SMALLER_TRANSFER_AMOUNT
-        defaultCwipTransferShouldBeFound("transferAmount.greaterThan=" + SMALLER_TRANSFER_AMOUNT);
-    }
-
-
-    @Test
-    @Transactional
     public void getAllCwipTransfersByDealerIdIsEqualToSomething() throws Exception {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
@@ -1205,19 +859,6 @@ public class CwipTransferResourceIT {
 
         // Get all the cwipTransferList where dealerId equals to UPDATED_DEALER_ID
         defaultCwipTransferShouldNotBeFound("dealerId.equals=" + UPDATED_DEALER_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByDealerIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where dealerId not equals to DEFAULT_DEALER_ID
-        defaultCwipTransferShouldNotBeFound("dealerId.notEquals=" + DEFAULT_DEALER_ID);
-
-        // Get all the cwipTransferList where dealerId not equals to UPDATED_DEALER_ID
-        defaultCwipTransferShouldBeFound("dealerId.notEquals=" + UPDATED_DEALER_ID);
     }
 
     @Test
@@ -1252,24 +893,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where dealerId is greater than or equal to DEFAULT_DEALER_ID
-        defaultCwipTransferShouldBeFound("dealerId.greaterThanOrEqual=" + DEFAULT_DEALER_ID);
+        // Get all the cwipTransferList where dealerId greater than or equals to DEFAULT_DEALER_ID
+        defaultCwipTransferShouldBeFound("dealerId.greaterOrEqualThan=" + DEFAULT_DEALER_ID);
 
-        // Get all the cwipTransferList where dealerId is greater than or equal to UPDATED_DEALER_ID
-        defaultCwipTransferShouldNotBeFound("dealerId.greaterThanOrEqual=" + UPDATED_DEALER_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByDealerIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where dealerId is less than or equal to DEFAULT_DEALER_ID
-        defaultCwipTransferShouldBeFound("dealerId.lessThanOrEqual=" + DEFAULT_DEALER_ID);
-
-        // Get all the cwipTransferList where dealerId is less than or equal to SMALLER_DEALER_ID
-        defaultCwipTransferShouldNotBeFound("dealerId.lessThanOrEqual=" + SMALLER_DEALER_ID);
+        // Get all the cwipTransferList where dealerId greater than or equals to UPDATED_DEALER_ID
+        defaultCwipTransferShouldNotBeFound("dealerId.greaterOrEqualThan=" + UPDATED_DEALER_ID);
     }
 
     @Test
@@ -1278,24 +906,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where dealerId is less than DEFAULT_DEALER_ID
+        // Get all the cwipTransferList where dealerId less than or equals to DEFAULT_DEALER_ID
         defaultCwipTransferShouldNotBeFound("dealerId.lessThan=" + DEFAULT_DEALER_ID);
 
-        // Get all the cwipTransferList where dealerId is less than UPDATED_DEALER_ID
+        // Get all the cwipTransferList where dealerId less than or equals to UPDATED_DEALER_ID
         defaultCwipTransferShouldBeFound("dealerId.lessThan=" + UPDATED_DEALER_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByDealerIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where dealerId is greater than DEFAULT_DEALER_ID
-        defaultCwipTransferShouldNotBeFound("dealerId.greaterThan=" + DEFAULT_DEALER_ID);
-
-        // Get all the cwipTransferList where dealerId is greater than SMALLER_DEALER_ID
-        defaultCwipTransferShouldBeFound("dealerId.greaterThan=" + SMALLER_DEALER_ID);
     }
 
 
@@ -1310,19 +925,6 @@ public class CwipTransferResourceIT {
 
         // Get all the cwipTransferList where transactionInvoiceId equals to UPDATED_TRANSACTION_INVOICE_ID
         defaultCwipTransferShouldNotBeFound("transactionInvoiceId.equals=" + UPDATED_TRANSACTION_INVOICE_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransactionInvoiceIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transactionInvoiceId not equals to DEFAULT_TRANSACTION_INVOICE_ID
-        defaultCwipTransferShouldNotBeFound("transactionInvoiceId.notEquals=" + DEFAULT_TRANSACTION_INVOICE_ID);
-
-        // Get all the cwipTransferList where transactionInvoiceId not equals to UPDATED_TRANSACTION_INVOICE_ID
-        defaultCwipTransferShouldBeFound("transactionInvoiceId.notEquals=" + UPDATED_TRANSACTION_INVOICE_ID);
     }
 
     @Test
@@ -1357,24 +959,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where transactionInvoiceId is greater than or equal to DEFAULT_TRANSACTION_INVOICE_ID
-        defaultCwipTransferShouldBeFound("transactionInvoiceId.greaterThanOrEqual=" + DEFAULT_TRANSACTION_INVOICE_ID);
+        // Get all the cwipTransferList where transactionInvoiceId greater than or equals to DEFAULT_TRANSACTION_INVOICE_ID
+        defaultCwipTransferShouldBeFound("transactionInvoiceId.greaterOrEqualThan=" + DEFAULT_TRANSACTION_INVOICE_ID);
 
-        // Get all the cwipTransferList where transactionInvoiceId is greater than or equal to UPDATED_TRANSACTION_INVOICE_ID
-        defaultCwipTransferShouldNotBeFound("transactionInvoiceId.greaterThanOrEqual=" + UPDATED_TRANSACTION_INVOICE_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransactionInvoiceIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transactionInvoiceId is less than or equal to DEFAULT_TRANSACTION_INVOICE_ID
-        defaultCwipTransferShouldBeFound("transactionInvoiceId.lessThanOrEqual=" + DEFAULT_TRANSACTION_INVOICE_ID);
-
-        // Get all the cwipTransferList where transactionInvoiceId is less than or equal to SMALLER_TRANSACTION_INVOICE_ID
-        defaultCwipTransferShouldNotBeFound("transactionInvoiceId.lessThanOrEqual=" + SMALLER_TRANSACTION_INVOICE_ID);
+        // Get all the cwipTransferList where transactionInvoiceId greater than or equals to UPDATED_TRANSACTION_INVOICE_ID
+        defaultCwipTransferShouldNotBeFound("transactionInvoiceId.greaterOrEqualThan=" + UPDATED_TRANSACTION_INVOICE_ID);
     }
 
     @Test
@@ -1383,24 +972,11 @@ public class CwipTransferResourceIT {
         // Initialize the database
         cwipTransferRepository.saveAndFlush(cwipTransfer);
 
-        // Get all the cwipTransferList where transactionInvoiceId is less than DEFAULT_TRANSACTION_INVOICE_ID
+        // Get all the cwipTransferList where transactionInvoiceId less than or equals to DEFAULT_TRANSACTION_INVOICE_ID
         defaultCwipTransferShouldNotBeFound("transactionInvoiceId.lessThan=" + DEFAULT_TRANSACTION_INVOICE_ID);
 
-        // Get all the cwipTransferList where transactionInvoiceId is less than UPDATED_TRANSACTION_INVOICE_ID
+        // Get all the cwipTransferList where transactionInvoiceId less than or equals to UPDATED_TRANSACTION_INVOICE_ID
         defaultCwipTransferShouldBeFound("transactionInvoiceId.lessThan=" + UPDATED_TRANSACTION_INVOICE_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCwipTransfersByTransactionInvoiceIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-
-        // Get all the cwipTransferList where transactionInvoiceId is greater than DEFAULT_TRANSACTION_INVOICE_ID
-        defaultCwipTransferShouldNotBeFound("transactionInvoiceId.greaterThan=" + DEFAULT_TRANSACTION_INVOICE_ID);
-
-        // Get all the cwipTransferList where transactionInvoiceId is greater than SMALLER_TRANSACTION_INVOICE_ID
-        defaultCwipTransferShouldBeFound("transactionInvoiceId.greaterThan=" + SMALLER_TRANSACTION_INVOICE_ID);
     }
 
     /**
@@ -1539,7 +1115,7 @@ public class CwipTransferResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
+        // Validate the database is empty
         List<CwipTransfer> cwipTransferList = cwipTransferRepository.findAll();
         assertThat(cwipTransferList).hasSize(databaseSizeBeforeDelete - 1);
 

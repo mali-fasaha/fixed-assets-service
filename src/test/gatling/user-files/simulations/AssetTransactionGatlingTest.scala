@@ -75,12 +75,12 @@ class AssetTransactionGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all assetTransactions")
-            .get("/services/fixedassetservice/api/asset-transactions")
+            .get("/fixedassetservice/api/asset-transactions")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new assetTransaction")
-            .post("/services/fixedassetservice/api/asset-transactions")
+            .post("/fixedassetservice/api/asset-transactions")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -94,12 +94,12 @@ class AssetTransactionGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created assetTransaction")
-                .get("/services/fixedassetservice${new_assetTransaction_url}")
+                .get("/fixedassetservice${new_assetTransaction_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created assetTransaction")
-            .delete("/services/fixedassetservice${new_assetTransaction_url}")
+            .delete("/fixedassetservice${new_assetTransaction_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

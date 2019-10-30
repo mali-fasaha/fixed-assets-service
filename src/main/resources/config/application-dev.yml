@@ -46,17 +46,15 @@ spring:
   jackson:
     serialization:
       indent-output: true
-  kafka:
-    consumer:
-      bootstrap-servers: localhost:9092
-      group-id: group_id
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    producer:
-      bootstrap-servers: localhost:9092
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost
+          zk-nodes: localhost
+      bindings:
+        output:
+          destination: topic-jhipster
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:58213/fixedAssetService
@@ -66,8 +64,7 @@ spring:
       poolName: Hikari
       auto-commit: false
   jpa:
-#    database-platform: io.github.jhipster.domain.util.FixedPostgreSQL95Dialect
-    database-platform: io.github.assets.app.config.PostgresUuidDialect
+    database-platform: io.github.jhipster.domain.util.FixedPostgreSQL95Dialect
     database: POSTGRESQL
     show-sql: true
     properties:
@@ -141,6 +138,7 @@ jhipster:
       client-id: internal
       client-secret: internal
   mail: # specific JHipster mail property, for standard properties see MailProperties
+    from: fixedAssetService@localhost
     base-url: http://127.0.0.1:58214
   metrics:
     logs: # Reports metrics in the logs
@@ -153,8 +151,6 @@ jhipster:
       host: localhost
       port: 5000
       queue-size: 512
-  audit-events:
-    retention-period: 30 # Number of days before audit events are deleted.
 oauth2:
   signature-verification:
     public-key-endpoint-uri: http://fixedassetsuaa/oauth/token_key

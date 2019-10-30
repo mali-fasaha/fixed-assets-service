@@ -75,12 +75,12 @@ class FixedAssetAssessmentGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all fixedAssetAssessments")
-            .get("/services/fixedassetservice/api/fixed-asset-assessments")
+            .get("/fixedassetservice/api/fixed-asset-assessments")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new fixedAssetAssessment")
-            .post("/services/fixedassetservice/api/fixed-asset-assessments")
+            .post("/fixedassetservice/api/fixed-asset-assessments")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -104,12 +104,12 @@ class FixedAssetAssessmentGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created fixedAssetAssessment")
-                .get("/services/fixedassetservice${new_fixedAssetAssessment_url}")
+                .get("/fixedassetservice${new_fixedAssetAssessment_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created fixedAssetAssessment")
-            .delete("/services/fixedassetservice${new_fixedAssetAssessment_url}")
+            .delete("/fixedassetservice${new_fixedAssetAssessment_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

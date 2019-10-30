@@ -1,12 +1,12 @@
-package io.github.assets.app.resource;
+package io.github.assets.app.resource.decorator;
 
-import io.github.assets.app.resource.decorator.IFileUploadResource;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
+import io.github.assets.web.rest.FileUploadResource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -25,17 +23,14 @@ import java.util.List;
 
 /**
  * REST controller for managing {@link io.github.assets.domain.FileUpload}.
- * <p>
- * It is intended to enable asynchronous processing for PUT, POST and DELETE request
  */
 @Slf4j
-@RestController
-@RequestMapping("/api/app")
-public class AppFileUploadResource implements IFileUploadResource {
+@Component("fileUploadResourceDecorator")
+public class FileUploadResourceDecorator implements IFileUploadResource {
 
-    private final IFileUploadResource fileUploadResource;
+    private final FileUploadResource fileUploadResource;
 
-    public AppFileUploadResource(final @Qualifier("fileUploadResourceDecorator") IFileUploadResource fileUploadResource) {
+    public FileUploadResourceDecorator(final FileUploadResource fileUploadResource) {
         this.fileUploadResource = fileUploadResource;
     }
 
@@ -46,13 +41,10 @@ public class AppFileUploadResource implements IFileUploadResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new fileUploadDTO, or with status {@code 400 (Bad Request)} if the fileUpload has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @Override
     @PostMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> createFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
-        ResponseEntity<FileUploadDTO> res = fileUploadResource.createFileUpload(fileUploadDTO);
-
-        return res;
+        return fileUploadResource.createFileUpload(fileUploadDTO);
     }
 
     /**
@@ -63,7 +55,6 @@ public class AppFileUploadResource implements IFileUploadResource {
      * status {@code 500 (Internal Server Error)} if the fileUploadDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @Override
     @PutMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> updateFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
@@ -81,7 +72,7 @@ public class AppFileUploadResource implements IFileUploadResource {
     public ResponseEntity<List<FileUploadDTO>> getAllFileUploads(FileUploadCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
                                                                  UriComponentsBuilder uriBuilder) {
 
-        return this.fileUploadResource.getAllFileUploads(criteria, pageable, queryParams, uriBuilder);
+        return fileUploadResource.getAllFileUploads(criteria, pageable, queryParams, uriBuilder);
     }
 
     /**
@@ -93,7 +84,7 @@ public class AppFileUploadResource implements IFileUploadResource {
     @GetMapping("/file-uploads/count")
     public ResponseEntity<Long> countFileUploads(FileUploadCriteria criteria) {
 
-        return this.fileUploadResource.countFileUploads(criteria);
+        return fileUploadResource.countFileUploads(criteria);
     }
 
     /**
@@ -114,7 +105,6 @@ public class AppFileUploadResource implements IFileUploadResource {
      * @param id the id of the fileUploadDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @Override
     @DeleteMapping("/file-uploads/{id}")
     public ResponseEntity<Void> deleteFileUpload(@PathVariable Long id) {
 

@@ -75,12 +75,12 @@ class CapitalWorkInProgressGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all capitalWorkInProgresses")
-            .get("/services/fixedassetservice/api/capital-work-in-progresses")
+            .get("/fixedassetservice/api/capital-work-in-progresses")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new capitalWorkInProgress")
-            .post("/services/fixedassetservice/api/capital-work-in-progresses")
+            .post("/fixedassetservice/api/capital-work-in-progresses")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -96,12 +96,12 @@ class CapitalWorkInProgressGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created capitalWorkInProgress")
-                .get("/services/fixedassetservice${new_capitalWorkInProgress_url}")
+                .get("/fixedassetservice${new_capitalWorkInProgress_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created capitalWorkInProgress")
-            .delete("/services/fixedassetservice${new_capitalWorkInProgress_url}")
+            .delete("/fixedassetservice${new_capitalWorkInProgress_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }
