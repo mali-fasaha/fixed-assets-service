@@ -1,6 +1,6 @@
 {
   "name": "fixed-asset-service",
-  "version": "0.0.4",
+  "version": "0.0.5-SNAPSHOT",
   "description": "Main service for fixed assets system",
   "private": true,
   "license": "GPLv3",
@@ -23,10 +23,7 @@
     "generator-jhipster-feign-client": "1.0.6",
     "generator-jhipster-jgitver": "0.1.0",
     "generator-jhipster-obfuscation-at-rest": "0.3.0",
-    "generator-jhipster-social-login-api": "0.0.1",
-    "generator-jhipster-file2url": "0.0.0",
-    "generator-jhipster": "6.4.1",
-    "@openapitools/openapi-generator-cli": "0.0.14-4.0.2"
+    "generator-jhipster": "6.0.1"
   },
   "engines": {
     "node": ">=8.9.0"

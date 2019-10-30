@@ -11,12 +11,14 @@ import io.github.assets.service.FileUploadQueryService;
 import io.github.assets.service.FileUploadService;
 import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.service.mapper.FileUploadMapper;
+import io.github.assets.web.rest.FileUploadResource;
 import io.github.assets.web.rest.TestUtil;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -128,12 +130,13 @@ class AppFileUploadResourceIT {
     private FileUpload fileUpload;
 
     @Autowired
-    private FileUploadResourceDecorator fileUploadResource;
+    @Qualifier("fileUploadResourceDecorator")
+    private IFileUploadResource fileUploadController;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final IFileUploadResource fileUploadResource = new AppFileUploadResource(this.fileUploadResource);
+        final IFileUploadResource fileUploadResource = new AppFileUploadResource(fileUploadController);
         this.restFileUploadMockMvc = MockMvcBuilders.standaloneSetup(fileUploadResource)
                                                     .setCustomArgumentResolvers(pageableArgumentResolver)
                                                     .setControllerAdvice(exceptionTranslator)
@@ -195,7 +198,7 @@ class AppFileUploadResourceIT {
 
         // Create the FileUpload
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
-        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
+        restFileUploadMockMvc.perform(post("/api/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isCreated());
@@ -229,7 +232,7 @@ class AppFileUploadResourceIT {
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
+        restFileUploadMockMvc.perform(post("/api/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
@@ -253,7 +256,7 @@ class AppFileUploadResourceIT {
         // Create the FileUpload, which fails.
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
-        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
+        restFileUploadMockMvc.perform(post("/api/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
@@ -272,7 +275,7 @@ class AppFileUploadResourceIT {
         // Create the FileUpload, which fails.
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
-        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
+        restFileUploadMockMvc.perform(post("/api/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
@@ -291,7 +294,7 @@ class AppFileUploadResourceIT {
         // Create the FileUpload, which fails.
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
-        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
+        restFileUploadMockMvc.perform(post("/api/file-uploads")
                                           .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
@@ -307,12 +310,12 @@ class AppFileUploadResourceIT {
         fileUploadRepository.saveAndFlush(fileUpload);
 
         // Get all the fileUploadList
-        restFileUploadMockMvc.perform(get("/api/app/file-uploads?sort=id,desc"))
+        restFileUploadMockMvc.perform(get("/api/file-uploads?sort=id,desc"))
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                              .andExpect(jsonPath("$.[*].id").value(hasItem(fileUpload.getId().intValue())))
-                             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-                             .andExpect(jsonPath("$.[*].fileName").value(hasItem(DEFAULT_FILE_NAME)))
+                             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+                             .andExpect(jsonPath("$.[*].fileName").value(hasItem(DEFAULT_FILE_NAME.toString())))
                              .andExpect(jsonPath("$.[*].periodFrom").value(hasItem(DEFAULT_PERIOD_FROM.toString())))
                              .andExpect(jsonPath("$.[*].periodTo").value(hasItem(DEFAULT_PERIOD_TO.toString())))
                              .andExpect(jsonPath("$.[*].fileTypeId").value(hasItem(DEFAULT_FILE_TYPE_ID.intValue())))
@@ -320,7 +323,7 @@ class AppFileUploadResourceIT {
                              .andExpect(jsonPath("$.[*].dataFile").value(hasItem(Base64Utils.encodeToString(DEFAULT_DATA_FILE))))
                              .andExpect(jsonPath("$.[*].uploadSuccessful").value(hasItem(DEFAULT_UPLOAD_SUCCESSFUL.booleanValue())))
                              .andExpect(jsonPath("$.[*].uploadProcessed").value(hasItem(DEFAULT_UPLOAD_PROCESSED.booleanValue())))
-                             .andExpect(jsonPath("$.[*].uploadToken").value(hasItem(DEFAULT_UPLOAD_TOKEN)));
+                             .andExpect(jsonPath("$.[*].uploadToken").value(hasItem(DEFAULT_UPLOAD_TOKEN.toString())));
     }
 
     @Test
@@ -330,12 +333,12 @@ class AppFileUploadResourceIT {
         fileUploadRepository.saveAndFlush(fileUpload);
 
         // Get the fileUpload
-        restFileUploadMockMvc.perform(get("/api/app/file-uploads/{id}", fileUpload.getId()))
+        restFileUploadMockMvc.perform(get("/api/file-uploads/{id}", fileUpload.getId()))
                              .andExpect(status().isOk())
                              .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                              .andExpect(jsonPath("$.id").value(fileUpload.getId().intValue()))
-                             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
-                             .andExpect(jsonPath("$.fileName").value(DEFAULT_FILE_NAME))
+                             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
+                             .andExpect(jsonPath("$.fileName").value(DEFAULT_FILE_NAME.toString()))
                              .andExpect(jsonPath("$.periodFrom").value(DEFAULT_PERIOD_FROM.toString()))
                              .andExpect(jsonPath("$.periodTo").value(DEFAULT_PERIOD_TO.toString()))
                              .andExpect(jsonPath("$.fileTypeId").value(DEFAULT_FILE_TYPE_ID.intValue()))
@@ -343,7 +346,7 @@ class AppFileUploadResourceIT {
                              .andExpect(jsonPath("$.dataFile").value(Base64Utils.encodeToString(DEFAULT_DATA_FILE)))
                              .andExpect(jsonPath("$.uploadSuccessful").value(DEFAULT_UPLOAD_SUCCESSFUL.booleanValue()))
                              .andExpect(jsonPath("$.uploadProcessed").value(DEFAULT_UPLOAD_PROCESSED.booleanValue()))
-                             .andExpect(jsonPath("$.uploadToken").value(DEFAULT_UPLOAD_TOKEN));
+                             .andExpect(jsonPath("$.uploadToken").value(DEFAULT_UPLOAD_TOKEN.toString()));
     }
 
     @Test
@@ -357,19 +360,6 @@ class AppFileUploadResourceIT {
 
         // Get all the fileUploadList where description equals to UPDATED_DESCRIPTION
         defaultFileUploadShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByDescriptionIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where description not equals to DEFAULT_DESCRIPTION
-        defaultFileUploadShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
-
-        // Get all the fileUploadList where description not equals to UPDATED_DESCRIPTION
-        defaultFileUploadShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -397,32 +387,6 @@ class AppFileUploadResourceIT {
         // Get all the fileUploadList where description is null
         defaultFileUploadShouldNotBeFound("description.specified=false");
     }
-    @Test
-    @Transactional
-    public void getAllFileUploadsByDescriptionContainsSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where description contains DEFAULT_DESCRIPTION
-        defaultFileUploadShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
-
-        // Get all the fileUploadList where description contains UPDATED_DESCRIPTION
-        defaultFileUploadShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByDescriptionNotContainsSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where description does not contain DEFAULT_DESCRIPTION
-        defaultFileUploadShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
-
-        // Get all the fileUploadList where description does not contain UPDATED_DESCRIPTION
-        defaultFileUploadShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
-    }
-
 
     @Test
     @Transactional
@@ -435,19 +399,6 @@ class AppFileUploadResourceIT {
 
         // Get all the fileUploadList where fileName equals to UPDATED_FILE_NAME
         defaultFileUploadShouldNotBeFound("fileName.equals=" + UPDATED_FILE_NAME);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByFileNameIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where fileName not equals to DEFAULT_FILE_NAME
-        defaultFileUploadShouldNotBeFound("fileName.notEquals=" + DEFAULT_FILE_NAME);
-
-        // Get all the fileUploadList where fileName not equals to UPDATED_FILE_NAME
-        defaultFileUploadShouldBeFound("fileName.notEquals=" + UPDATED_FILE_NAME);
     }
 
     @Test
@@ -475,32 +426,6 @@ class AppFileUploadResourceIT {
         // Get all the fileUploadList where fileName is null
         defaultFileUploadShouldNotBeFound("fileName.specified=false");
     }
-    @Test
-    @Transactional
-    public void getAllFileUploadsByFileNameContainsSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where fileName contains DEFAULT_FILE_NAME
-        defaultFileUploadShouldBeFound("fileName.contains=" + DEFAULT_FILE_NAME);
-
-        // Get all the fileUploadList where fileName contains UPDATED_FILE_NAME
-        defaultFileUploadShouldNotBeFound("fileName.contains=" + UPDATED_FILE_NAME);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByFileNameNotContainsSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where fileName does not contain DEFAULT_FILE_NAME
-        defaultFileUploadShouldNotBeFound("fileName.doesNotContain=" + DEFAULT_FILE_NAME);
-
-        // Get all the fileUploadList where fileName does not contain UPDATED_FILE_NAME
-        defaultFileUploadShouldBeFound("fileName.doesNotContain=" + UPDATED_FILE_NAME);
-    }
-
 
     @Test
     @Transactional
@@ -513,19 +438,6 @@ class AppFileUploadResourceIT {
 
         // Get all the fileUploadList where periodFrom equals to UPDATED_PERIOD_FROM
         defaultFileUploadShouldNotBeFound("periodFrom.equals=" + UPDATED_PERIOD_FROM);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByPeriodFromIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where periodFrom not equals to DEFAULT_PERIOD_FROM
-        defaultFileUploadShouldNotBeFound("periodFrom.notEquals=" + DEFAULT_PERIOD_FROM);
-
-        // Get all the fileUploadList where periodFrom not equals to UPDATED_PERIOD_FROM
-        defaultFileUploadShouldBeFound("periodFrom.notEquals=" + UPDATED_PERIOD_FROM);
     }
 
     @Test
@@ -586,10 +498,10 @@ class AppFileUploadResourceIT {
         // Initialize the database
         fileUploadRepository.saveAndFlush(fileUpload);
 
-        // Get all the fileUploadList where periodFrom is less than DEFAULT_PERIOD_FROM
+        // Get all the fileUploadList where periodFrom less than or equals to DEFAULT_PERIOD_FROM
         defaultFileUploadShouldNotBeFound("periodFrom.lessThan=" + DEFAULT_PERIOD_FROM);
 
-        // Get all the fileUploadList where periodFrom is less than UPDATED_PERIOD_FROM
+        // Get all the fileUploadList where periodFrom less than or equals to UPDATED_PERIOD_FROM
         defaultFileUploadShouldBeFound("periodFrom.lessThan=" + UPDATED_PERIOD_FROM);
     }
 
@@ -618,19 +530,6 @@ class AppFileUploadResourceIT {
 
         // Get all the fileUploadList where periodTo equals to UPDATED_PERIOD_TO
         defaultFileUploadShouldNotBeFound("periodTo.equals=" + UPDATED_PERIOD_TO);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByPeriodToIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where periodTo not equals to DEFAULT_PERIOD_TO
-        defaultFileUploadShouldNotBeFound("periodTo.notEquals=" + DEFAULT_PERIOD_TO);
-
-        // Get all the fileUploadList where periodTo not equals to UPDATED_PERIOD_TO
-        defaultFileUploadShouldBeFound("periodTo.notEquals=" + UPDATED_PERIOD_TO);
     }
 
     @Test
@@ -665,24 +564,11 @@ class AppFileUploadResourceIT {
         // Initialize the database
         fileUploadRepository.saveAndFlush(fileUpload);
 
-        // Get all the fileUploadList where periodTo is greater than or equal to DEFAULT_PERIOD_TO
-        defaultFileUploadShouldBeFound("periodTo.greaterThanOrEqual=" + DEFAULT_PERIOD_TO);
+        // Get all the fileUploadList where periodTo greater than or equals to DEFAULT_PERIOD_TO
+        defaultFileUploadShouldBeFound("periodTo.greaterOrEqualThan=" + DEFAULT_PERIOD_TO);
 
-        // Get all the fileUploadList where periodTo is greater than or equal to UPDATED_PERIOD_TO
-        defaultFileUploadShouldNotBeFound("periodTo.greaterThanOrEqual=" + UPDATED_PERIOD_TO);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByPeriodToIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where periodTo is less than or equal to DEFAULT_PERIOD_TO
-        defaultFileUploadShouldBeFound("periodTo.lessThanOrEqual=" + DEFAULT_PERIOD_TO);
-
-        // Get all the fileUploadList where periodTo is less than or equal to SMALLER_PERIOD_TO
-        defaultFileUploadShouldNotBeFound("periodTo.lessThanOrEqual=" + SMALLER_PERIOD_TO);
+        // Get all the fileUploadList where periodTo greater than or equals to UPDATED_PERIOD_TO
+        defaultFileUploadShouldNotBeFound("periodTo.greaterOrEqualThan=" + UPDATED_PERIOD_TO);
     }
 
     @Test
@@ -691,24 +577,11 @@ class AppFileUploadResourceIT {
         // Initialize the database
         fileUploadRepository.saveAndFlush(fileUpload);
 
-        // Get all the fileUploadList where periodTo is less than DEFAULT_PERIOD_TO
+        // Get all the fileUploadList where periodTo less than or equals to DEFAULT_PERIOD_TO
         defaultFileUploadShouldNotBeFound("periodTo.lessThan=" + DEFAULT_PERIOD_TO);
 
-        // Get all the fileUploadList where periodTo is less than UPDATED_PERIOD_TO
+        // Get all the fileUploadList where periodTo less than or equals to UPDATED_PERIOD_TO
         defaultFileUploadShouldBeFound("periodTo.lessThan=" + UPDATED_PERIOD_TO);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByPeriodToIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where periodTo is greater than DEFAULT_PERIOD_TO
-        defaultFileUploadShouldNotBeFound("periodTo.greaterThan=" + DEFAULT_PERIOD_TO);
-
-        // Get all the fileUploadList where periodTo is greater than SMALLER_PERIOD_TO
-        defaultFileUploadShouldBeFound("periodTo.greaterThan=" + SMALLER_PERIOD_TO);
     }
 
 
@@ -723,19 +596,6 @@ class AppFileUploadResourceIT {
 
         // Get all the fileUploadList where fileTypeId equals to UPDATED_FILE_TYPE_ID
         defaultFileUploadShouldNotBeFound("fileTypeId.equals=" + UPDATED_FILE_TYPE_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByFileTypeIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where fileTypeId not equals to DEFAULT_FILE_TYPE_ID
-        defaultFileUploadShouldNotBeFound("fileTypeId.notEquals=" + DEFAULT_FILE_TYPE_ID);
-
-        // Get all the fileUploadList where fileTypeId not equals to UPDATED_FILE_TYPE_ID
-        defaultFileUploadShouldBeFound("fileTypeId.notEquals=" + UPDATED_FILE_TYPE_ID);
     }
 
     @Test
@@ -770,24 +630,11 @@ class AppFileUploadResourceIT {
         // Initialize the database
         fileUploadRepository.saveAndFlush(fileUpload);
 
-        // Get all the fileUploadList where fileTypeId is greater than or equal to DEFAULT_FILE_TYPE_ID
-        defaultFileUploadShouldBeFound("fileTypeId.greaterThanOrEqual=" + DEFAULT_FILE_TYPE_ID);
+        // Get all the fileUploadList where fileTypeId greater than or equals to DEFAULT_FILE_TYPE_ID
+        defaultFileUploadShouldBeFound("fileTypeId.greaterOrEqualThan=" + DEFAULT_FILE_TYPE_ID);
 
-        // Get all the fileUploadList where fileTypeId is greater than or equal to UPDATED_FILE_TYPE_ID
-        defaultFileUploadShouldNotBeFound("fileTypeId.greaterThanOrEqual=" + UPDATED_FILE_TYPE_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByFileTypeIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where fileTypeId is less than or equal to DEFAULT_FILE_TYPE_ID
-        defaultFileUploadShouldBeFound("fileTypeId.lessThanOrEqual=" + DEFAULT_FILE_TYPE_ID);
-
-        // Get all the fileUploadList where fileTypeId is less than or equal to SMALLER_FILE_TYPE_ID
-        defaultFileUploadShouldNotBeFound("fileTypeId.lessThanOrEqual=" + SMALLER_FILE_TYPE_ID);
+        // Get all the fileUploadList where fileTypeId greater than or equals to UPDATED_FILE_TYPE_ID
+        defaultFileUploadShouldNotBeFound("fileTypeId.greaterOrEqualThan=" + UPDATED_FILE_TYPE_ID);
     }
 
     @Test
@@ -796,24 +643,11 @@ class AppFileUploadResourceIT {
         // Initialize the database
         fileUploadRepository.saveAndFlush(fileUpload);
 
-        // Get all the fileUploadList where fileTypeId is less than DEFAULT_FILE_TYPE_ID
+        // Get all the fileUploadList where fileTypeId less than or equals to DEFAULT_FILE_TYPE_ID
         defaultFileUploadShouldNotBeFound("fileTypeId.lessThan=" + DEFAULT_FILE_TYPE_ID);
 
-        // Get all the fileUploadList where fileTypeId is less than UPDATED_FILE_TYPE_ID
+        // Get all the fileUploadList where fileTypeId less than or equals to UPDATED_FILE_TYPE_ID
         defaultFileUploadShouldBeFound("fileTypeId.lessThan=" + UPDATED_FILE_TYPE_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByFileTypeIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where fileTypeId is greater than DEFAULT_FILE_TYPE_ID
-        defaultFileUploadShouldNotBeFound("fileTypeId.greaterThan=" + DEFAULT_FILE_TYPE_ID);
-
-        // Get all the fileUploadList where fileTypeId is greater than SMALLER_FILE_TYPE_ID
-        defaultFileUploadShouldBeFound("fileTypeId.greaterThan=" + SMALLER_FILE_TYPE_ID);
     }
 
 
@@ -828,19 +662,6 @@ class AppFileUploadResourceIT {
 
         // Get all the fileUploadList where uploadSuccessful equals to UPDATED_UPLOAD_SUCCESSFUL
         defaultFileUploadShouldNotBeFound("uploadSuccessful.equals=" + UPDATED_UPLOAD_SUCCESSFUL);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByUploadSuccessfulIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where uploadSuccessful not equals to DEFAULT_UPLOAD_SUCCESSFUL
-        defaultFileUploadShouldNotBeFound("uploadSuccessful.notEquals=" + DEFAULT_UPLOAD_SUCCESSFUL);
-
-        // Get all the fileUploadList where uploadSuccessful not equals to UPDATED_UPLOAD_SUCCESSFUL
-        defaultFileUploadShouldBeFound("uploadSuccessful.notEquals=" + UPDATED_UPLOAD_SUCCESSFUL);
     }
 
     @Test
@@ -884,19 +705,6 @@ class AppFileUploadResourceIT {
 
     @Test
     @Transactional
-    public void getAllFileUploadsByUploadProcessedIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where uploadProcessed not equals to DEFAULT_UPLOAD_PROCESSED
-        defaultFileUploadShouldNotBeFound("uploadProcessed.notEquals=" + DEFAULT_UPLOAD_PROCESSED);
-
-        // Get all the fileUploadList where uploadProcessed not equals to UPDATED_UPLOAD_PROCESSED
-        defaultFileUploadShouldBeFound("uploadProcessed.notEquals=" + UPDATED_UPLOAD_PROCESSED);
-    }
-
-    @Test
-    @Transactional
     public void getAllFileUploadsByUploadProcessedIsInShouldWork() throws Exception {
         // Initialize the database
         fileUploadRepository.saveAndFlush(fileUpload);
@@ -936,19 +744,6 @@ class AppFileUploadResourceIT {
 
     @Test
     @Transactional
-    public void getAllFileUploadsByUploadTokenIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where uploadToken not equals to DEFAULT_UPLOAD_TOKEN
-        defaultFileUploadShouldNotBeFound("uploadToken.notEquals=" + DEFAULT_UPLOAD_TOKEN);
-
-        // Get all the fileUploadList where uploadToken not equals to UPDATED_UPLOAD_TOKEN
-        defaultFileUploadShouldBeFound("uploadToken.notEquals=" + UPDATED_UPLOAD_TOKEN);
-    }
-
-    @Test
-    @Transactional
     public void getAllFileUploadsByUploadTokenIsInShouldWork() throws Exception {
         // Initialize the database
         fileUploadRepository.saveAndFlush(fileUpload);
@@ -972,32 +767,6 @@ class AppFileUploadResourceIT {
         // Get all the fileUploadList where uploadToken is null
         defaultFileUploadShouldNotBeFound("uploadToken.specified=false");
     }
-    @Test
-    @Transactional
-    public void getAllFileUploadsByUploadTokenContainsSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where uploadToken contains DEFAULT_UPLOAD_TOKEN
-        defaultFileUploadShouldBeFound("uploadToken.contains=" + DEFAULT_UPLOAD_TOKEN);
-
-        // Get all the fileUploadList where uploadToken contains UPDATED_UPLOAD_TOKEN
-        defaultFileUploadShouldNotBeFound("uploadToken.contains=" + UPDATED_UPLOAD_TOKEN);
-    }
-
-    @Test
-    @Transactional
-    public void getAllFileUploadsByUploadTokenNotContainsSomething() throws Exception {
-        // Initialize the database
-        fileUploadRepository.saveAndFlush(fileUpload);
-
-        // Get all the fileUploadList where uploadToken does not contain DEFAULT_UPLOAD_TOKEN
-        defaultFileUploadShouldNotBeFound("uploadToken.doesNotContain=" + DEFAULT_UPLOAD_TOKEN);
-
-        // Get all the fileUploadList where uploadToken does not contain UPDATED_UPLOAD_TOKEN
-        defaultFileUploadShouldBeFound("uploadToken.doesNotContain=" + UPDATED_UPLOAD_TOKEN);
-    }
-
     /**
      * Executes the search, and checks that the default entity is returned.
      */

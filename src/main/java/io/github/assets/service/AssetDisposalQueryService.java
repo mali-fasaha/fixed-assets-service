@@ -85,11 +85,9 @@ public class AssetDisposalQueryService extends QueryService<AssetDisposal> {
     }
 
     /**
-     * Function to convert {@link AssetDisposalCriteria} to a {@link Specification}
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the matching {@link Specification} of the entity.
+     * Function to convert AssetDisposalCriteria to a {@link Specification}.
      */
-    protected Specification<AssetDisposal> createSpecification(AssetDisposalCriteria criteria) {
+    private Specification<AssetDisposal> createSpecification(AssetDisposalCriteria criteria) {
         Specification<AssetDisposal> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

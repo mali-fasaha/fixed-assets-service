@@ -75,12 +75,12 @@ class FileTypeGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all fileTypes")
-            .get("/services/fixedassetservice/api/file-types")
+            .get("/fixedassetservice/api/file-types")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new fileType")
-            .post("/services/fixedassetservice/api/file-types")
+            .post("/fixedassetservice/api/file-types")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -95,12 +95,12 @@ class FileTypeGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created fileType")
-                .get("/services/fixedassetservice${new_fileType_url}")
+                .get("/fixedassetservice${new_fileType_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created fileType")
-            .delete("/services/fixedassetservice${new_fileType_url}")
+            .delete("/fixedassetservice${new_fileType_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

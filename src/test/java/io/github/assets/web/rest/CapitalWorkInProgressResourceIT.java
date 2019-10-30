@@ -43,14 +43,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@link CapitalWorkInProgressResource} REST controller.
+ * Integration tests for the {@Link CapitalWorkInProgressResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class CapitalWorkInProgressResourceIT {
 
     private static final LocalDate DEFAULT_TRANSACTION_MONTH = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_TRANSACTION_MONTH = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_TRANSACTION_MONTH = LocalDate.ofEpochDay(-1L);
 
     private static final String DEFAULT_ASSET_SERIAL_TAG = "AAAAAAAAAA";
     private static final String UPDATED_ASSET_SERIAL_TAG = "BBBBBBBBBB";
@@ -60,14 +59,12 @@ public class CapitalWorkInProgressResourceIT {
 
     private static final Long DEFAULT_TRANSACTION_ID = 1L;
     private static final Long UPDATED_TRANSACTION_ID = 2L;
-    private static final Long SMALLER_TRANSACTION_ID = 1L - 1L;
 
     private static final String DEFAULT_TRANSACTION_DETAILS = "AAAAAAAAAA";
     private static final String UPDATED_TRANSACTION_DETAILS = "BBBBBBBBBB";
 
     private static final BigDecimal DEFAULT_TRANSACTION_AMOUNT = new BigDecimal(1);
     private static final BigDecimal UPDATED_TRANSACTION_AMOUNT = new BigDecimal(2);
-    private static final BigDecimal SMALLER_TRANSACTION_AMOUNT = new BigDecimal(1 - 1);
 
     @Autowired
     private CapitalWorkInProgressRepository capitalWorkInProgressRepository;
@@ -335,10 +332,10 @@ public class CapitalWorkInProgressResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(capitalWorkInProgress.getId().intValue())))
             .andExpect(jsonPath("$.[*].transactionMonth").value(hasItem(DEFAULT_TRANSACTION_MONTH.toString())))
-            .andExpect(jsonPath("$.[*].assetSerialTag").value(hasItem(DEFAULT_ASSET_SERIAL_TAG)))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
+            .andExpect(jsonPath("$.[*].assetSerialTag").value(hasItem(DEFAULT_ASSET_SERIAL_TAG.toString())))
+            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE.toString())))
             .andExpect(jsonPath("$.[*].transactionId").value(hasItem(DEFAULT_TRANSACTION_ID.intValue())))
-            .andExpect(jsonPath("$.[*].transactionDetails").value(hasItem(DEFAULT_TRANSACTION_DETAILS)))
+            .andExpect(jsonPath("$.[*].transactionDetails").value(hasItem(DEFAULT_TRANSACTION_DETAILS.toString())))
             .andExpect(jsonPath("$.[*].transactionAmount").value(hasItem(DEFAULT_TRANSACTION_AMOUNT.intValue())));
     }
     
@@ -354,10 +351,10 @@ public class CapitalWorkInProgressResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(capitalWorkInProgress.getId().intValue()))
             .andExpect(jsonPath("$.transactionMonth").value(DEFAULT_TRANSACTION_MONTH.toString()))
-            .andExpect(jsonPath("$.assetSerialTag").value(DEFAULT_ASSET_SERIAL_TAG))
-            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE))
+            .andExpect(jsonPath("$.assetSerialTag").value(DEFAULT_ASSET_SERIAL_TAG.toString()))
+            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE.toString()))
             .andExpect(jsonPath("$.transactionId").value(DEFAULT_TRANSACTION_ID.intValue()))
-            .andExpect(jsonPath("$.transactionDetails").value(DEFAULT_TRANSACTION_DETAILS))
+            .andExpect(jsonPath("$.transactionDetails").value(DEFAULT_TRANSACTION_DETAILS.toString()))
             .andExpect(jsonPath("$.transactionAmount").value(DEFAULT_TRANSACTION_AMOUNT.intValue()));
     }
 
@@ -372,19 +369,6 @@ public class CapitalWorkInProgressResourceIT {
 
         // Get all the capitalWorkInProgressList where transactionMonth equals to UPDATED_TRANSACTION_MONTH
         defaultCapitalWorkInProgressShouldNotBeFound("transactionMonth.equals=" + UPDATED_TRANSACTION_MONTH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionMonthIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionMonth not equals to DEFAULT_TRANSACTION_MONTH
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionMonth.notEquals=" + DEFAULT_TRANSACTION_MONTH);
-
-        // Get all the capitalWorkInProgressList where transactionMonth not equals to UPDATED_TRANSACTION_MONTH
-        defaultCapitalWorkInProgressShouldBeFound("transactionMonth.notEquals=" + UPDATED_TRANSACTION_MONTH);
     }
 
     @Test
@@ -419,24 +403,11 @@ public class CapitalWorkInProgressResourceIT {
         // Initialize the database
         capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
 
-        // Get all the capitalWorkInProgressList where transactionMonth is greater than or equal to DEFAULT_TRANSACTION_MONTH
-        defaultCapitalWorkInProgressShouldBeFound("transactionMonth.greaterThanOrEqual=" + DEFAULT_TRANSACTION_MONTH);
+        // Get all the capitalWorkInProgressList where transactionMonth greater than or equals to DEFAULT_TRANSACTION_MONTH
+        defaultCapitalWorkInProgressShouldBeFound("transactionMonth.greaterOrEqualThan=" + DEFAULT_TRANSACTION_MONTH);
 
-        // Get all the capitalWorkInProgressList where transactionMonth is greater than or equal to UPDATED_TRANSACTION_MONTH
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionMonth.greaterThanOrEqual=" + UPDATED_TRANSACTION_MONTH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionMonthIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionMonth is less than or equal to DEFAULT_TRANSACTION_MONTH
-        defaultCapitalWorkInProgressShouldBeFound("transactionMonth.lessThanOrEqual=" + DEFAULT_TRANSACTION_MONTH);
-
-        // Get all the capitalWorkInProgressList where transactionMonth is less than or equal to SMALLER_TRANSACTION_MONTH
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionMonth.lessThanOrEqual=" + SMALLER_TRANSACTION_MONTH);
+        // Get all the capitalWorkInProgressList where transactionMonth greater than or equals to UPDATED_TRANSACTION_MONTH
+        defaultCapitalWorkInProgressShouldNotBeFound("transactionMonth.greaterOrEqualThan=" + UPDATED_TRANSACTION_MONTH);
     }
 
     @Test
@@ -445,24 +416,11 @@ public class CapitalWorkInProgressResourceIT {
         // Initialize the database
         capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
 
-        // Get all the capitalWorkInProgressList where transactionMonth is less than DEFAULT_TRANSACTION_MONTH
+        // Get all the capitalWorkInProgressList where transactionMonth less than or equals to DEFAULT_TRANSACTION_MONTH
         defaultCapitalWorkInProgressShouldNotBeFound("transactionMonth.lessThan=" + DEFAULT_TRANSACTION_MONTH);
 
-        // Get all the capitalWorkInProgressList where transactionMonth is less than UPDATED_TRANSACTION_MONTH
+        // Get all the capitalWorkInProgressList where transactionMonth less than or equals to UPDATED_TRANSACTION_MONTH
         defaultCapitalWorkInProgressShouldBeFound("transactionMonth.lessThan=" + UPDATED_TRANSACTION_MONTH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionMonthIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionMonth is greater than DEFAULT_TRANSACTION_MONTH
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionMonth.greaterThan=" + DEFAULT_TRANSACTION_MONTH);
-
-        // Get all the capitalWorkInProgressList where transactionMonth is greater than SMALLER_TRANSACTION_MONTH
-        defaultCapitalWorkInProgressShouldBeFound("transactionMonth.greaterThan=" + SMALLER_TRANSACTION_MONTH);
     }
 
 
@@ -477,19 +435,6 @@ public class CapitalWorkInProgressResourceIT {
 
         // Get all the capitalWorkInProgressList where assetSerialTag equals to UPDATED_ASSET_SERIAL_TAG
         defaultCapitalWorkInProgressShouldNotBeFound("assetSerialTag.equals=" + UPDATED_ASSET_SERIAL_TAG);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByAssetSerialTagIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where assetSerialTag not equals to DEFAULT_ASSET_SERIAL_TAG
-        defaultCapitalWorkInProgressShouldNotBeFound("assetSerialTag.notEquals=" + DEFAULT_ASSET_SERIAL_TAG);
-
-        // Get all the capitalWorkInProgressList where assetSerialTag not equals to UPDATED_ASSET_SERIAL_TAG
-        defaultCapitalWorkInProgressShouldBeFound("assetSerialTag.notEquals=" + UPDATED_ASSET_SERIAL_TAG);
     }
 
     @Test
@@ -517,32 +462,6 @@ public class CapitalWorkInProgressResourceIT {
         // Get all the capitalWorkInProgressList where assetSerialTag is null
         defaultCapitalWorkInProgressShouldNotBeFound("assetSerialTag.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByAssetSerialTagContainsSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where assetSerialTag contains DEFAULT_ASSET_SERIAL_TAG
-        defaultCapitalWorkInProgressShouldBeFound("assetSerialTag.contains=" + DEFAULT_ASSET_SERIAL_TAG);
-
-        // Get all the capitalWorkInProgressList where assetSerialTag contains UPDATED_ASSET_SERIAL_TAG
-        defaultCapitalWorkInProgressShouldNotBeFound("assetSerialTag.contains=" + UPDATED_ASSET_SERIAL_TAG);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByAssetSerialTagNotContainsSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where assetSerialTag does not contain DEFAULT_ASSET_SERIAL_TAG
-        defaultCapitalWorkInProgressShouldNotBeFound("assetSerialTag.doesNotContain=" + DEFAULT_ASSET_SERIAL_TAG);
-
-        // Get all the capitalWorkInProgressList where assetSerialTag does not contain UPDATED_ASSET_SERIAL_TAG
-        defaultCapitalWorkInProgressShouldBeFound("assetSerialTag.doesNotContain=" + UPDATED_ASSET_SERIAL_TAG);
-    }
-
 
     @Test
     @Transactional
@@ -555,19 +474,6 @@ public class CapitalWorkInProgressResourceIT {
 
         // Get all the capitalWorkInProgressList where serviceOutletCode equals to UPDATED_SERVICE_OUTLET_CODE
         defaultCapitalWorkInProgressShouldNotBeFound("serviceOutletCode.equals=" + UPDATED_SERVICE_OUTLET_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByServiceOutletCodeIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where serviceOutletCode not equals to DEFAULT_SERVICE_OUTLET_CODE
-        defaultCapitalWorkInProgressShouldNotBeFound("serviceOutletCode.notEquals=" + DEFAULT_SERVICE_OUTLET_CODE);
-
-        // Get all the capitalWorkInProgressList where serviceOutletCode not equals to UPDATED_SERVICE_OUTLET_CODE
-        defaultCapitalWorkInProgressShouldBeFound("serviceOutletCode.notEquals=" + UPDATED_SERVICE_OUTLET_CODE);
     }
 
     @Test
@@ -595,32 +501,6 @@ public class CapitalWorkInProgressResourceIT {
         // Get all the capitalWorkInProgressList where serviceOutletCode is null
         defaultCapitalWorkInProgressShouldNotBeFound("serviceOutletCode.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByServiceOutletCodeContainsSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where serviceOutletCode contains DEFAULT_SERVICE_OUTLET_CODE
-        defaultCapitalWorkInProgressShouldBeFound("serviceOutletCode.contains=" + DEFAULT_SERVICE_OUTLET_CODE);
-
-        // Get all the capitalWorkInProgressList where serviceOutletCode contains UPDATED_SERVICE_OUTLET_CODE
-        defaultCapitalWorkInProgressShouldNotBeFound("serviceOutletCode.contains=" + UPDATED_SERVICE_OUTLET_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByServiceOutletCodeNotContainsSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where serviceOutletCode does not contain DEFAULT_SERVICE_OUTLET_CODE
-        defaultCapitalWorkInProgressShouldNotBeFound("serviceOutletCode.doesNotContain=" + DEFAULT_SERVICE_OUTLET_CODE);
-
-        // Get all the capitalWorkInProgressList where serviceOutletCode does not contain UPDATED_SERVICE_OUTLET_CODE
-        defaultCapitalWorkInProgressShouldBeFound("serviceOutletCode.doesNotContain=" + UPDATED_SERVICE_OUTLET_CODE);
-    }
-
 
     @Test
     @Transactional
@@ -633,19 +513,6 @@ public class CapitalWorkInProgressResourceIT {
 
         // Get all the capitalWorkInProgressList where transactionId equals to UPDATED_TRANSACTION_ID
         defaultCapitalWorkInProgressShouldNotBeFound("transactionId.equals=" + UPDATED_TRANSACTION_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionId not equals to DEFAULT_TRANSACTION_ID
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionId.notEquals=" + DEFAULT_TRANSACTION_ID);
-
-        // Get all the capitalWorkInProgressList where transactionId not equals to UPDATED_TRANSACTION_ID
-        defaultCapitalWorkInProgressShouldBeFound("transactionId.notEquals=" + UPDATED_TRANSACTION_ID);
     }
 
     @Test
@@ -680,24 +547,11 @@ public class CapitalWorkInProgressResourceIT {
         // Initialize the database
         capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
 
-        // Get all the capitalWorkInProgressList where transactionId is greater than or equal to DEFAULT_TRANSACTION_ID
-        defaultCapitalWorkInProgressShouldBeFound("transactionId.greaterThanOrEqual=" + DEFAULT_TRANSACTION_ID);
+        // Get all the capitalWorkInProgressList where transactionId greater than or equals to DEFAULT_TRANSACTION_ID
+        defaultCapitalWorkInProgressShouldBeFound("transactionId.greaterOrEqualThan=" + DEFAULT_TRANSACTION_ID);
 
-        // Get all the capitalWorkInProgressList where transactionId is greater than or equal to UPDATED_TRANSACTION_ID
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionId.greaterThanOrEqual=" + UPDATED_TRANSACTION_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionId is less than or equal to DEFAULT_TRANSACTION_ID
-        defaultCapitalWorkInProgressShouldBeFound("transactionId.lessThanOrEqual=" + DEFAULT_TRANSACTION_ID);
-
-        // Get all the capitalWorkInProgressList where transactionId is less than or equal to SMALLER_TRANSACTION_ID
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionId.lessThanOrEqual=" + SMALLER_TRANSACTION_ID);
+        // Get all the capitalWorkInProgressList where transactionId greater than or equals to UPDATED_TRANSACTION_ID
+        defaultCapitalWorkInProgressShouldNotBeFound("transactionId.greaterOrEqualThan=" + UPDATED_TRANSACTION_ID);
     }
 
     @Test
@@ -706,24 +560,11 @@ public class CapitalWorkInProgressResourceIT {
         // Initialize the database
         capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
 
-        // Get all the capitalWorkInProgressList where transactionId is less than DEFAULT_TRANSACTION_ID
+        // Get all the capitalWorkInProgressList where transactionId less than or equals to DEFAULT_TRANSACTION_ID
         defaultCapitalWorkInProgressShouldNotBeFound("transactionId.lessThan=" + DEFAULT_TRANSACTION_ID);
 
-        // Get all the capitalWorkInProgressList where transactionId is less than UPDATED_TRANSACTION_ID
+        // Get all the capitalWorkInProgressList where transactionId less than or equals to UPDATED_TRANSACTION_ID
         defaultCapitalWorkInProgressShouldBeFound("transactionId.lessThan=" + UPDATED_TRANSACTION_ID);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionId is greater than DEFAULT_TRANSACTION_ID
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionId.greaterThan=" + DEFAULT_TRANSACTION_ID);
-
-        // Get all the capitalWorkInProgressList where transactionId is greater than SMALLER_TRANSACTION_ID
-        defaultCapitalWorkInProgressShouldBeFound("transactionId.greaterThan=" + SMALLER_TRANSACTION_ID);
     }
 
 
@@ -738,19 +579,6 @@ public class CapitalWorkInProgressResourceIT {
 
         // Get all the capitalWorkInProgressList where transactionDetails equals to UPDATED_TRANSACTION_DETAILS
         defaultCapitalWorkInProgressShouldNotBeFound("transactionDetails.equals=" + UPDATED_TRANSACTION_DETAILS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionDetailsIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionDetails not equals to DEFAULT_TRANSACTION_DETAILS
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionDetails.notEquals=" + DEFAULT_TRANSACTION_DETAILS);
-
-        // Get all the capitalWorkInProgressList where transactionDetails not equals to UPDATED_TRANSACTION_DETAILS
-        defaultCapitalWorkInProgressShouldBeFound("transactionDetails.notEquals=" + UPDATED_TRANSACTION_DETAILS);
     }
 
     @Test
@@ -778,32 +606,6 @@ public class CapitalWorkInProgressResourceIT {
         // Get all the capitalWorkInProgressList where transactionDetails is null
         defaultCapitalWorkInProgressShouldNotBeFound("transactionDetails.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionDetailsContainsSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionDetails contains DEFAULT_TRANSACTION_DETAILS
-        defaultCapitalWorkInProgressShouldBeFound("transactionDetails.contains=" + DEFAULT_TRANSACTION_DETAILS);
-
-        // Get all the capitalWorkInProgressList where transactionDetails contains UPDATED_TRANSACTION_DETAILS
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionDetails.contains=" + UPDATED_TRANSACTION_DETAILS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionDetailsNotContainsSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionDetails does not contain DEFAULT_TRANSACTION_DETAILS
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionDetails.doesNotContain=" + DEFAULT_TRANSACTION_DETAILS);
-
-        // Get all the capitalWorkInProgressList where transactionDetails does not contain UPDATED_TRANSACTION_DETAILS
-        defaultCapitalWorkInProgressShouldBeFound("transactionDetails.doesNotContain=" + UPDATED_TRANSACTION_DETAILS);
-    }
-
 
     @Test
     @Transactional
@@ -816,19 +618,6 @@ public class CapitalWorkInProgressResourceIT {
 
         // Get all the capitalWorkInProgressList where transactionAmount equals to UPDATED_TRANSACTION_AMOUNT
         defaultCapitalWorkInProgressShouldNotBeFound("transactionAmount.equals=" + UPDATED_TRANSACTION_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionAmountIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionAmount not equals to DEFAULT_TRANSACTION_AMOUNT
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionAmount.notEquals=" + DEFAULT_TRANSACTION_AMOUNT);
-
-        // Get all the capitalWorkInProgressList where transactionAmount not equals to UPDATED_TRANSACTION_AMOUNT
-        defaultCapitalWorkInProgressShouldBeFound("transactionAmount.notEquals=" + UPDATED_TRANSACTION_AMOUNT);
     }
 
     @Test
@@ -856,59 +645,6 @@ public class CapitalWorkInProgressResourceIT {
         // Get all the capitalWorkInProgressList where transactionAmount is null
         defaultCapitalWorkInProgressShouldNotBeFound("transactionAmount.specified=false");
     }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionAmountIsGreaterThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionAmount is greater than or equal to DEFAULT_TRANSACTION_AMOUNT
-        defaultCapitalWorkInProgressShouldBeFound("transactionAmount.greaterThanOrEqual=" + DEFAULT_TRANSACTION_AMOUNT);
-
-        // Get all the capitalWorkInProgressList where transactionAmount is greater than or equal to UPDATED_TRANSACTION_AMOUNT
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionAmount.greaterThanOrEqual=" + UPDATED_TRANSACTION_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionAmountIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionAmount is less than or equal to DEFAULT_TRANSACTION_AMOUNT
-        defaultCapitalWorkInProgressShouldBeFound("transactionAmount.lessThanOrEqual=" + DEFAULT_TRANSACTION_AMOUNT);
-
-        // Get all the capitalWorkInProgressList where transactionAmount is less than or equal to SMALLER_TRANSACTION_AMOUNT
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionAmount.lessThanOrEqual=" + SMALLER_TRANSACTION_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionAmountIsLessThanSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionAmount is less than DEFAULT_TRANSACTION_AMOUNT
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionAmount.lessThan=" + DEFAULT_TRANSACTION_AMOUNT);
-
-        // Get all the capitalWorkInProgressList where transactionAmount is less than UPDATED_TRANSACTION_AMOUNT
-        defaultCapitalWorkInProgressShouldBeFound("transactionAmount.lessThan=" + UPDATED_TRANSACTION_AMOUNT);
-    }
-
-    @Test
-    @Transactional
-    public void getAllCapitalWorkInProgressesByTransactionAmountIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-
-        // Get all the capitalWorkInProgressList where transactionAmount is greater than DEFAULT_TRANSACTION_AMOUNT
-        defaultCapitalWorkInProgressShouldNotBeFound("transactionAmount.greaterThan=" + DEFAULT_TRANSACTION_AMOUNT);
-
-        // Get all the capitalWorkInProgressList where transactionAmount is greater than SMALLER_TRANSACTION_AMOUNT
-        defaultCapitalWorkInProgressShouldBeFound("transactionAmount.greaterThan=" + SMALLER_TRANSACTION_AMOUNT);
-    }
-
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -1033,7 +769,7 @@ public class CapitalWorkInProgressResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
+        // Validate the database is empty
         List<CapitalWorkInProgress> capitalWorkInProgressList = capitalWorkInProgressRepository.findAll();
         assertThat(capitalWorkInProgressList).hasSize(databaseSizeBeforeDelete - 1);
 

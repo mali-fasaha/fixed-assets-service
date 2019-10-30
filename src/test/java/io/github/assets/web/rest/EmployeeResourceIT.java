@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@link EmployeeResource} REST controller.
+ * Integration tests for the {@Link EmployeeResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class EmployeeResourceIT {
@@ -239,13 +239,13 @@ public class EmployeeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(employee.getId().intValue())))
-            .andExpect(jsonPath("$.[*].employeeName").value(hasItem(DEFAULT_EMPLOYEE_NAME)))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
-            .andExpect(jsonPath("$.[*].employeeRole").value(hasItem(DEFAULT_EMPLOYEE_ROLE)))
-            .andExpect(jsonPath("$.[*].employeeStaffCode").value(hasItem(DEFAULT_EMPLOYEE_STAFF_CODE)))
+            .andExpect(jsonPath("$.[*].employeeName").value(hasItem(DEFAULT_EMPLOYEE_NAME.toString())))
+            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE.toString())))
+            .andExpect(jsonPath("$.[*].employeeRole").value(hasItem(DEFAULT_EMPLOYEE_ROLE.toString())))
+            .andExpect(jsonPath("$.[*].employeeStaffCode").value(hasItem(DEFAULT_EMPLOYEE_STAFF_CODE.toString())))
             .andExpect(jsonPath("$.[*].employeeSignatureContentType").value(hasItem(DEFAULT_EMPLOYEE_SIGNATURE_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].employeeSignature").value(hasItem(Base64Utils.encodeToString(DEFAULT_EMPLOYEE_SIGNATURE))))
-            .andExpect(jsonPath("$.[*].employeeEmail").value(hasItem(DEFAULT_EMPLOYEE_EMAIL)));
+            .andExpect(jsonPath("$.[*].employeeEmail").value(hasItem(DEFAULT_EMPLOYEE_EMAIL.toString())));
     }
     
     @Test
@@ -259,13 +259,13 @@ public class EmployeeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(employee.getId().intValue()))
-            .andExpect(jsonPath("$.employeeName").value(DEFAULT_EMPLOYEE_NAME))
-            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE))
-            .andExpect(jsonPath("$.employeeRole").value(DEFAULT_EMPLOYEE_ROLE))
-            .andExpect(jsonPath("$.employeeStaffCode").value(DEFAULT_EMPLOYEE_STAFF_CODE))
+            .andExpect(jsonPath("$.employeeName").value(DEFAULT_EMPLOYEE_NAME.toString()))
+            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE.toString()))
+            .andExpect(jsonPath("$.employeeRole").value(DEFAULT_EMPLOYEE_ROLE.toString()))
+            .andExpect(jsonPath("$.employeeStaffCode").value(DEFAULT_EMPLOYEE_STAFF_CODE.toString()))
             .andExpect(jsonPath("$.employeeSignatureContentType").value(DEFAULT_EMPLOYEE_SIGNATURE_CONTENT_TYPE))
             .andExpect(jsonPath("$.employeeSignature").value(Base64Utils.encodeToString(DEFAULT_EMPLOYEE_SIGNATURE)))
-            .andExpect(jsonPath("$.employeeEmail").value(DEFAULT_EMPLOYEE_EMAIL));
+            .andExpect(jsonPath("$.employeeEmail").value(DEFAULT_EMPLOYEE_EMAIL.toString()));
     }
 
     @Test
@@ -279,19 +279,6 @@ public class EmployeeResourceIT {
 
         // Get all the employeeList where employeeName equals to UPDATED_EMPLOYEE_NAME
         defaultEmployeeShouldNotBeFound("employeeName.equals=" + UPDATED_EMPLOYEE_NAME);
-    }
-
-    @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeNameIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeName not equals to DEFAULT_EMPLOYEE_NAME
-        defaultEmployeeShouldNotBeFound("employeeName.notEquals=" + DEFAULT_EMPLOYEE_NAME);
-
-        // Get all the employeeList where employeeName not equals to UPDATED_EMPLOYEE_NAME
-        defaultEmployeeShouldBeFound("employeeName.notEquals=" + UPDATED_EMPLOYEE_NAME);
     }
 
     @Test
@@ -319,32 +306,6 @@ public class EmployeeResourceIT {
         // Get all the employeeList where employeeName is null
         defaultEmployeeShouldNotBeFound("employeeName.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeNameContainsSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeName contains DEFAULT_EMPLOYEE_NAME
-        defaultEmployeeShouldBeFound("employeeName.contains=" + DEFAULT_EMPLOYEE_NAME);
-
-        // Get all the employeeList where employeeName contains UPDATED_EMPLOYEE_NAME
-        defaultEmployeeShouldNotBeFound("employeeName.contains=" + UPDATED_EMPLOYEE_NAME);
-    }
-
-    @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeNameNotContainsSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeName does not contain DEFAULT_EMPLOYEE_NAME
-        defaultEmployeeShouldNotBeFound("employeeName.doesNotContain=" + DEFAULT_EMPLOYEE_NAME);
-
-        // Get all the employeeList where employeeName does not contain UPDATED_EMPLOYEE_NAME
-        defaultEmployeeShouldBeFound("employeeName.doesNotContain=" + UPDATED_EMPLOYEE_NAME);
-    }
-
 
     @Test
     @Transactional
@@ -357,19 +318,6 @@ public class EmployeeResourceIT {
 
         // Get all the employeeList where serviceOutletCode equals to UPDATED_SERVICE_OUTLET_CODE
         defaultEmployeeShouldNotBeFound("serviceOutletCode.equals=" + UPDATED_SERVICE_OUTLET_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllEmployeesByServiceOutletCodeIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where serviceOutletCode not equals to DEFAULT_SERVICE_OUTLET_CODE
-        defaultEmployeeShouldNotBeFound("serviceOutletCode.notEquals=" + DEFAULT_SERVICE_OUTLET_CODE);
-
-        // Get all the employeeList where serviceOutletCode not equals to UPDATED_SERVICE_OUTLET_CODE
-        defaultEmployeeShouldBeFound("serviceOutletCode.notEquals=" + UPDATED_SERVICE_OUTLET_CODE);
     }
 
     @Test
@@ -397,32 +345,6 @@ public class EmployeeResourceIT {
         // Get all the employeeList where serviceOutletCode is null
         defaultEmployeeShouldNotBeFound("serviceOutletCode.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllEmployeesByServiceOutletCodeContainsSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where serviceOutletCode contains DEFAULT_SERVICE_OUTLET_CODE
-        defaultEmployeeShouldBeFound("serviceOutletCode.contains=" + DEFAULT_SERVICE_OUTLET_CODE);
-
-        // Get all the employeeList where serviceOutletCode contains UPDATED_SERVICE_OUTLET_CODE
-        defaultEmployeeShouldNotBeFound("serviceOutletCode.contains=" + UPDATED_SERVICE_OUTLET_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllEmployeesByServiceOutletCodeNotContainsSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where serviceOutletCode does not contain DEFAULT_SERVICE_OUTLET_CODE
-        defaultEmployeeShouldNotBeFound("serviceOutletCode.doesNotContain=" + DEFAULT_SERVICE_OUTLET_CODE);
-
-        // Get all the employeeList where serviceOutletCode does not contain UPDATED_SERVICE_OUTLET_CODE
-        defaultEmployeeShouldBeFound("serviceOutletCode.doesNotContain=" + UPDATED_SERVICE_OUTLET_CODE);
-    }
-
 
     @Test
     @Transactional
@@ -435,19 +357,6 @@ public class EmployeeResourceIT {
 
         // Get all the employeeList where employeeRole equals to UPDATED_EMPLOYEE_ROLE
         defaultEmployeeShouldNotBeFound("employeeRole.equals=" + UPDATED_EMPLOYEE_ROLE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeRoleIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeRole not equals to DEFAULT_EMPLOYEE_ROLE
-        defaultEmployeeShouldNotBeFound("employeeRole.notEquals=" + DEFAULT_EMPLOYEE_ROLE);
-
-        // Get all the employeeList where employeeRole not equals to UPDATED_EMPLOYEE_ROLE
-        defaultEmployeeShouldBeFound("employeeRole.notEquals=" + UPDATED_EMPLOYEE_ROLE);
     }
 
     @Test
@@ -475,32 +384,6 @@ public class EmployeeResourceIT {
         // Get all the employeeList where employeeRole is null
         defaultEmployeeShouldNotBeFound("employeeRole.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeRoleContainsSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeRole contains DEFAULT_EMPLOYEE_ROLE
-        defaultEmployeeShouldBeFound("employeeRole.contains=" + DEFAULT_EMPLOYEE_ROLE);
-
-        // Get all the employeeList where employeeRole contains UPDATED_EMPLOYEE_ROLE
-        defaultEmployeeShouldNotBeFound("employeeRole.contains=" + UPDATED_EMPLOYEE_ROLE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeRoleNotContainsSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeRole does not contain DEFAULT_EMPLOYEE_ROLE
-        defaultEmployeeShouldNotBeFound("employeeRole.doesNotContain=" + DEFAULT_EMPLOYEE_ROLE);
-
-        // Get all the employeeList where employeeRole does not contain UPDATED_EMPLOYEE_ROLE
-        defaultEmployeeShouldBeFound("employeeRole.doesNotContain=" + UPDATED_EMPLOYEE_ROLE);
-    }
-
 
     @Test
     @Transactional
@@ -513,19 +396,6 @@ public class EmployeeResourceIT {
 
         // Get all the employeeList where employeeStaffCode equals to UPDATED_EMPLOYEE_STAFF_CODE
         defaultEmployeeShouldNotBeFound("employeeStaffCode.equals=" + UPDATED_EMPLOYEE_STAFF_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeStaffCodeIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeStaffCode not equals to DEFAULT_EMPLOYEE_STAFF_CODE
-        defaultEmployeeShouldNotBeFound("employeeStaffCode.notEquals=" + DEFAULT_EMPLOYEE_STAFF_CODE);
-
-        // Get all the employeeList where employeeStaffCode not equals to UPDATED_EMPLOYEE_STAFF_CODE
-        defaultEmployeeShouldBeFound("employeeStaffCode.notEquals=" + UPDATED_EMPLOYEE_STAFF_CODE);
     }
 
     @Test
@@ -553,32 +423,6 @@ public class EmployeeResourceIT {
         // Get all the employeeList where employeeStaffCode is null
         defaultEmployeeShouldNotBeFound("employeeStaffCode.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeStaffCodeContainsSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeStaffCode contains DEFAULT_EMPLOYEE_STAFF_CODE
-        defaultEmployeeShouldBeFound("employeeStaffCode.contains=" + DEFAULT_EMPLOYEE_STAFF_CODE);
-
-        // Get all the employeeList where employeeStaffCode contains UPDATED_EMPLOYEE_STAFF_CODE
-        defaultEmployeeShouldNotBeFound("employeeStaffCode.contains=" + UPDATED_EMPLOYEE_STAFF_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeStaffCodeNotContainsSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeStaffCode does not contain DEFAULT_EMPLOYEE_STAFF_CODE
-        defaultEmployeeShouldNotBeFound("employeeStaffCode.doesNotContain=" + DEFAULT_EMPLOYEE_STAFF_CODE);
-
-        // Get all the employeeList where employeeStaffCode does not contain UPDATED_EMPLOYEE_STAFF_CODE
-        defaultEmployeeShouldBeFound("employeeStaffCode.doesNotContain=" + UPDATED_EMPLOYEE_STAFF_CODE);
-    }
-
 
     @Test
     @Transactional
@@ -591,19 +435,6 @@ public class EmployeeResourceIT {
 
         // Get all the employeeList where employeeEmail equals to UPDATED_EMPLOYEE_EMAIL
         defaultEmployeeShouldNotBeFound("employeeEmail.equals=" + UPDATED_EMPLOYEE_EMAIL);
-    }
-
-    @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeEmailIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeEmail not equals to DEFAULT_EMPLOYEE_EMAIL
-        defaultEmployeeShouldNotBeFound("employeeEmail.notEquals=" + DEFAULT_EMPLOYEE_EMAIL);
-
-        // Get all the employeeList where employeeEmail not equals to UPDATED_EMPLOYEE_EMAIL
-        defaultEmployeeShouldBeFound("employeeEmail.notEquals=" + UPDATED_EMPLOYEE_EMAIL);
     }
 
     @Test
@@ -631,32 +462,6 @@ public class EmployeeResourceIT {
         // Get all the employeeList where employeeEmail is null
         defaultEmployeeShouldNotBeFound("employeeEmail.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeEmailContainsSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeEmail contains DEFAULT_EMPLOYEE_EMAIL
-        defaultEmployeeShouldBeFound("employeeEmail.contains=" + DEFAULT_EMPLOYEE_EMAIL);
-
-        // Get all the employeeList where employeeEmail contains UPDATED_EMPLOYEE_EMAIL
-        defaultEmployeeShouldNotBeFound("employeeEmail.contains=" + UPDATED_EMPLOYEE_EMAIL);
-    }
-
-    @Test
-    @Transactional
-    public void getAllEmployeesByEmployeeEmailNotContainsSomething() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-
-        // Get all the employeeList where employeeEmail does not contain DEFAULT_EMPLOYEE_EMAIL
-        defaultEmployeeShouldNotBeFound("employeeEmail.doesNotContain=" + DEFAULT_EMPLOYEE_EMAIL);
-
-        // Get all the employeeList where employeeEmail does not contain UPDATED_EMPLOYEE_EMAIL
-        defaultEmployeeShouldBeFound("employeeEmail.doesNotContain=" + UPDATED_EMPLOYEE_EMAIL);
-    }
-
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -784,7 +589,7 @@ public class EmployeeResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
+        // Validate the database is empty
         List<Employee> employeeList = employeeRepository.findAll();
         assertThat(employeeList).hasSize(databaseSizeBeforeDelete - 1);
 

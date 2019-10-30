@@ -75,12 +75,12 @@ class CwipTransferGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all cwipTransfers")
-            .get("/services/fixedassetservice/api/cwip-transfers")
+            .get("/fixedassetservice/api/cwip-transfers")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new cwipTransfer")
-            .post("/services/fixedassetservice/api/cwip-transfers")
+            .post("/fixedassetservice/api/cwip-transfers")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -100,12 +100,12 @@ class CwipTransferGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created cwipTransfer")
-                .get("/services/fixedassetservice${new_cwipTransfer_url}")
+                .get("/fixedassetservice${new_cwipTransfer_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created cwipTransfer")
-            .delete("/services/fixedassetservice${new_cwipTransfer_url}")
+            .delete("/fixedassetservice${new_cwipTransfer_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

@@ -14,7 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -91,16 +92,14 @@ public class MessageTokenResource {
     /**
      * {@code GET  /message-tokens} : get all the messageTokens.
      *
-
      * @param pageable the pagination information.
-
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of messageTokens in body.
      */
     @GetMapping("/message-tokens")
-    public ResponseEntity<List<MessageToken>> getAllMessageTokens(Pageable pageable) {
+    public ResponseEntity<List<MessageToken>> getAllMessageTokens(Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get a page of MessageTokens");
         Page<MessageToken> page = messageTokenService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -139,10 +138,11 @@ public class MessageTokenResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/message-tokens")
-    public ResponseEntity<List<MessageToken>> searchMessageTokens(@RequestParam String query, Pageable pageable) {
+    public ResponseEntity<List<MessageToken>> searchMessageTokens(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to search for a page of MessageTokens for query {}", query);
         Page<MessageToken> page = messageTokenService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
+
 }

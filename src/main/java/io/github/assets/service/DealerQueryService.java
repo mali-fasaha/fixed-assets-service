@@ -85,11 +85,9 @@ public class DealerQueryService extends QueryService<Dealer> {
     }
 
     /**
-     * Function to convert {@link DealerCriteria} to a {@link Specification}
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the matching {@link Specification} of the entity.
+     * Function to convert DealerCriteria to a {@link Specification}.
      */
-    protected Specification<Dealer> createSpecification(DealerCriteria criteria) {
+    private Specification<Dealer> createSpecification(DealerCriteria criteria) {
         Specification<Dealer> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

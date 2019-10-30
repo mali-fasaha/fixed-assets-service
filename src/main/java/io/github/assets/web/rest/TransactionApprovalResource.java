@@ -16,7 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -96,17 +97,15 @@ public class TransactionApprovalResource {
     /**
      * {@code GET  /transaction-approvals} : get all the transactionApprovals.
      *
-
      * @param pageable the pagination information.
-
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of transactionApprovals in body.
      */
     @GetMapping("/transaction-approvals")
-    public ResponseEntity<List<TransactionApprovalDTO>> getAllTransactionApprovals(TransactionApprovalCriteria criteria, Pageable pageable) {
+    public ResponseEntity<List<TransactionApprovalDTO>> getAllTransactionApprovals(TransactionApprovalCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get TransactionApprovals by criteria: {}", criteria);
         Page<TransactionApprovalDTO> page = transactionApprovalQueryService.findByCriteria(criteria, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -157,10 +156,11 @@ public class TransactionApprovalResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/transaction-approvals")
-    public ResponseEntity<List<TransactionApprovalDTO>> searchTransactionApprovals(@RequestParam String query, Pageable pageable) {
+    public ResponseEntity<List<TransactionApprovalDTO>> searchTransactionApprovals(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to search for a page of TransactionApprovals for query {}", query);
         Page<TransactionApprovalDTO> page = transactionApprovalService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
+
 }

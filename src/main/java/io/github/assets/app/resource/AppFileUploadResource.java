@@ -1,17 +1,13 @@
 package io.github.assets.app.resource;
 
-import io.github.assets.app.file.FileNotification;
-import io.github.assets.app.messaging.FileNotificationMessageService;
-import io.github.assets.app.messaging.MessageService;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
-import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URISyntaxException;
@@ -28,7 +25,7 @@ import java.util.List;
 
 /**
  * REST controller for managing {@link io.github.assets.domain.FileUpload}.
- *
+ * <p>
  * It is intended to enable asynchronous processing for PUT, POST and DELETE request
  */
 @Slf4j
@@ -37,11 +34,6 @@ import java.util.List;
 public class AppFileUploadResource implements IFileUploadResource {
 
     private final IFileUploadResource fileUploadResource;
-    @Autowired
-    private FileNotificationMessageService fileNotificationMessageService;
-    @Autowired
-    private TokenGenerator tokenGenerator;
-
 
     public AppFileUploadResource(final @Qualifier("fileUploadResourceDecorator") IFileUploadResource fileUploadResource) {
         this.fileUploadResource = fileUploadResource;
@@ -59,15 +51,6 @@ public class AppFileUploadResource implements IFileUploadResource {
     public ResponseEntity<FileUploadDTO> createFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
         ResponseEntity<FileUploadDTO> res = fileUploadResource.createFileUpload(fileUploadDTO);
-
-        /* TODO fileNotificationMessageService.sendMessage(
-            FileNotification.builder()
-                            .fileId(String.valueOf(res.getBody().getId()))
-                            .timeOfUpload(String.valueOf(System.currentTimeMillis()))
-                            .filename(fileUploadDTO.getFileName())
-                            .messageToken(tokenGenerator.generateBase64Token())
-                            .description(fileUploadDTO.getDescription())
-                            .build());*/
 
         return res;
     }
@@ -95,9 +78,10 @@ public class AppFileUploadResource implements IFileUploadResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of fileUploads in body.
      */
     @GetMapping("/file-uploads")
-    public ResponseEntity<List<FileUploadDTO>> getAllFileUploads(FileUploadCriteria criteria, Pageable pageable) {
+    public ResponseEntity<List<FileUploadDTO>> getAllFileUploads(FileUploadCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
+                                                                 UriComponentsBuilder uriBuilder) {
 
-        return this.fileUploadResource.getAllFileUploads(criteria, pageable);
+        return this.fileUploadResource.getAllFileUploads(criteria, pageable, queryParams, uriBuilder);
     }
 
     /**
@@ -145,8 +129,9 @@ public class AppFileUploadResource implements IFileUploadResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/file-uploads")
-    public ResponseEntity<List<FileUploadDTO>> searchFileUploads(@RequestParam String query, Pageable pageable) {
+    public ResponseEntity<List<FileUploadDTO>> searchFileUploads(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
+                                                                 UriComponentsBuilder uriBuilder) {
 
-        return fileUploadResource.searchFileUploads(query, pageable);
+        return fileUploadResource.searchFileUploads(query, pageable, queryParams, uriBuilder);
     }
 }

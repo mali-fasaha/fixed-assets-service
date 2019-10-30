@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@link ScannedDocumentResource} REST controller.
+ * Integration tests for the {@Link ScannedDocumentResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class ScannedDocumentResourceIT {
@@ -240,7 +240,7 @@ public class ScannedDocumentResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(scannedDocument.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
             .andExpect(jsonPath("$.[*].approvalDocumentContentType").value(hasItem(DEFAULT_APPROVAL_DOCUMENT_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].approvalDocument").value(hasItem(Base64Utils.encodeToString(DEFAULT_APPROVAL_DOCUMENT))))
             .andExpect(jsonPath("$.[*].invoiceDocumentContentType").value(hasItem(DEFAULT_INVOICE_DOCUMENT_CONTENT_TYPE)))
@@ -264,7 +264,7 @@ public class ScannedDocumentResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(scannedDocument.getId().intValue()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
             .andExpect(jsonPath("$.approvalDocumentContentType").value(DEFAULT_APPROVAL_DOCUMENT_CONTENT_TYPE))
             .andExpect(jsonPath("$.approvalDocument").value(Base64Utils.encodeToString(DEFAULT_APPROVAL_DOCUMENT)))
             .andExpect(jsonPath("$.invoiceDocumentContentType").value(DEFAULT_INVOICE_DOCUMENT_CONTENT_TYPE))
@@ -292,19 +292,6 @@ public class ScannedDocumentResourceIT {
 
     @Test
     @Transactional
-    public void getAllScannedDocumentsByDescriptionIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        scannedDocumentRepository.saveAndFlush(scannedDocument);
-
-        // Get all the scannedDocumentList where description not equals to DEFAULT_DESCRIPTION
-        defaultScannedDocumentShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
-
-        // Get all the scannedDocumentList where description not equals to UPDATED_DESCRIPTION
-        defaultScannedDocumentShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
     public void getAllScannedDocumentsByDescriptionIsInShouldWork() throws Exception {
         // Initialize the database
         scannedDocumentRepository.saveAndFlush(scannedDocument);
@@ -328,32 +315,6 @@ public class ScannedDocumentResourceIT {
         // Get all the scannedDocumentList where description is null
         defaultScannedDocumentShouldNotBeFound("description.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllScannedDocumentsByDescriptionContainsSomething() throws Exception {
-        // Initialize the database
-        scannedDocumentRepository.saveAndFlush(scannedDocument);
-
-        // Get all the scannedDocumentList where description contains DEFAULT_DESCRIPTION
-        defaultScannedDocumentShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
-
-        // Get all the scannedDocumentList where description contains UPDATED_DESCRIPTION
-        defaultScannedDocumentShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    public void getAllScannedDocumentsByDescriptionNotContainsSomething() throws Exception {
-        // Initialize the database
-        scannedDocumentRepository.saveAndFlush(scannedDocument);
-
-        // Get all the scannedDocumentList where description does not contain DEFAULT_DESCRIPTION
-        defaultScannedDocumentShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
-
-        // Get all the scannedDocumentList where description does not contain UPDATED_DESCRIPTION
-        defaultScannedDocumentShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
-    }
-
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -493,7 +454,7 @@ public class ScannedDocumentResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
+        // Validate the database is empty
         List<ScannedDocument> scannedDocumentList = scannedDocumentRepository.findAll();
         assertThat(scannedDocumentList).hasSize(databaseSizeBeforeDelete - 1);
 

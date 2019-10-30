@@ -23,9 +23,18 @@ eureka:
 spring:
   application:
     name: fixedAssetService
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost
+          zk-nodes: localhost
+      bindings:
+        output:
+          destination: topic-jhipster
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:mem:fixedAssetService;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MULTI_THREADED=FALSE
+    url: jdbc:h2:mem:fixedAssetService;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     name:
     username:
     password:
@@ -95,8 +104,9 @@ jhipster:
   logging:
     # To test json console appender
     use-json-format: true # By default, logs are in Json format
+    # To test logstash appender
     logstash:
-      enabled: false
+      enabled: true
       host: localhost
       port: 5000
       queue-size: 512
@@ -104,7 +114,7 @@ jhipster:
     authentication:
       jwt:
         # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
-        base64-secret: MDlkZmIyOTFhNzQ0Yjk5ZTAxMDlmNWViOTY3N2JhZTZhOGZhYjZhMDRiZTQzOWRiN2YwYzg0MjhjYWNmMmFkZmE3MTk0MDA4NWZlZGJlMDliZWMxOWY4MjU5MjNmYzkyZmE2M2I5ODM0ZTE2NmNkNDFkNDc0NTRlODBlNTU1MDU=
+        base64-secret: NDk2NzZjYzA5YjJmZDkzZTQ1MzM0MGE5OWM4MTQ5ZDU5OGY4N2EyM2NmNTdiZjI4ZGQxNzg2MGU3ODhiZWIxYWEzMGIxNGUzOTMwOThmMWE0MTQwYzgxOGVjNzEyODY0ZGZjZDc3YzA0MWZjYzY5NzQ2YmUxZWFkNWI4NzQ1ZWQ=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
     client-authorization:
@@ -116,17 +126,7 @@ jhipster:
     logs: # Reports metrics in the logs
       enabled: true
       report-frequency: 60 # in seconds
-kafka:
-  consumer:
-    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    bootstrap.servers: ${kafkaBootstrapServers}
-    group.id: fixed-asset-service
-    auto.offset.reset: earliest
-  producer:
-    key.serializer: org.apache.kafka.common.serialization.StringSerializer
-    value.serializer: org.apache.kafka.common.serialization.StringSerializer
-    bootstrap.servers: ${kafkaBootstrapServers}
+
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

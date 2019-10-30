@@ -46,28 +46,15 @@ spring:
   jackson:
     serialization:
       indent-output: true
-  kafka:
-    consumer:
-      bootstrap-servers: localhost:9092
-      group-id: group_id
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    producer:
-      bootstrap-servers: localhost:9092
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-  kafka-byte-stream:
-    consumer-props:
-      key-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
-      bootstrap-servers: localhost:9092
-      group-id: fixed-asset-service
-      auto-offset-reset: earliest
-    producer-props:
-      key-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
-      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
-      bootstrap-servers: localhost:9092
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost
+          zk-nodes: localhost
+      bindings:
+        output:
+          destination: topic-jhipster
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:58213/fixedAssetService
@@ -151,6 +138,7 @@ jhipster:
       client-id: internal
       client-secret: internal
   mail: # specific JHipster mail property, for standard properties see MailProperties
+    from: fixedAssetService@localhost
     base-url: http://127.0.0.1:58214
   metrics:
     logs: # Reports metrics in the logs
@@ -163,8 +151,6 @@ jhipster:
       host: localhost
       port: 5000
       queue-size: 512
-  audit-events:
-    retention-period: 30 # Number of days before audit events are deleted.
 oauth2:
   signature-verification:
     public-key-endpoint-uri: http://fixedassetsuaa/oauth/token_key

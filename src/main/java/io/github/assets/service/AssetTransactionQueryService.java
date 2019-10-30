@@ -85,11 +85,9 @@ public class AssetTransactionQueryService extends QueryService<AssetTransaction>
     }
 
     /**
-     * Function to convert {@link AssetTransactionCriteria} to a {@link Specification}
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the matching {@link Specification} of the entity.
+     * Function to convert AssetTransactionCriteria to a {@link Specification}.
      */
-    protected Specification<AssetTransaction> createSpecification(AssetTransactionCriteria criteria) {
+    private Specification<AssetTransaction> createSpecification(AssetTransactionCriteria criteria) {
         Specification<AssetTransaction> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

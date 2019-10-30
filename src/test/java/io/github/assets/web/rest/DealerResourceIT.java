@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import io.github.assets.domain.enumeration.TitleTypes;
 /**
- * Integration tests for the {@link DealerResource} REST controller.
+ * Integration tests for the {@Link DealerResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class DealerResourceIT {
@@ -291,17 +291,17 @@ public class DealerResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(dealer.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
-            .andExpect(jsonPath("$.[*].dealerName").value(hasItem(DEFAULT_DEALER_NAME)))
-            .andExpect(jsonPath("$.[*].dealerAddress").value(hasItem(DEFAULT_DEALER_ADDRESS)))
-            .andExpect(jsonPath("$.[*].dealerPhoneNumber").value(hasItem(DEFAULT_DEALER_PHONE_NUMBER)))
-            .andExpect(jsonPath("$.[*].dealerEmail").value(hasItem(DEFAULT_DEALER_EMAIL)))
-            .andExpect(jsonPath("$.[*].bankName").value(hasItem(DEFAULT_BANK_NAME)))
-            .andExpect(jsonPath("$.[*].bankAccountNumber").value(hasItem(DEFAULT_BANK_ACCOUNT_NUMBER)))
-            .andExpect(jsonPath("$.[*].bankBranch").value(hasItem(DEFAULT_BANK_BRANCH)))
-            .andExpect(jsonPath("$.[*].bankSwiftCode").value(hasItem(DEFAULT_BANK_SWIFT_CODE)))
-            .andExpect(jsonPath("$.[*].bankPhysicalAddress").value(hasItem(DEFAULT_BANK_PHYSICAL_ADDRESS)))
-            .andExpect(jsonPath("$.[*].domicile").value(hasItem(DEFAULT_DOMICILE)))
-            .andExpect(jsonPath("$.[*].taxAuthorityRef").value(hasItem(DEFAULT_TAX_AUTHORITY_REF)));
+            .andExpect(jsonPath("$.[*].dealerName").value(hasItem(DEFAULT_DEALER_NAME.toString())))
+            .andExpect(jsonPath("$.[*].dealerAddress").value(hasItem(DEFAULT_DEALER_ADDRESS.toString())))
+            .andExpect(jsonPath("$.[*].dealerPhoneNumber").value(hasItem(DEFAULT_DEALER_PHONE_NUMBER.toString())))
+            .andExpect(jsonPath("$.[*].dealerEmail").value(hasItem(DEFAULT_DEALER_EMAIL.toString())))
+            .andExpect(jsonPath("$.[*].bankName").value(hasItem(DEFAULT_BANK_NAME.toString())))
+            .andExpect(jsonPath("$.[*].bankAccountNumber").value(hasItem(DEFAULT_BANK_ACCOUNT_NUMBER.toString())))
+            .andExpect(jsonPath("$.[*].bankBranch").value(hasItem(DEFAULT_BANK_BRANCH.toString())))
+            .andExpect(jsonPath("$.[*].bankSwiftCode").value(hasItem(DEFAULT_BANK_SWIFT_CODE.toString())))
+            .andExpect(jsonPath("$.[*].bankPhysicalAddress").value(hasItem(DEFAULT_BANK_PHYSICAL_ADDRESS.toString())))
+            .andExpect(jsonPath("$.[*].domicile").value(hasItem(DEFAULT_DOMICILE.toString())))
+            .andExpect(jsonPath("$.[*].taxAuthorityRef").value(hasItem(DEFAULT_TAX_AUTHORITY_REF.toString())));
     }
     
     @Test
@@ -316,17 +316,17 @@ public class DealerResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(dealer.getId().intValue()))
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
-            .andExpect(jsonPath("$.dealerName").value(DEFAULT_DEALER_NAME))
-            .andExpect(jsonPath("$.dealerAddress").value(DEFAULT_DEALER_ADDRESS))
-            .andExpect(jsonPath("$.dealerPhoneNumber").value(DEFAULT_DEALER_PHONE_NUMBER))
-            .andExpect(jsonPath("$.dealerEmail").value(DEFAULT_DEALER_EMAIL))
-            .andExpect(jsonPath("$.bankName").value(DEFAULT_BANK_NAME))
-            .andExpect(jsonPath("$.bankAccountNumber").value(DEFAULT_BANK_ACCOUNT_NUMBER))
-            .andExpect(jsonPath("$.bankBranch").value(DEFAULT_BANK_BRANCH))
-            .andExpect(jsonPath("$.bankSwiftCode").value(DEFAULT_BANK_SWIFT_CODE))
-            .andExpect(jsonPath("$.bankPhysicalAddress").value(DEFAULT_BANK_PHYSICAL_ADDRESS))
-            .andExpect(jsonPath("$.domicile").value(DEFAULT_DOMICILE))
-            .andExpect(jsonPath("$.taxAuthorityRef").value(DEFAULT_TAX_AUTHORITY_REF));
+            .andExpect(jsonPath("$.dealerName").value(DEFAULT_DEALER_NAME.toString()))
+            .andExpect(jsonPath("$.dealerAddress").value(DEFAULT_DEALER_ADDRESS.toString()))
+            .andExpect(jsonPath("$.dealerPhoneNumber").value(DEFAULT_DEALER_PHONE_NUMBER.toString()))
+            .andExpect(jsonPath("$.dealerEmail").value(DEFAULT_DEALER_EMAIL.toString()))
+            .andExpect(jsonPath("$.bankName").value(DEFAULT_BANK_NAME.toString()))
+            .andExpect(jsonPath("$.bankAccountNumber").value(DEFAULT_BANK_ACCOUNT_NUMBER.toString()))
+            .andExpect(jsonPath("$.bankBranch").value(DEFAULT_BANK_BRANCH.toString()))
+            .andExpect(jsonPath("$.bankSwiftCode").value(DEFAULT_BANK_SWIFT_CODE.toString()))
+            .andExpect(jsonPath("$.bankPhysicalAddress").value(DEFAULT_BANK_PHYSICAL_ADDRESS.toString()))
+            .andExpect(jsonPath("$.domicile").value(DEFAULT_DOMICILE.toString()))
+            .andExpect(jsonPath("$.taxAuthorityRef").value(DEFAULT_TAX_AUTHORITY_REF.toString()));
     }
 
     @Test
@@ -340,19 +340,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where title equals to UPDATED_TITLE
         defaultDealerShouldNotBeFound("title.equals=" + UPDATED_TITLE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByTitleIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where title not equals to DEFAULT_TITLE
-        defaultDealerShouldNotBeFound("title.notEquals=" + DEFAULT_TITLE);
-
-        // Get all the dealerList where title not equals to UPDATED_TITLE
-        defaultDealerShouldBeFound("title.notEquals=" + UPDATED_TITLE);
     }
 
     @Test
@@ -396,19 +383,6 @@ public class DealerResourceIT {
 
     @Test
     @Transactional
-    public void getAllDealersByDealerNameIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerName not equals to DEFAULT_DEALER_NAME
-        defaultDealerShouldNotBeFound("dealerName.notEquals=" + DEFAULT_DEALER_NAME);
-
-        // Get all the dealerList where dealerName not equals to UPDATED_DEALER_NAME
-        defaultDealerShouldBeFound("dealerName.notEquals=" + UPDATED_DEALER_NAME);
-    }
-
-    @Test
-    @Transactional
     public void getAllDealersByDealerNameIsInShouldWork() throws Exception {
         // Initialize the database
         dealerRepository.saveAndFlush(dealer);
@@ -432,32 +406,6 @@ public class DealerResourceIT {
         // Get all the dealerList where dealerName is null
         defaultDealerShouldNotBeFound("dealerName.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByDealerNameContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerName contains DEFAULT_DEALER_NAME
-        defaultDealerShouldBeFound("dealerName.contains=" + DEFAULT_DEALER_NAME);
-
-        // Get all the dealerList where dealerName contains UPDATED_DEALER_NAME
-        defaultDealerShouldNotBeFound("dealerName.contains=" + UPDATED_DEALER_NAME);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByDealerNameNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerName does not contain DEFAULT_DEALER_NAME
-        defaultDealerShouldNotBeFound("dealerName.doesNotContain=" + DEFAULT_DEALER_NAME);
-
-        // Get all the dealerList where dealerName does not contain UPDATED_DEALER_NAME
-        defaultDealerShouldBeFound("dealerName.doesNotContain=" + UPDATED_DEALER_NAME);
-    }
-
 
     @Test
     @Transactional
@@ -470,19 +418,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where dealerAddress equals to UPDATED_DEALER_ADDRESS
         defaultDealerShouldNotBeFound("dealerAddress.equals=" + UPDATED_DEALER_ADDRESS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByDealerAddressIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerAddress not equals to DEFAULT_DEALER_ADDRESS
-        defaultDealerShouldNotBeFound("dealerAddress.notEquals=" + DEFAULT_DEALER_ADDRESS);
-
-        // Get all the dealerList where dealerAddress not equals to UPDATED_DEALER_ADDRESS
-        defaultDealerShouldBeFound("dealerAddress.notEquals=" + UPDATED_DEALER_ADDRESS);
     }
 
     @Test
@@ -510,32 +445,6 @@ public class DealerResourceIT {
         // Get all the dealerList where dealerAddress is null
         defaultDealerShouldNotBeFound("dealerAddress.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByDealerAddressContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerAddress contains DEFAULT_DEALER_ADDRESS
-        defaultDealerShouldBeFound("dealerAddress.contains=" + DEFAULT_DEALER_ADDRESS);
-
-        // Get all the dealerList where dealerAddress contains UPDATED_DEALER_ADDRESS
-        defaultDealerShouldNotBeFound("dealerAddress.contains=" + UPDATED_DEALER_ADDRESS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByDealerAddressNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerAddress does not contain DEFAULT_DEALER_ADDRESS
-        defaultDealerShouldNotBeFound("dealerAddress.doesNotContain=" + DEFAULT_DEALER_ADDRESS);
-
-        // Get all the dealerList where dealerAddress does not contain UPDATED_DEALER_ADDRESS
-        defaultDealerShouldBeFound("dealerAddress.doesNotContain=" + UPDATED_DEALER_ADDRESS);
-    }
-
 
     @Test
     @Transactional
@@ -548,19 +457,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where dealerPhoneNumber equals to UPDATED_DEALER_PHONE_NUMBER
         defaultDealerShouldNotBeFound("dealerPhoneNumber.equals=" + UPDATED_DEALER_PHONE_NUMBER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByDealerPhoneNumberIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerPhoneNumber not equals to DEFAULT_DEALER_PHONE_NUMBER
-        defaultDealerShouldNotBeFound("dealerPhoneNumber.notEquals=" + DEFAULT_DEALER_PHONE_NUMBER);
-
-        // Get all the dealerList where dealerPhoneNumber not equals to UPDATED_DEALER_PHONE_NUMBER
-        defaultDealerShouldBeFound("dealerPhoneNumber.notEquals=" + UPDATED_DEALER_PHONE_NUMBER);
     }
 
     @Test
@@ -588,32 +484,6 @@ public class DealerResourceIT {
         // Get all the dealerList where dealerPhoneNumber is null
         defaultDealerShouldNotBeFound("dealerPhoneNumber.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByDealerPhoneNumberContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerPhoneNumber contains DEFAULT_DEALER_PHONE_NUMBER
-        defaultDealerShouldBeFound("dealerPhoneNumber.contains=" + DEFAULT_DEALER_PHONE_NUMBER);
-
-        // Get all the dealerList where dealerPhoneNumber contains UPDATED_DEALER_PHONE_NUMBER
-        defaultDealerShouldNotBeFound("dealerPhoneNumber.contains=" + UPDATED_DEALER_PHONE_NUMBER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByDealerPhoneNumberNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerPhoneNumber does not contain DEFAULT_DEALER_PHONE_NUMBER
-        defaultDealerShouldNotBeFound("dealerPhoneNumber.doesNotContain=" + DEFAULT_DEALER_PHONE_NUMBER);
-
-        // Get all the dealerList where dealerPhoneNumber does not contain UPDATED_DEALER_PHONE_NUMBER
-        defaultDealerShouldBeFound("dealerPhoneNumber.doesNotContain=" + UPDATED_DEALER_PHONE_NUMBER);
-    }
-
 
     @Test
     @Transactional
@@ -626,19 +496,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where dealerEmail equals to UPDATED_DEALER_EMAIL
         defaultDealerShouldNotBeFound("dealerEmail.equals=" + UPDATED_DEALER_EMAIL);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByDealerEmailIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerEmail not equals to DEFAULT_DEALER_EMAIL
-        defaultDealerShouldNotBeFound("dealerEmail.notEquals=" + DEFAULT_DEALER_EMAIL);
-
-        // Get all the dealerList where dealerEmail not equals to UPDATED_DEALER_EMAIL
-        defaultDealerShouldBeFound("dealerEmail.notEquals=" + UPDATED_DEALER_EMAIL);
     }
 
     @Test
@@ -666,32 +523,6 @@ public class DealerResourceIT {
         // Get all the dealerList where dealerEmail is null
         defaultDealerShouldNotBeFound("dealerEmail.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByDealerEmailContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerEmail contains DEFAULT_DEALER_EMAIL
-        defaultDealerShouldBeFound("dealerEmail.contains=" + DEFAULT_DEALER_EMAIL);
-
-        // Get all the dealerList where dealerEmail contains UPDATED_DEALER_EMAIL
-        defaultDealerShouldNotBeFound("dealerEmail.contains=" + UPDATED_DEALER_EMAIL);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByDealerEmailNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where dealerEmail does not contain DEFAULT_DEALER_EMAIL
-        defaultDealerShouldNotBeFound("dealerEmail.doesNotContain=" + DEFAULT_DEALER_EMAIL);
-
-        // Get all the dealerList where dealerEmail does not contain UPDATED_DEALER_EMAIL
-        defaultDealerShouldBeFound("dealerEmail.doesNotContain=" + UPDATED_DEALER_EMAIL);
-    }
-
 
     @Test
     @Transactional
@@ -704,19 +535,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where bankName equals to UPDATED_BANK_NAME
         defaultDealerShouldNotBeFound("bankName.equals=" + UPDATED_BANK_NAME);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByBankNameIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankName not equals to DEFAULT_BANK_NAME
-        defaultDealerShouldNotBeFound("bankName.notEquals=" + DEFAULT_BANK_NAME);
-
-        // Get all the dealerList where bankName not equals to UPDATED_BANK_NAME
-        defaultDealerShouldBeFound("bankName.notEquals=" + UPDATED_BANK_NAME);
     }
 
     @Test
@@ -744,32 +562,6 @@ public class DealerResourceIT {
         // Get all the dealerList where bankName is null
         defaultDealerShouldNotBeFound("bankName.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByBankNameContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankName contains DEFAULT_BANK_NAME
-        defaultDealerShouldBeFound("bankName.contains=" + DEFAULT_BANK_NAME);
-
-        // Get all the dealerList where bankName contains UPDATED_BANK_NAME
-        defaultDealerShouldNotBeFound("bankName.contains=" + UPDATED_BANK_NAME);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByBankNameNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankName does not contain DEFAULT_BANK_NAME
-        defaultDealerShouldNotBeFound("bankName.doesNotContain=" + DEFAULT_BANK_NAME);
-
-        // Get all the dealerList where bankName does not contain UPDATED_BANK_NAME
-        defaultDealerShouldBeFound("bankName.doesNotContain=" + UPDATED_BANK_NAME);
-    }
-
 
     @Test
     @Transactional
@@ -782,19 +574,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where bankAccountNumber equals to UPDATED_BANK_ACCOUNT_NUMBER
         defaultDealerShouldNotBeFound("bankAccountNumber.equals=" + UPDATED_BANK_ACCOUNT_NUMBER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByBankAccountNumberIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankAccountNumber not equals to DEFAULT_BANK_ACCOUNT_NUMBER
-        defaultDealerShouldNotBeFound("bankAccountNumber.notEquals=" + DEFAULT_BANK_ACCOUNT_NUMBER);
-
-        // Get all the dealerList where bankAccountNumber not equals to UPDATED_BANK_ACCOUNT_NUMBER
-        defaultDealerShouldBeFound("bankAccountNumber.notEquals=" + UPDATED_BANK_ACCOUNT_NUMBER);
     }
 
     @Test
@@ -822,32 +601,6 @@ public class DealerResourceIT {
         // Get all the dealerList where bankAccountNumber is null
         defaultDealerShouldNotBeFound("bankAccountNumber.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByBankAccountNumberContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankAccountNumber contains DEFAULT_BANK_ACCOUNT_NUMBER
-        defaultDealerShouldBeFound("bankAccountNumber.contains=" + DEFAULT_BANK_ACCOUNT_NUMBER);
-
-        // Get all the dealerList where bankAccountNumber contains UPDATED_BANK_ACCOUNT_NUMBER
-        defaultDealerShouldNotBeFound("bankAccountNumber.contains=" + UPDATED_BANK_ACCOUNT_NUMBER);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByBankAccountNumberNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankAccountNumber does not contain DEFAULT_BANK_ACCOUNT_NUMBER
-        defaultDealerShouldNotBeFound("bankAccountNumber.doesNotContain=" + DEFAULT_BANK_ACCOUNT_NUMBER);
-
-        // Get all the dealerList where bankAccountNumber does not contain UPDATED_BANK_ACCOUNT_NUMBER
-        defaultDealerShouldBeFound("bankAccountNumber.doesNotContain=" + UPDATED_BANK_ACCOUNT_NUMBER);
-    }
-
 
     @Test
     @Transactional
@@ -860,19 +613,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where bankBranch equals to UPDATED_BANK_BRANCH
         defaultDealerShouldNotBeFound("bankBranch.equals=" + UPDATED_BANK_BRANCH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByBankBranchIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankBranch not equals to DEFAULT_BANK_BRANCH
-        defaultDealerShouldNotBeFound("bankBranch.notEquals=" + DEFAULT_BANK_BRANCH);
-
-        // Get all the dealerList where bankBranch not equals to UPDATED_BANK_BRANCH
-        defaultDealerShouldBeFound("bankBranch.notEquals=" + UPDATED_BANK_BRANCH);
     }
 
     @Test
@@ -900,32 +640,6 @@ public class DealerResourceIT {
         // Get all the dealerList where bankBranch is null
         defaultDealerShouldNotBeFound("bankBranch.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByBankBranchContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankBranch contains DEFAULT_BANK_BRANCH
-        defaultDealerShouldBeFound("bankBranch.contains=" + DEFAULT_BANK_BRANCH);
-
-        // Get all the dealerList where bankBranch contains UPDATED_BANK_BRANCH
-        defaultDealerShouldNotBeFound("bankBranch.contains=" + UPDATED_BANK_BRANCH);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByBankBranchNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankBranch does not contain DEFAULT_BANK_BRANCH
-        defaultDealerShouldNotBeFound("bankBranch.doesNotContain=" + DEFAULT_BANK_BRANCH);
-
-        // Get all the dealerList where bankBranch does not contain UPDATED_BANK_BRANCH
-        defaultDealerShouldBeFound("bankBranch.doesNotContain=" + UPDATED_BANK_BRANCH);
-    }
-
 
     @Test
     @Transactional
@@ -938,19 +652,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where bankSwiftCode equals to UPDATED_BANK_SWIFT_CODE
         defaultDealerShouldNotBeFound("bankSwiftCode.equals=" + UPDATED_BANK_SWIFT_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByBankSwiftCodeIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankSwiftCode not equals to DEFAULT_BANK_SWIFT_CODE
-        defaultDealerShouldNotBeFound("bankSwiftCode.notEquals=" + DEFAULT_BANK_SWIFT_CODE);
-
-        // Get all the dealerList where bankSwiftCode not equals to UPDATED_BANK_SWIFT_CODE
-        defaultDealerShouldBeFound("bankSwiftCode.notEquals=" + UPDATED_BANK_SWIFT_CODE);
     }
 
     @Test
@@ -978,32 +679,6 @@ public class DealerResourceIT {
         // Get all the dealerList where bankSwiftCode is null
         defaultDealerShouldNotBeFound("bankSwiftCode.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByBankSwiftCodeContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankSwiftCode contains DEFAULT_BANK_SWIFT_CODE
-        defaultDealerShouldBeFound("bankSwiftCode.contains=" + DEFAULT_BANK_SWIFT_CODE);
-
-        // Get all the dealerList where bankSwiftCode contains UPDATED_BANK_SWIFT_CODE
-        defaultDealerShouldNotBeFound("bankSwiftCode.contains=" + UPDATED_BANK_SWIFT_CODE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByBankSwiftCodeNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankSwiftCode does not contain DEFAULT_BANK_SWIFT_CODE
-        defaultDealerShouldNotBeFound("bankSwiftCode.doesNotContain=" + DEFAULT_BANK_SWIFT_CODE);
-
-        // Get all the dealerList where bankSwiftCode does not contain UPDATED_BANK_SWIFT_CODE
-        defaultDealerShouldBeFound("bankSwiftCode.doesNotContain=" + UPDATED_BANK_SWIFT_CODE);
-    }
-
 
     @Test
     @Transactional
@@ -1016,19 +691,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where bankPhysicalAddress equals to UPDATED_BANK_PHYSICAL_ADDRESS
         defaultDealerShouldNotBeFound("bankPhysicalAddress.equals=" + UPDATED_BANK_PHYSICAL_ADDRESS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByBankPhysicalAddressIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankPhysicalAddress not equals to DEFAULT_BANK_PHYSICAL_ADDRESS
-        defaultDealerShouldNotBeFound("bankPhysicalAddress.notEquals=" + DEFAULT_BANK_PHYSICAL_ADDRESS);
-
-        // Get all the dealerList where bankPhysicalAddress not equals to UPDATED_BANK_PHYSICAL_ADDRESS
-        defaultDealerShouldBeFound("bankPhysicalAddress.notEquals=" + UPDATED_BANK_PHYSICAL_ADDRESS);
     }
 
     @Test
@@ -1056,32 +718,6 @@ public class DealerResourceIT {
         // Get all the dealerList where bankPhysicalAddress is null
         defaultDealerShouldNotBeFound("bankPhysicalAddress.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByBankPhysicalAddressContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankPhysicalAddress contains DEFAULT_BANK_PHYSICAL_ADDRESS
-        defaultDealerShouldBeFound("bankPhysicalAddress.contains=" + DEFAULT_BANK_PHYSICAL_ADDRESS);
-
-        // Get all the dealerList where bankPhysicalAddress contains UPDATED_BANK_PHYSICAL_ADDRESS
-        defaultDealerShouldNotBeFound("bankPhysicalAddress.contains=" + UPDATED_BANK_PHYSICAL_ADDRESS);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByBankPhysicalAddressNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where bankPhysicalAddress does not contain DEFAULT_BANK_PHYSICAL_ADDRESS
-        defaultDealerShouldNotBeFound("bankPhysicalAddress.doesNotContain=" + DEFAULT_BANK_PHYSICAL_ADDRESS);
-
-        // Get all the dealerList where bankPhysicalAddress does not contain UPDATED_BANK_PHYSICAL_ADDRESS
-        defaultDealerShouldBeFound("bankPhysicalAddress.doesNotContain=" + UPDATED_BANK_PHYSICAL_ADDRESS);
-    }
-
 
     @Test
     @Transactional
@@ -1094,19 +730,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where domicile equals to UPDATED_DOMICILE
         defaultDealerShouldNotBeFound("domicile.equals=" + UPDATED_DOMICILE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByDomicileIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where domicile not equals to DEFAULT_DOMICILE
-        defaultDealerShouldNotBeFound("domicile.notEquals=" + DEFAULT_DOMICILE);
-
-        // Get all the dealerList where domicile not equals to UPDATED_DOMICILE
-        defaultDealerShouldBeFound("domicile.notEquals=" + UPDATED_DOMICILE);
     }
 
     @Test
@@ -1134,32 +757,6 @@ public class DealerResourceIT {
         // Get all the dealerList where domicile is null
         defaultDealerShouldNotBeFound("domicile.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByDomicileContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where domicile contains DEFAULT_DOMICILE
-        defaultDealerShouldBeFound("domicile.contains=" + DEFAULT_DOMICILE);
-
-        // Get all the dealerList where domicile contains UPDATED_DOMICILE
-        defaultDealerShouldNotBeFound("domicile.contains=" + UPDATED_DOMICILE);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByDomicileNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where domicile does not contain DEFAULT_DOMICILE
-        defaultDealerShouldNotBeFound("domicile.doesNotContain=" + DEFAULT_DOMICILE);
-
-        // Get all the dealerList where domicile does not contain UPDATED_DOMICILE
-        defaultDealerShouldBeFound("domicile.doesNotContain=" + UPDATED_DOMICILE);
-    }
-
 
     @Test
     @Transactional
@@ -1172,19 +769,6 @@ public class DealerResourceIT {
 
         // Get all the dealerList where taxAuthorityRef equals to UPDATED_TAX_AUTHORITY_REF
         defaultDealerShouldNotBeFound("taxAuthorityRef.equals=" + UPDATED_TAX_AUTHORITY_REF);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByTaxAuthorityRefIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where taxAuthorityRef not equals to DEFAULT_TAX_AUTHORITY_REF
-        defaultDealerShouldNotBeFound("taxAuthorityRef.notEquals=" + DEFAULT_TAX_AUTHORITY_REF);
-
-        // Get all the dealerList where taxAuthorityRef not equals to UPDATED_TAX_AUTHORITY_REF
-        defaultDealerShouldBeFound("taxAuthorityRef.notEquals=" + UPDATED_TAX_AUTHORITY_REF);
     }
 
     @Test
@@ -1212,38 +796,11 @@ public class DealerResourceIT {
         // Get all the dealerList where taxAuthorityRef is null
         defaultDealerShouldNotBeFound("taxAuthorityRef.specified=false");
     }
-                @Test
-    @Transactional
-    public void getAllDealersByTaxAuthorityRefContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where taxAuthorityRef contains DEFAULT_TAX_AUTHORITY_REF
-        defaultDealerShouldBeFound("taxAuthorityRef.contains=" + DEFAULT_TAX_AUTHORITY_REF);
-
-        // Get all the dealerList where taxAuthorityRef contains UPDATED_TAX_AUTHORITY_REF
-        defaultDealerShouldNotBeFound("taxAuthorityRef.contains=" + UPDATED_TAX_AUTHORITY_REF);
-    }
-
-    @Test
-    @Transactional
-    public void getAllDealersByTaxAuthorityRefNotContainsSomething() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-
-        // Get all the dealerList where taxAuthorityRef does not contain DEFAULT_TAX_AUTHORITY_REF
-        defaultDealerShouldNotBeFound("taxAuthorityRef.doesNotContain=" + DEFAULT_TAX_AUTHORITY_REF);
-
-        // Get all the dealerList where taxAuthorityRef does not contain UPDATED_TAX_AUTHORITY_REF
-        defaultDealerShouldBeFound("taxAuthorityRef.doesNotContain=" + UPDATED_TAX_AUTHORITY_REF);
-    }
-
 
     @Test
     @Transactional
     public void getAllDealersByFixedAssetInvoiceIsEqualToSomething() throws Exception {
         // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
         FixedAssetInvoice fixedAssetInvoice = FixedAssetInvoiceResourceIT.createEntity(em);
         em.persist(fixedAssetInvoice);
         em.flush();
@@ -1400,7 +957,7 @@ public class DealerResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
+        // Validate the database is empty
         List<Dealer> dealerList = dealerRepository.findAll();
         assertThat(dealerList).hasSize(databaseSizeBeforeDelete - 1);
 

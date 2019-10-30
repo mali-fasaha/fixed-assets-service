@@ -1,39 +1,25 @@
 package io.github.assets.app.resource.decorator;
 
-import io.github.assets.service.FileUploadQueryService;
-import io.github.assets.service.FileUploadService;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.web.rest.FileUploadResource;
-import io.github.assets.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link io.github.assets.domain.FileUpload}.
@@ -83,9 +69,10 @@ public class FileUploadResourceDecorator implements IFileUploadResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of fileUploads in body.
      */
     @GetMapping("/file-uploads")
-    public ResponseEntity<List<FileUploadDTO>> getAllFileUploads(FileUploadCriteria criteria, Pageable pageable) {
+    public ResponseEntity<List<FileUploadDTO>> getAllFileUploads(FileUploadCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
+                                                                 UriComponentsBuilder uriBuilder) {
 
-        return fileUploadResource.getAllFileUploads(criteria, pageable);
+        return fileUploadResource.getAllFileUploads(criteria, pageable, queryParams, uriBuilder);
     }
 
     /**
@@ -132,8 +119,9 @@ public class FileUploadResourceDecorator implements IFileUploadResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/file-uploads")
-    public ResponseEntity<List<FileUploadDTO>> searchFileUploads(@RequestParam String query, Pageable pageable) {
+    public ResponseEntity<List<FileUploadDTO>> searchFileUploads(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
+                                                                 UriComponentsBuilder uriBuilder) {
 
-        return fileUploadResource.searchFileUploads(query, pageable);
+        return fileUploadResource.searchFileUploads(query, pageable, queryParams, uriBuilder);
     }
 }

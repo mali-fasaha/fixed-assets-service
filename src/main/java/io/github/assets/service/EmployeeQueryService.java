@@ -85,11 +85,9 @@ public class EmployeeQueryService extends QueryService<Employee> {
     }
 
     /**
-     * Function to convert {@link EmployeeCriteria} to a {@link Specification}
-     * @param criteria The object which holds all the filters, which the entities should match.
-     * @return the matching {@link Specification} of the entity.
+     * Function to convert EmployeeCriteria to a {@link Specification}.
      */
-    protected Specification<Employee> createSpecification(EmployeeCriteria criteria) {
+    private Specification<Employee> createSpecification(EmployeeCriteria criteria) {
         Specification<Employee> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

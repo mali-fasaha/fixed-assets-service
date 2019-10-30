@@ -16,7 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -96,17 +97,15 @@ public class FixedAssetInvoiceResource {
     /**
      * {@code GET  /fixed-asset-invoices} : get all the fixedAssetInvoices.
      *
-
      * @param pageable the pagination information.
-
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of fixedAssetInvoices in body.
      */
     @GetMapping("/fixed-asset-invoices")
-    public ResponseEntity<List<FixedAssetInvoiceDTO>> getAllFixedAssetInvoices(FixedAssetInvoiceCriteria criteria, Pageable pageable) {
+    public ResponseEntity<List<FixedAssetInvoiceDTO>> getAllFixedAssetInvoices(FixedAssetInvoiceCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get FixedAssetInvoices by criteria: {}", criteria);
         Page<FixedAssetInvoiceDTO> page = fixedAssetInvoiceQueryService.findByCriteria(criteria, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -157,10 +156,11 @@ public class FixedAssetInvoiceResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/fixed-asset-invoices")
-    public ResponseEntity<List<FixedAssetInvoiceDTO>> searchFixedAssetInvoices(@RequestParam String query, Pageable pageable) {
+    public ResponseEntity<List<FixedAssetInvoiceDTO>> searchFixedAssetInvoices(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to search for a page of FixedAssetInvoices for query {}", query);
         Page<FixedAssetInvoiceDTO> page = fixedAssetInvoiceService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
+
 }
