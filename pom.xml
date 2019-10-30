@@ -10,14 +10,14 @@
     <name>Fixed Asset Service</name>
 
     <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>http://repo.spring.io/libs-milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
+        <!--<repository>-->
+            <!--<id>spring-milestones</id>-->
+            <!--<name>Spring Milestones</name>-->
+            <!--<url>http://repo.spring.io/libs-milestone</url>-->
+            <!--<snapshots>-->
+                <!--<enabled>false</enabled>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
         <!-- jhipster-needle-maven-repository -->
     </repositories>
 
@@ -49,6 +49,7 @@
         <db.url>jdbc:postgresql://localhost:58213/fixedAssetService</db.url>
 
         <!-- Dependency versions -->
+        <spring-cloud-stream.version>2.2.1.RELEASE</spring-cloud-stream.version>
         <jhipster-dependencies.version>3.0.1</jhipster-dependencies.version>
         <!-- The spring-boot version should match the one managed by
         https://mvnrepository.com/artifact/io.github.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
@@ -107,21 +108,21 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <!-- Import dependency management from Spring Boot -->
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-stream-dependencies</artifactId>
-                <version>${spring-cloud-stream.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
+            <!--<dependency>-->
+                <!--&lt;!&ndash; Import dependency management from Spring Boot &ndash;&gt;-->
+                <!--<groupId>org.springframework.boot</groupId>-->
+                <!--<artifactId>spring-boot-dependencies</artifactId>-->
+                <!--<version>${spring-boot.version}</version>-->
+                <!--<type>pom</type>-->
+                <!--<scope>import</scope>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>org.springframework.cloud</groupId>-->
+                <!--<artifactId>spring-cloud-stream-dependencies</artifactId>-->
+                <!--<version>${spring-cloud-stream.version}</version>-->
+                <!--<type>pom</type>-->
+                <!--<scope>import</scope>-->
+            <!--</dependency>-->
             <!-- jhipster-needle-maven-add-dependency-management -->
         </dependencies>
     </dependencyManagement>
