@@ -5,7 +5,7 @@
 
     <groupId>io.github.assets</groupId>
     <artifactId>fixed-asset-service</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.5</version>
     <packaging>jar</packaging>
     <name>Fixed Asset Service</name>
 
@@ -713,7 +713,7 @@
                     <version>${jib-maven-plugin.version}</version>
                     <configuration>
                         <from>
-                            <image>adoptopenjdk:11-jre-hotspot</image>
+                            <image>adoptopenjdk/openjdk11:alpine-jre</image>
                         </from>
                         <to>
                             <image>${docker.image.prefix}/${project.artifactId}:${project.version}</image>
