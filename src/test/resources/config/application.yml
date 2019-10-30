@@ -32,6 +32,12 @@ spring:
       bindings:
         output:
           destination: topic-jhipster
+        greetings-in:
+          destination: greetings
+          contentType: application/json
+        greetings-out:
+          destination: greetings
+          contentType: application/json
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:h2:mem:fixedAssetService;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE

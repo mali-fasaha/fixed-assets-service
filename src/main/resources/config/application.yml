@@ -109,6 +109,12 @@ spring:
           binder:
             brokers: localhost:9092
         bindings:
+          greetings-in:
+            destination: greetings
+            contentType: application/json
+          greetings-out:
+            destination: greetings
+            contentType: application/json
           queued-resources-create-in:
             destination: QueuedResources
             contentType: application/json
