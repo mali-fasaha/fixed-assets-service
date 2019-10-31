@@ -1,6 +1,7 @@
 package io.github.assets.app.util;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -38,6 +39,10 @@ public class TokenGenerator {
         byte[] token = new byte[byteLength];
         secureRandom.nextBytes(token);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(token); //base64 encoding
+    }
+
+    public String md5Digest(byte[] contents) {
+        return DigestUtils.md5DigestAsHex(contents);
     }
 
 }
