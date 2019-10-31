@@ -44,6 +44,10 @@ public class StringedTokenMessageService implements MessageService<TokenizableMe
             log.error("The service has failed to create a message-token and has been aborted : ", e);
         }
 
+        if (messageToken != null) {
+            message.setMessageToken(messageToken.getTokenValue());
+        }
+
         messageChannel.send(MessageBuilder.withPayload(message).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
 
         return messageTokenService.save(messageToken);

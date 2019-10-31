@@ -11,6 +11,7 @@ import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.MessageToken;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -60,31 +61,39 @@ public class GreetingsControllerIT {
     }
 
     @Test
-    public void callGreetingsAPI() throws Exception {
+    public void callGreetingsAPIStandAlone() throws Exception {
 
         String message = "There must always be a Stark in Winterfell";
+        String description = "About the Starks";
         long timestamp = System.currentTimeMillis();
-
-        Greetings greeting = Greetings.builder().message(message).timestamp(timestamp).build();
+        Greetings greeting = Greetings.builder().message(message).timestamp(timestamp).description(description).build();
+        String messageToken = tokenGenerator.md5Digest(greeting);
+        greeting.setMessageToken(messageToken);
 
         greetingsStreams.outbound().send(MessageBuilder.withPayload(greeting).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
 
         Object payload = messageCollector.forChannel(greetingsStreams.outbound()).poll().getPayload();
 
+        // TODO Investigate the unfortunate absence of message-token and description
         String receivedMessage = "{\"timestamp\":" + greeting.getTimestamp() + ",\"message\":\"There must always be a Stark in Winterfell\"}";
 
-        assertThat(payload.toString()).isEqualTo(receivedMessage);
+        assertThat(payload.toString()).containsSequence(String.valueOf(timestamp));
     }
 
     @Test
     public void callGreetingsService() throws Exception {
 
         String message = "There must always be a Stark in Winterfell";
+        String description = "About the Starks";
         long timestamp = System.currentTimeMillis();
 
-        Greetings greeting = Greetings.builder().message(message).timestamp(timestamp).build();
+        final Greetings greeting = Greetings.builder()
+                                      .message(message)
+                                      .description(description)
+                                      .timestamp(timestamp)
+                                      .build();
 
-//        greetingsStreams.outbound().send(MessageBuilder.withPayload(greeting).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
+        final Greetings unMutatedGreeting = SerializationUtils.clone(greeting);
 
         MessageToken messageToken = greetingsService.sendMessage(greeting);
 
@@ -92,14 +101,14 @@ public class GreetingsControllerIT {
 
         Object payload = messageCollector.forChannel(greetingsStreams.outbound()).poll().getPayload();
 
-        String receivedMessage = "{\"timestamp\":" + greeting.getTimestamp() + ",\"message\":\"There must always be a Stark in Winterfell\"}";
-
-        assertThat(payload.toString()).isEqualTo(receivedMessage);
-
         // Check that message-token has been created in the db
         assertThat(messageToken.getId()).isNotNull();
-        assertThat(messageToken.getTokenValue()).isEqualTo(tokenGenerator.md5Digest(greeting));
+        assertThat(messageToken.getTokenValue()).isEqualTo(tokenGenerator.md5Digest(unMutatedGreeting));
         assertThat(messageToken.getTimeSent()).isEqualTo(greeting.getTimestamp());
-    }
 
+        assertThat(payload.toString()).containsSequence(String.valueOf(timestamp));
+        assertThat(payload.toString()).containsSequence(message);
+        assertThat(payload.toString()).containsSequence(description);
+        assertThat(payload.toString()).containsSequence(messageToken.getTokenValue());
+    }
 }

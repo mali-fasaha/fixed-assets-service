@@ -30,7 +30,7 @@ public class FileNotificationMessageService extends StringedTokenMessageService 
 
         MessageToken messageToken = super.sendMessage(fileNotification);
 
-        // TODO Add info to the message token
+        // Add file model type info to the message token
         messageToken.fileModelType(fileTypeService.findOne(Long.parseLong(fileNotification.getFileId())).get().getFileType());
 
         return messageToken.received(true).actioned(true);

@@ -47,7 +47,7 @@ public class TokenGenerator {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(token); //base64 encoding
     }
 
-    public String md5Digest(Object object) throws JsonProcessingException {
+    public String md5Digest(final Object object) throws JsonProcessingException {
         return DigestUtils.md5DigestAsHex(mapper.writeValueAsBytes(object));
     }
 
