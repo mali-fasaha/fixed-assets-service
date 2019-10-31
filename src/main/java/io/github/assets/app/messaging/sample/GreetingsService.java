@@ -21,7 +21,7 @@ public class GreetingsService implements MessageService<Greetings> {
     private final MessageTokenService messageTokenService;
 
     public GreetingsService(final GreetingsStreams greetingsStreams, final TokenGenerator tokenGenerator, final MessageTokenService messageTokenService) {
-        this.messageChannel = greetingsStreams.outboundGreetings();
+        this.messageChannel = greetingsStreams.outbound();
         this.tokenGenerator = tokenGenerator;
         this.messageTokenService = messageTokenService;
     }

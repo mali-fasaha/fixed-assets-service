@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.app.messaging.MessageService;
 import io.github.assets.app.messaging.sample.Greetings;
 import io.github.assets.app.messaging.sample.GreetingsListener;
-import io.github.assets.app.messaging.sample.GreetingsService;
 import io.github.assets.app.messaging.sample.GreetingsStreams;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
@@ -67,9 +66,9 @@ public class GreetingsControllerIT {
 
         Greetings greeting = Greetings.builder().message(message).timestamp(timestamp).build();
 
-        greetingsStreams.outboundGreetings().send(MessageBuilder.withPayload(greeting).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
+        greetingsStreams.outbound().send(MessageBuilder.withPayload(greeting).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
 
-        Object payload = messageCollector.forChannel(greetingsStreams.outboundGreetings()).poll().getPayload();
+        Object payload = messageCollector.forChannel(greetingsStreams.outbound()).poll().getPayload();
 
         String receivedMessage = "{\"timestamp\":" + greeting.getTimestamp() + ",\"message\":\"There must always be a Stark in Winterfell\"}";
 
@@ -84,13 +83,13 @@ public class GreetingsControllerIT {
 
         Greetings greeting = Greetings.builder().message(message).timestamp(timestamp).build();
 
-//        greetingsStreams.outboundGreetings().send(MessageBuilder.withPayload(greeting).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
+//        greetingsStreams.outbound().send(MessageBuilder.withPayload(greeting).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
 
         MessageToken messageToken = greetingsService.sendMessage(greeting);
 
         log.info("Message sent with the token: {}", messageToken.getTokenValue());
 
-        Object payload = messageCollector.forChannel(greetingsStreams.outboundGreetings()).poll().getPayload();
+        Object payload = messageCollector.forChannel(greetingsStreams.outbound()).poll().getPayload();
 
         String receivedMessage = "{\"timestamp\":" + greeting.getTimestamp() + ",\"message\":\"There must always be a Stark in Winterfell\"}";
 

@@ -1,4 +1,4 @@
-package io.github.assets.app.messaging.sample;
+package io.github.assets.app.messaging.fileNotification;
 
 import io.github.assets.app.messaging.MessageStreams;
 import org.springframework.cloud.stream.annotation.Input;
@@ -6,13 +6,10 @@ import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.SubscribableChannel;
 
-/**
- * Test configuration for greetings streams
- */
-public interface GreetingsStreams extends MessageStreams {
+public interface FileNotificationStreams extends MessageStreams {
 
-    String INPUT = "greetings-in";
-    String OUTPUT = "greetings-out";
+    String INPUT = "file-notifications-in";
+    String OUTPUT = "file-notifications-out";
 
     @Input(INPUT)
     SubscribableChannel inbound();

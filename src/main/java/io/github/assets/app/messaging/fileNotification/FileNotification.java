@@ -1,6 +1,7 @@
-package io.github.assets.app.file;
+package io.github.assets.app.messaging.fileNotification;
 
-import io.github.assets.domain.MessageToken;
+import io.github.assets.app.messaging.Tokenizable;
+import io.github.assets.app.messaging.TokenizableMessage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,11 +13,11 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @Data
-public class FileNotification implements Tokenizable, Serializable {
+public class FileNotification implements TokenizableMessage<String> {
     private static final long serialVersionUID = -6472961232578342431L;
     private String fileId;
 
-    private String timeOfUpload;
+    private long timestamp;
 
     private String filename;
 
