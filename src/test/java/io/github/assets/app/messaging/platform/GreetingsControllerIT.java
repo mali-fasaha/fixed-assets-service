@@ -2,6 +2,7 @@ package io.github.assets.app.messaging.platform;
 
 import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.app.messaging.MessageService;
+import io.github.assets.app.messaging.TokenizableMessage;
 import io.github.assets.app.messaging.sample.Greetings;
 import io.github.assets.app.messaging.sample.GreetingsListener;
 import io.github.assets.app.messaging.sample.GreetingsStreams;
@@ -39,7 +40,7 @@ public class GreetingsControllerIT {
     private Validator validator;
 
     @Autowired
-    private MessageService<Greetings> greetingsService;
+    private MessageService<TokenizableMessage<String>> greetingsService;
 
     @Mock
     private GreetingsListener greetingsListener;
