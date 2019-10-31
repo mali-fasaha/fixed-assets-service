@@ -74,10 +74,10 @@ public class GreetingsControllerIT {
 
         Object payload = messageCollector.forChannel(greetingsStreams.outbound()).poll().getPayload();
 
-        // TODO Investigate the unfortunate absence of message-token and description
-        String receivedMessage = "{\"timestamp\":" + greeting.getTimestamp() + ",\"message\":\"There must always be a Stark in Winterfell\"}";
-
         assertThat(payload.toString()).containsSequence(String.valueOf(timestamp));
+        assertThat(payload.toString()).containsSequence(String.valueOf(description));
+        assertThat(payload.toString()).containsSequence(String.valueOf(message));
+        assertThat(payload.toString()).containsSequence(String.valueOf(messageToken));
     }
 
     @Test
@@ -105,7 +105,6 @@ public class GreetingsControllerIT {
         assertThat(messageToken.getId()).isNotNull();
         assertThat(messageToken.getTokenValue()).isEqualTo(tokenGenerator.md5Digest(unMutatedGreeting));
         assertThat(messageToken.getTimeSent()).isEqualTo(greeting.getTimestamp());
-
         assertThat(payload.toString()).containsSequence(String.valueOf(timestamp));
         assertThat(payload.toString()).containsSequence(message);
         assertThat(payload.toString()).containsSequence(description);
