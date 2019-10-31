@@ -115,6 +115,12 @@ spring:
           greetings-out:
             destination: greetings
             contentType: application/json
+          file-notifications-in
+            destination: fileNotications
+            contentType: application/json
+          file-notifications-out
+            destination: fileNotications
+            contentType: application/json
           queued-resources-create-in:
             destination: QueuedResources
             contentType: application/json
