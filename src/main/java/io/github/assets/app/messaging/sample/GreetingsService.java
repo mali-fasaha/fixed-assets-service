@@ -21,9 +21,6 @@ public class GreetingsService extends StringedTokenMessageService implements Mes
     }
 
     public MessageToken sendMessage(final Greetings greetings) {
-
-        MessageToken messageToken = super.sendMessage(greetings);
-
-        return messageToken.received(true).actioned(true);
+        return super.sendMessage(greetings).received(true).actioned(true);
     }
 }
