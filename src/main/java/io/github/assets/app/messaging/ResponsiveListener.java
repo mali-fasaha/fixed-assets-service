@@ -1,5 +1,12 @@
 package io.github.assets.app.messaging;
 
+/**
+ * This is a marker of an interface which might turn out to be
+ * streams processor
+ *
+ * @param <Payload>
+ * @param <Response>
+ */
 public interface ResponsiveListener<Payload, Response> extends MuteListener<Payload> {
 
     Response attendMessage(Payload payload);
