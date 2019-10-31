@@ -1,5 +1,9 @@
 package io.github.assets.app.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 
@@ -14,6 +18,8 @@ import static io.github.assets.app.AppConstants.TOKEN_BYTE_LENGTH;
  */
 @Component("tokenGenerator")
 public class TokenGenerator {
+
+    private static final ObjectMapper mapper = createObjectMapper();
 
     public String generateHexToken() {
 
@@ -41,8 +47,15 @@ public class TokenGenerator {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(token); //base64 encoding
     }
 
-    public String md5Digest(byte[] contents) {
-        return DigestUtils.md5DigestAsHex(contents);
+    public String md5Digest(Object object) throws JsonProcessingException {
+        return DigestUtils.md5DigestAsHex(mapper.writeValueAsBytes(object));
+    }
+
+    private static ObjectMapper createObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.registerModule(new JavaTimeModule());
+        return mapper;
     }
 
 }

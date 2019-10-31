@@ -1,11 +1,13 @@
 package io.github.assets.app.messaging.platform;
 
 import io.github.assets.FixedAssetServiceApp;
+import io.github.assets.app.messaging.MessageService;
 import io.github.assets.app.messaging.sample.Greetings;
 import io.github.assets.app.messaging.sample.GreetingsListener;
 import io.github.assets.app.messaging.sample.GreetingsService;
 import io.github.assets.app.messaging.sample.GreetingsStreams;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
+import io.github.assets.domain.MessageToken;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,7 @@ public class GreetingsControllerIT {
     private Validator validator;
 
     @Autowired
-    private GreetingsService greetingsService;
+    private MessageService<Greetings> greetingsService;
 
     @Mock
     private GreetingsListener greetingsListener;
@@ -66,6 +68,28 @@ public class GreetingsControllerIT {
         String receivedMessage = "{\"timestamp\":" + greeting.getTimestamp() + ",\"message\":\"There must always be a Stark in Winterfell\"}";
 
         assertThat(payload.toString()).isEqualTo(receivedMessage);
+    }
+
+    @Test
+    public void callGreetingsService() throws Exception {
+
+        String message = "There must always be a Stark in Winterfell";
+        long timestamp = System.currentTimeMillis();
+
+        Greetings greeting = Greetings.builder().message(message).timestamp(timestamp).build();
+
+//        greetingsStreams.outboundGreetings().send(MessageBuilder.withPayload(greeting).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
+
+        MessageToken messageToken = greetingsService.sendMessage(greeting);
+
+        Object payload = messageCollector.forChannel(greetingsStreams.outboundGreetings()).poll().getPayload();
+
+        String receivedMessage = "{\"timestamp\":" + greeting.getTimestamp() + ",\"message\":\"There must always be a Stark in Winterfell\"}";
+
+        assertThat(payload.toString()).isEqualTo(receivedMessage);
+
+        // Check that message-token has been created in the db
+        assertThat(messageToken.getId()).isNotNull();
     }
 
 }

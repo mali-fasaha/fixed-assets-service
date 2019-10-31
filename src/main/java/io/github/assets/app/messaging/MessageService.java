@@ -3,7 +3,8 @@ package io.github.assets.app.messaging;
 import io.github.assets.domain.MessageToken;
 
 /**
- * This is an abstraction for sending a services into a queue
+ * This is an abstraction for sending a services into a queue. It is expected that the implemntation
+ * internally has a way of persisting message-tokens generated
  *
  * @param <T> Type of services
  */
