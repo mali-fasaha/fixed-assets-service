@@ -6,9 +6,11 @@ import io.github.assets.app.messaging.sample.Greetings;
 import io.github.assets.app.messaging.sample.GreetingsListener;
 import io.github.assets.app.messaging.sample.GreetingsService;
 import io.github.assets.app.messaging.sample.GreetingsStreams;
+import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.MessageToken;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -24,6 +26,7 @@ import org.springframework.validation.Validator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class GreetingsControllerIT {
 
@@ -47,6 +50,9 @@ public class GreetingsControllerIT {
 
     @Autowired
     private GreetingsStreams greetingsStreams;
+    @Autowired
+    private TokenGenerator tokenGenerator;
+
 
     @BeforeEach
     public void setup() {
@@ -82,6 +88,8 @@ public class GreetingsControllerIT {
 
         MessageToken messageToken = greetingsService.sendMessage(greeting);
 
+        log.info("Message sent with the token: {}", messageToken.getTokenValue());
+
         Object payload = messageCollector.forChannel(greetingsStreams.outboundGreetings()).poll().getPayload();
 
         String receivedMessage = "{\"timestamp\":" + greeting.getTimestamp() + ",\"message\":\"There must always be a Stark in Winterfell\"}";
@@ -90,6 +98,8 @@ public class GreetingsControllerIT {
 
         // Check that message-token has been created in the db
         assertThat(messageToken.getId()).isNotNull();
+        assertThat(messageToken.getTokenValue()).isEqualTo(tokenGenerator.md5Digest(greeting));
+        assertThat(messageToken.getTimeSent()).isEqualTo(greeting.getTimestamp());
     }
 
 }
