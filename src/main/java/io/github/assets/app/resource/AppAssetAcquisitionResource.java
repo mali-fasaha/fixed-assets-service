@@ -1,5 +1,6 @@
 package io.github.assets.app.resource;
 
+import io.github.assets.app.messaging.MutationResource;
 import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
 import io.github.assets.service.dto.AssetAcquisitionCriteria;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
@@ -29,6 +30,9 @@ import java.util.List;
 public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
 
     private final IAssetAcquisitionResource assetAcquisitionResourceDecorator;
+
+    // TODO Something awesome with this interface
+    private final MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource;
 
     public AppAssetAcquisitionResource(final IAssetAcquisitionResource assetAcquisitionResourceDecorator) {
         this.assetAcquisitionResourceDecorator = assetAcquisitionResourceDecorator;
