@@ -192,7 +192,8 @@ public class AppAssetAcquisitionResourceIT {
         restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions")
                                                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                                                 .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-                                   .andExpect(status().isCreated());
+                                   // examine useful responses for this api in terms of message-tokens atleast
+                                   .andExpect(status().isOk());
 
         // Validate the AssetAcquisition in the database
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();

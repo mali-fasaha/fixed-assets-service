@@ -2,21 +2,31 @@ package io.github.assets.app.messaging.assetAcquisition;
 
 import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.app.messaging.MessageService;
+import io.github.assets.app.messaging.MutationResource;
+import io.github.assets.app.resource.AppAssetAcquisitionResource;
+import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
+import io.github.assets.web.rest.errors.ExceptionTranslator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.MimeTypeUtils;
+import org.springframework.validation.Validator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,9 +42,37 @@ class AssetAcquisitionMutationResourceIT {
     @Autowired
     private AssetAcquisitionResourceStreams assetAcquisitionResourceStreams;
 
+    @Autowired
+    private IAssetAcquisitionResource assetAcquisitionResourceDecorator;
+
+    @Autowired
+    private MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource;
+
+    @Autowired
+    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
+
+    @Autowired
+    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+
+    @Autowired
+    private ExceptionTranslator exceptionTranslator;
+
+    @Autowired
+    private Validator validator;
+
+    private MockMvc restAssetAcquisitionMockMvc;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
+
+        final IAssetAcquisitionResource assetAcquisitionResource = new AppAssetAcquisitionResource(assetAcquisitionResourceDecorator, assetAcquisitionMutationResource);
+        this.restAssetAcquisitionMockMvc = MockMvcBuilders.standaloneSetup(assetAcquisitionResource)
+                                                          .setCustomArgumentResolvers(pageableArgumentResolver)
+                                                          .setControllerAdvice(exceptionTranslator)
+                                                          .setConversionService(createFormattingConversionService())
+                                                          .setMessageConverters(jacksonMessageConverter)
+                                                          .setValidator(validator).build();
     }
 
     @Test
