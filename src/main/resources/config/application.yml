@@ -115,28 +115,28 @@ spring:
           greetings-out:
             destination: greetings
             contentType: application/json
-          file-notifications-in
+          file-notifications-in:
             destination: fileNotications
             contentType: application/json
-          file-notifications-out
+          file-notifications-out:
             destination: fileNotications
             contentType: application/json
-          asset-acquisition-resource-create-in
+          asset-acquisition-resource-create-in:
             destination: assetAcquisitionsCreate
             contentType: application/json
-          asset-acquisition-resource-create-out
+          asset-acquisition-resource-create-out:
             destination: assetAcquisitionsCreate
             contentType: application/json
-          asset-acquisition-resource-update-in
+          asset-acquisition-resource-update-in:
             destination: assetAcquisitionsUpdate
             contentType: application/json
-          asset-acquisition-resource-update-out
+          asset-acquisition-resource-update-out:
             destination: assetAcquisitionsUpdate
             contentType: application/json
-          asset-acquisition-resource-delete-in
+          asset-acquisition-resource-delete-in:
             destination: assetAcquisitionsDelete
             contentType: application/json
-          asset-acquisition-resource-delete-out
+          asset-acquisition-resource-delete-out:
             destination: assetAcquisitionsDelete
             contentType: application/json
   autoconfigure:

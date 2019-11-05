@@ -135,6 +135,8 @@ public class AppAssetAcquisitionResourceIT {
     @Autowired
     private AssetAcquisitionResourceStreams assetAcquisitionResourceStreams;
 
+    // TODO spy listener beans orchestrations
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
