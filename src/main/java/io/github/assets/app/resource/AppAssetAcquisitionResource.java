@@ -4,6 +4,7 @@ import io.github.assets.app.messaging.MutationResource;
 import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
 import io.github.assets.service.dto.AssetAcquisitionCriteria;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
+import io.github.assets.web.rest.errors.BadRequestAlertException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
@@ -30,6 +31,7 @@ import java.util.List;
 public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
 
     private final IAssetAcquisitionResource assetAcquisitionResourceDecorator;
+    private static final String ENTITY_NAME = "fixedAssetServiceAssetAcquisition";
 
     // TODO Something awesome with this interface
     private final MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource;
@@ -50,11 +52,11 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
     @PostMapping("/asset-acquisitions")
     public ResponseEntity<AssetAcquisitionDTO> createAssetAcquisition(@Valid @RequestBody AssetAcquisitionDTO assetAcquisitionDTO) throws URISyntaxException {
 
-//        return assetAcquisitionResourceDecorator.createAssetAcquisition(assetAcquisitionDTO);
-
+        if (assetAcquisitionDTO.getId() != null) {
+            throw new BadRequestAlertException("A new assetAcquisition cannot already have an ID", ENTITY_NAME, "idexists");
+        }
         assetAcquisitionMutationResource.createAssetAcquisition(assetAcquisitionDTO);
 
-        // TODO start accepting responses with MessageTokenDTO
         return ResponseEntity.ok(assetAcquisitionDTO);
     }
 
