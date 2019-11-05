@@ -34,8 +34,9 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
     // TODO Something awesome with this interface
     private final MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource;
 
-    public AppAssetAcquisitionResource(final IAssetAcquisitionResource assetAcquisitionResourceDecorator) {
+    public AppAssetAcquisitionResource(final IAssetAcquisitionResource assetAcquisitionResourceDecorator, final MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource) {
         this.assetAcquisitionResourceDecorator = assetAcquisitionResourceDecorator;
+        this.assetAcquisitionMutationResource = assetAcquisitionMutationResource;
     }
 
     /**
@@ -49,7 +50,12 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
     @PostMapping("/asset-acquisitions")
     public ResponseEntity<AssetAcquisitionDTO> createAssetAcquisition(@Valid @RequestBody AssetAcquisitionDTO assetAcquisitionDTO) throws URISyntaxException {
 
-        return assetAcquisitionResourceDecorator.createAssetAcquisition(assetAcquisitionDTO);
+//        return assetAcquisitionResourceDecorator.createAssetAcquisition(assetAcquisitionDTO);
+
+        assetAcquisitionMutationResource.createAssetAcquisition(assetAcquisitionDTO);
+
+        // TODO start accepting responses with MessageTokenDTO
+        return ResponseEntity.ok(assetAcquisitionDTO);
     }
 
     /**

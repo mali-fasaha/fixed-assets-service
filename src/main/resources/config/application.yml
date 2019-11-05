@@ -121,14 +121,23 @@ spring:
           file-notifications-out
             destination: fileNotications
             contentType: application/json
-          queued-resources-create-in:
-            destination: QueuedResources
+          asset-acquisition-resource-create-in
+            destination: assetAcquisitionsCreate
             contentType: application/json
-          queued-resources-update-in:
-            destination: QueuedResources
+          asset-acquisition-resource-create-out
+            destination: assetAcquisitionsCreate
             contentType: application/json
-          queued-resources-out:
-            destination: QueuedResources
+          asset-acquisition-resource-update-in
+            destination: assetAcquisitionsUpdate
+            contentType: application/json
+          asset-acquisition-resource-update-out
+            destination: assetAcquisitionsUpdate
+            contentType: application/json
+          asset-acquisition-resource-delete-in
+            destination: assetAcquisitionsDelete
+            contentType: application/json
+          asset-acquisition-resource-delete-out
+            destination: assetAcquisitionsDelete
             contentType: application/json
   autoconfigure:
     exclude: org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration

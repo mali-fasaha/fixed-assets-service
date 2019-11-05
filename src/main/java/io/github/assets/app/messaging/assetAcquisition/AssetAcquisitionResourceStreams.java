@@ -10,12 +10,12 @@ import org.springframework.messaging.SubscribableChannel;
  */
 public interface AssetAcquisitionResourceStreams {
 
-    String CREATE_RESOURCE_IN = "queued-resources-create-in";
-    String CREATE_RESOURCE_OUT = "queued-resources-create-out";
-    String UPDATE_RESOURCES_IN = "queued-resources-update-in";
-    String UPDATE_RESOURCES_OUT = "queued-resources-update-out";
-    String DELETE_RESOURCES_IN = "queued-resources-update-in";
-    String DELETE_RESOURCES_OUT = "queued-resources-update-out";
+    String CREATE_RESOURCE_IN = "asset-acquisition-resource-create-in";
+    String CREATE_RESOURCE_OUT = "asset-acquisition-resource-create-out";
+    String UPDATE_RESOURCES_IN = "asset-acquisition-resource-update-in";
+    String UPDATE_RESOURCES_OUT = "asset-acquisition-resource-update-out";
+    String DELETE_RESOURCES_IN = "asset-acquisition-resource-delete-in";
+    String DELETE_RESOURCES_OUT = "asset-acquisition-resource-delete-out";
 
     @Input(AssetAcquisitionResourceStreams.CREATE_RESOURCE_IN)
     SubscribableChannel inboundCreateResource();

@@ -1,6 +1,7 @@
 package io.github.assets.app.resource;
 
 import io.github.assets.FixedAssetServiceApp;
+import io.github.assets.app.messaging.MutationResource;
 import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetAcquisition;
@@ -10,7 +11,6 @@ import io.github.assets.service.AssetAcquisitionQueryService;
 import io.github.assets.service.AssetAcquisitionService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.mapper.AssetAcquisitionMapper;
-import io.github.assets.web.rest.AssetAcquisitionResource;
 import io.github.assets.web.rest.TestUtil;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +39,6 @@ import static io.github.assets.web.rest.TestUtil.createFormattingConversionServi
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -124,10 +123,13 @@ public class AppAssetAcquisitionResourceIT {
     @Autowired
     private IAssetAcquisitionResource assetAcquisitionResourceDecorator;
 
+    @Autowired
+    private MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final IAssetAcquisitionResource assetAcquisitionResource = new AppAssetAcquisitionResource(assetAcquisitionResourceDecorator);
+        final IAssetAcquisitionResource assetAcquisitionResource = new AppAssetAcquisitionResource(assetAcquisitionResourceDecorator, assetAcquisitionMutationResource);
         this.restAssetAcquisitionMockMvc = MockMvcBuilders.standaloneSetup(assetAcquisitionResource)
                                                           .setCustomArgumentResolvers(pageableArgumentResolver)
                                                           .setControllerAdvice(exceptionTranslator)
@@ -1080,7 +1082,7 @@ public class AppAssetAcquisitionResourceIT {
     public void dtoEqualsVerifier() throws Exception {
         TestUtil.equalsVerifier(AssetAcquisitionDTO.class);
         AssetAcquisitionDTO assetAcquisitionDTO1 = new AssetAcquisitionDTO();
-        assetAcquisitionDTO1.setId(1L);
+        assetAcquisitionDTO1.setId(3L);
         AssetAcquisitionDTO assetAcquisitionDTO2 = new AssetAcquisitionDTO();
         assertThat(assetAcquisitionDTO1).isNotEqualTo(assetAcquisitionDTO2);
         assetAcquisitionDTO2.setId(assetAcquisitionDTO1.getId());

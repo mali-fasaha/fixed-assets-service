@@ -21,17 +21,17 @@ import javax.transaction.Transactional;
 @Service("assetAcquisitionRMSCreate")
 public class AssetAcquisitionRMSCreate implements MessageService<AssetAcquisitionDTO> {
 
-    private final MessageTokenService messageTokenService;
-    private final TokenGenerator tokenGenerator;
-    private final AssetAcquisitionResourceStreams assetAcquisitionResourceStreams;
+//    private final MessageTokenService messageTokenService;
+//    private final TokenGenerator tokenGenerator;
     private final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper;
+
+    private final MessageService<TokenizableMessage<String>> messageService;
 
     public AssetAcquisitionRMSCreate(final MessageTokenService messageTokenService, final TokenGenerator tokenGenerator, final AssetAcquisitionResourceStreams assetAcquisitionResourceStreams,
                                      final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper) {
-        this.messageTokenService = messageTokenService;
-        this.tokenGenerator = tokenGenerator;
-        this.assetAcquisitionResourceStreams = assetAcquisitionResourceStreams;
         this.assetAcquisitionMTOMapper = assetAcquisitionMTOMapper;
+
+        messageService = new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundCreateResource());
     }
 
     /**
@@ -40,8 +40,6 @@ public class AssetAcquisitionRMSCreate implements MessageService<AssetAcquisitio
      * @return This is the token for the message that has just been sent
      */
     public MessageToken sendMessage(final AssetAcquisitionDTO assetAcquisitionDTO) {
-
-        MessageService<TokenizableMessage<String>> messageService = new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundCreateResource());
 
         return messageService.sendMessage(assetAcquisitionMTOMapper.toValue2(assetAcquisitionDTO));
     }

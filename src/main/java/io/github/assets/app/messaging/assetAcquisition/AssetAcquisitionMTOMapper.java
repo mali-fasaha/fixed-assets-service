@@ -1,6 +1,7 @@
 package io.github.assets.app.messaging.assetAcquisition;
 
 import io.github.assets.app.messaging.Mapping;
+import io.github.assets.domain.AssetAcquisition;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import org.springframework.stereotype.Component;
 
@@ -15,21 +16,21 @@ public class AssetAcquisitionMTOMapper implements Mapping<AssetAcquisitionDTO, A
 
     @Override
     public AssetAcquisitionDTO toValue1(final AssetAcquisitionMTO vs) {
-        return AssetAcquisitionDTO.builder()
-            .id(vs.getId())
-            .description(vs.getDescription())
-            .acquisitionMonth(LocalDate.parse(vs.getAcquisitionMonth(), DATETIME_FORMATTER))
-            .assetSerial(vs.getAssetSerial())
-            .serviceOutletCode(vs.getServiceOutletCode())
-            .acquisitionTransactionId(vs.getAcquisitionTransactionId())
-            .assetCategoryId(vs.getAssetCategoryId())
-            .purchaseAmount(toScaledBigDecimal(vs.getPurchaseAmount()))
-            .assetDealerId(vs.getAssetDealerId())
-            .assetInvoiceId(vs.getAssetInvoiceId())
+        AssetAcquisitionDTO assetAcquisitionDTO =  new AssetAcquisitionDTO();
+        assetAcquisitionDTO.setId(vs.getId());
+        assetAcquisitionDTO.setDescription(vs.getDescription());
+        assetAcquisitionDTO.setAcquisitionMonth(LocalDate.parse(vs.getAcquisitionMonth(), DATETIME_FORMATTER));
+        assetAcquisitionDTO.setAssetSerial(vs.getAssetSerial());
+        assetAcquisitionDTO.setServiceOutletCode(vs.getServiceOutletCode());
+        assetAcquisitionDTO.setAcquisitionTransactionId(vs.getAcquisitionTransactionId());
+        assetAcquisitionDTO.setAssetCategoryId(vs.getAssetCategoryId());
+        assetAcquisitionDTO.setPurchaseAmount(toScaledBigDecimal(vs.getPurchaseAmount()));
+        assetAcquisitionDTO.setAssetDealerId(vs.getAssetDealerId());
+        assetAcquisitionDTO.setAssetInvoiceId(vs.getAssetInvoiceId());
         // TODO confirm effects of this mutation
         // TODO .timestamp(System.currentTimeMillis())
         // TODO .messageToken(vs.getMessageToken)
-        .build();
+        return assetAcquisitionDTO;
     }
 
     @Override
