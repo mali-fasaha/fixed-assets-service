@@ -20,7 +20,7 @@ public interface AssetAcquisitionResourceStreams {
     @Input(AssetAcquisitionResourceStreams.CREATE_RESOURCE_IN)
     SubscribableChannel inboundCreateResource();
 
-    @Input(AssetAcquisitionResourceStreams.CREATE_RESOURCE_OUT)
+    @Output(AssetAcquisitionResourceStreams.CREATE_RESOURCE_OUT)
     MessageChannel outboundCreateResource();
 
     @Input(AssetAcquisitionResourceStreams.UPDATE_RESOURCES_IN)
