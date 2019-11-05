@@ -1,5 +1,6 @@
 package io.github.assets.app.messaging;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.Message;
 
 import java.net.URISyntaxException;
