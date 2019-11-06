@@ -71,7 +71,13 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
     @PutMapping("/asset-acquisitions")
     public ResponseEntity<AssetAcquisitionDTO> updateAssetAcquisition(@Valid @RequestBody AssetAcquisitionDTO assetAcquisitionDTO) throws URISyntaxException {
 
-        return assetAcquisitionResourceDecorator.updateAssetAcquisition(assetAcquisitionDTO);
+        if (assetAcquisitionDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+
+        assetAcquisitionMutationResource.updateAssetAcquisition(assetAcquisitionDTO);
+
+        return ResponseEntity.ok(assetAcquisitionDTO);
     }
 
     /**
