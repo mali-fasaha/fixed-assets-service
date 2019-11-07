@@ -1,16 +1,14 @@
 package io.github.assets.app.messaging.assetAcquisition;
 
 import io.github.assets.app.messaging.DeleteMessageDTO;
+import io.github.assets.app.messaging.EntityResource;
 import io.github.assets.app.messaging.Mapping;
 import io.github.assets.app.messaging.MuteResourceListener;
 import io.github.assets.app.messaging.TokenValueSearch;
 import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
-import io.github.assets.domain.MessageToken;
-import io.github.assets.service.MessageTokenQueryService;
+import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
-import io.github.assets.service.dto.MessageTokenCriteria;
 import io.github.assets.service.dto.MessageTokenDTO;
-import io.github.jhipster.service.filter.StringFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +16,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import javax.xml.ws.Response;
 import java.net.URISyntaxException;
 
 @Slf4j
@@ -26,15 +23,13 @@ import java.net.URISyntaxException;
 @Transactional
 public class AssetAcquisitionMuteResourceListener implements MuteResourceListener<AssetAcquisitionMTO> {
 
-    private final IAssetAcquisitionResource assetAcquisitionResourceDecorator;
-    private final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper;
+    // TODO Perhaps this class is doing too much
     private final TokenValueSearch<String> stringTokenValueSearch;
+    private final EntityResource<AssetAcquisitionMTO, DeleteMessageDTO> assetAcquisitionEntityResource;
 
-    public AssetAcquisitionMuteResourceListener(final IAssetAcquisitionResource assetAcquisitionResourceDecorator, final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper,
-                                                final TokenValueSearch<String> stringTokenValueSearch) {
-        this.assetAcquisitionResourceDecorator = assetAcquisitionResourceDecorator;
-        this.assetAcquisitionMTOMapper = assetAcquisitionMTOMapper;
+    public AssetAcquisitionMuteResourceListener(final TokenValueSearch<String> stringTokenValueSearch, final EntityResource<AssetAcquisitionMTO, DeleteMessageDTO> assetAcquisitionEntityResource) {
         this.stringTokenValueSearch = stringTokenValueSearch;
+        this.assetAcquisitionEntityResource = assetAcquisitionEntityResource;
     }
 
     @Override
@@ -47,11 +42,7 @@ public class AssetAcquisitionMuteResourceListener implements MuteResourceListene
 
         messageToken.setReceived(true);
 
-        ResponseEntity response = assetAcquisitionResourceDecorator.createAssetAcquisition(assetAcquisitionMTOMapper.toValue1(assetAcquisitionMTO));
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            messageToken.setActioned(true);
-        }
+        assetAcquisitionEntityResource.createEntity(assetAcquisitionMTO, messageToken);
     }
 
     @Override
@@ -64,11 +55,7 @@ public class AssetAcquisitionMuteResourceListener implements MuteResourceListene
 
         messageToken.setReceived(true);
 
-        ResponseEntity response = assetAcquisitionResourceDecorator.updateAssetAcquisition(assetAcquisitionMTOMapper.toValue1(assetAcquisitionMTO));
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            messageToken.setActioned(true);
-        }
+        assetAcquisitionEntityResource.updateEntity(assetAcquisitionMTO, messageToken);
     }
 
     @Override
@@ -81,10 +68,6 @@ public class AssetAcquisitionMuteResourceListener implements MuteResourceListene
 
         messageToken.setReceived(true);
 
-        ResponseEntity response = assetAcquisitionResourceDecorator.deleteAssetAcquisition(deleteMessageDTO.getId());
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            messageToken.setActioned(true);
-        }
+        assetAcquisitionEntityResource.deleteEntity(deleteMessageDTO, messageToken);
     }
 }
