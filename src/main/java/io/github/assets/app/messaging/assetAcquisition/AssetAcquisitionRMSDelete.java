@@ -45,7 +45,7 @@ public class AssetAcquisitionRMSDelete implements MessageService<Long> {
         MessageService<TokenizableMessage<String>> messageService = new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundDeleteResource());
         return messageService.sendMessage(DeleteMessageDTO.builder()
                                                           .id(message)
-                                                          .description("Asset Acquisition id : " + message)
+                                                          .description("Delete Asset-Acquisition-Entity request id : " + message)
                                                           .build());
     }
 }

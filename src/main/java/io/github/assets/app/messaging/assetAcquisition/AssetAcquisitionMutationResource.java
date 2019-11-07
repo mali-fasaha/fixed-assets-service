@@ -2,6 +2,7 @@ package io.github.assets.app.messaging.assetAcquisition;
 
 import io.github.assets.app.messaging.MutationResource;
 import io.github.assets.domain.MessageToken;
+import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,18 +30,24 @@ public class AssetAcquisitionMutationResource implements MutationResource<AssetA
     @Override
     public MessageToken createAssetAcquisition(final AssetAcquisitionDTO assetAcquisitionDTO) throws URISyntaxException {
         log.debug("Request to create entity received for action : {} and delegated to al a carte creation api", assetAcquisitionDTO);
-        return assetAcquisitionRMSCreate.sendMessage(assetAcquisitionDTO);
+        MessageToken tokenForEnqueued = assetAcquisitionRMSCreate.sendMessage(assetAcquisitionDTO);
+        tokenForEnqueued.setContentFullyEnqueued(true);
+        return tokenForEnqueued;
     }
 
     @Override
     public MessageToken updateAssetAcquisition(final AssetAcquisitionDTO assetAcquisitionDTO) throws URISyntaxException {
         log.debug("Request to update entity id : {} received and delegated to al a carte update api", assetAcquisitionDTO);
-        return assetAcquisitionRMSUpdate.sendMessage(assetAcquisitionDTO);
+        MessageToken tokenForEnqueued = assetAcquisitionRMSUpdate.sendMessage(assetAcquisitionDTO);
+        tokenForEnqueued.setContentFullyEnqueued(true);
+        return tokenForEnqueued;
     }
 
     @Override
     public MessageToken deleteEntity(final Long id) {
         log.debug("Request to delete entity id : {} received and delegated to al a carte deletion api", id);
-        return assetAcquisitionRMSDelete.sendMessage(id);
+        MessageToken tokenForEnqueued = assetAcquisitionRMSDelete.sendMessage(id);
+        tokenForEnqueued.setContentFullyEnqueued(true);
+        return tokenForEnqueued;
     }
 }

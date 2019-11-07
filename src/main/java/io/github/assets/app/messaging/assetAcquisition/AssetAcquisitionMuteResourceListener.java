@@ -32,6 +32,8 @@ public class AssetAcquisitionMuteResourceListener implements MuteResourceListene
 
         log.debug("Resource DTO received for action : {}", assetAcquisitionMTO);
 
+        assetAcquisitionMTO.getMessageToken();
+
         assetAcquisitionResourceDecorator.createAssetAcquisition(assetAcquisitionMTOMapper.toValue1(assetAcquisitionMTO));
     }
 
