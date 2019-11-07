@@ -1,6 +1,7 @@
 package io.github.assets.app.messaging;
 
 import io.github.assets.domain.MessageToken;
+import io.github.assets.service.dto.MessageTokenDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URISyntaxException;
@@ -10,10 +11,10 @@ import java.net.URISyntaxException;
  */
 public interface MutationResource<DTO> {
 
-    MessageToken createAssetAcquisition(DTO dto) throws URISyntaxException;
+    MessageTokenDTO createAssetAcquisition(DTO dto) throws URISyntaxException;
 
-    MessageToken updateAssetAcquisition(DTO dto) throws URISyntaxException;
+    MessageTokenDTO updateAssetAcquisition(DTO dto) throws URISyntaxException;
 
-    MessageToken deleteEntity(Long id);
+    MessageTokenDTO deleteEntity(Long id);
 
 }

@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface MessageTokenRepository extends JpaRepository<MessageToken, Long> {
+public interface MessageTokenRepository extends JpaRepository<MessageToken, Long>, JpaSpecificationExecutor<MessageToken> {
 
 }

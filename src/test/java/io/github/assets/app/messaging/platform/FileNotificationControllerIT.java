@@ -10,6 +10,7 @@ import io.github.assets.app.messaging.sample.Greetings;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.MessageToken;
+import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ public class FileNotificationControllerIT {
 
         final FileNotification unMutatedFileNotification = SerializationUtils.clone(fileNotification);
 
-        MessageToken messageToken = fileNotificationMessageService.sendMessage(fileNotification);
+        MessageTokenDTO messageToken = fileNotificationMessageService.sendMessage(fileNotification);
 
         log.info("Message sent with the token: {}", messageToken.getTokenValue());
 

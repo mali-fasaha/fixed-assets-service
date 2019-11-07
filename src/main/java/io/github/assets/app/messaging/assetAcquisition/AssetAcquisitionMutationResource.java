@@ -4,6 +4,7 @@ import io.github.assets.app.messaging.MutationResource;
 import io.github.assets.domain.MessageToken;
 import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
+import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,25 +29,25 @@ public class AssetAcquisitionMutationResource implements MutationResource<AssetA
     }
 
     @Override
-    public MessageToken createAssetAcquisition(final AssetAcquisitionDTO assetAcquisitionDTO) throws URISyntaxException {
+    public MessageTokenDTO createAssetAcquisition(final AssetAcquisitionDTO assetAcquisitionDTO) throws URISyntaxException {
         log.debug("Request to create entity received for action : {} and delegated to al a carte creation api", assetAcquisitionDTO);
-        MessageToken tokenForEnqueued = assetAcquisitionRMSCreate.sendMessage(assetAcquisitionDTO);
+        MessageTokenDTO tokenForEnqueued = assetAcquisitionRMSCreate.sendMessage(assetAcquisitionDTO);
         tokenForEnqueued.setContentFullyEnqueued(true);
         return tokenForEnqueued;
     }
 
     @Override
-    public MessageToken updateAssetAcquisition(final AssetAcquisitionDTO assetAcquisitionDTO) throws URISyntaxException {
+    public MessageTokenDTO updateAssetAcquisition(final AssetAcquisitionDTO assetAcquisitionDTO) throws URISyntaxException {
         log.debug("Request to update entity id : {} received and delegated to al a carte update api", assetAcquisitionDTO);
-        MessageToken tokenForEnqueued = assetAcquisitionRMSUpdate.sendMessage(assetAcquisitionDTO);
+        MessageTokenDTO tokenForEnqueued = assetAcquisitionRMSUpdate.sendMessage(assetAcquisitionDTO);
         tokenForEnqueued.setContentFullyEnqueued(true);
         return tokenForEnqueued;
     }
 
     @Override
-    public MessageToken deleteEntity(final Long id) {
+    public MessageTokenDTO deleteEntity(final Long id) {
         log.debug("Request to delete entity id : {} received and delegated to al a carte deletion api", id);
-        MessageToken tokenForEnqueued = assetAcquisitionRMSDelete.sendMessage(id);
+        MessageTokenDTO tokenForEnqueued = assetAcquisitionRMSDelete.sendMessage(id);
         tokenForEnqueued.setContentFullyEnqueued(true);
         return tokenForEnqueued;
     }

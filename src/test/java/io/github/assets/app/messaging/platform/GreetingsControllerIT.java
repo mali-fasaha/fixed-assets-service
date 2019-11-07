@@ -8,6 +8,7 @@ import io.github.assets.app.messaging.sample.GreetingsStreams;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.MessageToken;
+import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,7 +75,7 @@ public class GreetingsControllerIT {
 
         final Greetings unMutatedGreeting = SerializationUtils.clone(greeting);
 
-        MessageToken messageToken = greetingsService.sendMessage(greeting);
+        MessageTokenDTO messageToken = greetingsService.sendMessage(greeting);
 
         log.info("Message sent with the token: {}", messageToken.getTokenValue());
 

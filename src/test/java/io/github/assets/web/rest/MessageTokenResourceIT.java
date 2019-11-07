@@ -6,7 +6,11 @@ import io.github.assets.domain.MessageToken;
 import io.github.assets.repository.MessageTokenRepository;
 import io.github.assets.repository.search.MessageTokenSearchRepository;
 import io.github.assets.service.MessageTokenService;
+import io.github.assets.service.dto.MessageTokenDTO;
+import io.github.assets.service.mapper.MessageTokenMapper;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
+import io.github.assets.service.dto.MessageTokenCriteria;
+import io.github.assets.service.MessageTokenQueryService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +39,6 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import io.github.assets.domain.enumeration.FileModelType;
 /**
  * Integration tests for the {@Link MessageTokenResource} REST controller.
  */
@@ -60,11 +63,11 @@ public class MessageTokenResourceIT {
     private static final Boolean DEFAULT_CONTENT_FULLY_ENQUEUED = false;
     private static final Boolean UPDATED_CONTENT_FULLY_ENQUEUED = true;
 
-    private static final FileModelType DEFAULT_FILE_MODEL_TYPE = FileModelType.DEPRECIATION_UPLOAD;
-    private static final FileModelType UPDATED_FILE_MODEL_TYPE = FileModelType.ACQUISITION_UPLOAD;
-
     @Autowired
     private MessageTokenRepository messageTokenRepository;
+
+    @Autowired
+    private MessageTokenMapper messageTokenMapper;
 
     @Autowired
     private MessageTokenService messageTokenService;
@@ -76,6 +79,9 @@ public class MessageTokenResourceIT {
      */
     @Autowired
     private MessageTokenSearchRepository mockMessageTokenSearchRepository;
+
+    @Autowired
+    private MessageTokenQueryService messageTokenQueryService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -99,7 +105,7 @@ public class MessageTokenResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final MessageTokenResource messageTokenResource = new MessageTokenResource(messageTokenService);
+        final MessageTokenResource messageTokenResource = new MessageTokenResource(messageTokenService, messageTokenQueryService);
         this.restMessageTokenMockMvc = MockMvcBuilders.standaloneSetup(messageTokenResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -121,8 +127,7 @@ public class MessageTokenResourceIT {
             .tokenValue(DEFAULT_TOKEN_VALUE)
             .received(DEFAULT_RECEIVED)
             .actioned(DEFAULT_ACTIONED)
-            .contentFullyEnqueued(DEFAULT_CONTENT_FULLY_ENQUEUED)
-            .fileModelType(DEFAULT_FILE_MODEL_TYPE);
+            .contentFullyEnqueued(DEFAULT_CONTENT_FULLY_ENQUEUED);
         return messageToken;
     }
     /**
@@ -138,8 +143,7 @@ public class MessageTokenResourceIT {
             .tokenValue(UPDATED_TOKEN_VALUE)
             .received(UPDATED_RECEIVED)
             .actioned(UPDATED_ACTIONED)
-            .contentFullyEnqueued(UPDATED_CONTENT_FULLY_ENQUEUED)
-            .fileModelType(UPDATED_FILE_MODEL_TYPE);
+            .contentFullyEnqueued(UPDATED_CONTENT_FULLY_ENQUEUED);
         return messageToken;
     }
 
@@ -154,9 +158,10 @@ public class MessageTokenResourceIT {
         int databaseSizeBeforeCreate = messageTokenRepository.findAll().size();
 
         // Create the MessageToken
+        MessageTokenDTO messageTokenDTO = messageTokenMapper.toDto(messageToken);
         restMessageTokenMockMvc.perform(post("/api/message-tokens")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(messageToken)))
+            .content(TestUtil.convertObjectToJsonBytes(messageTokenDTO)))
             .andExpect(status().isCreated());
 
         // Validate the MessageToken in the database
@@ -169,7 +174,6 @@ public class MessageTokenResourceIT {
         assertThat(testMessageToken.isReceived()).isEqualTo(DEFAULT_RECEIVED);
         assertThat(testMessageToken.isActioned()).isEqualTo(DEFAULT_ACTIONED);
         assertThat(testMessageToken.isContentFullyEnqueued()).isEqualTo(DEFAULT_CONTENT_FULLY_ENQUEUED);
-        assertThat(testMessageToken.getFileModelType()).isEqualTo(DEFAULT_FILE_MODEL_TYPE);
 
         // Validate the MessageToken in Elasticsearch
         verify(mockMessageTokenSearchRepository, times(1)).save(testMessageToken);
@@ -182,11 +186,12 @@ public class MessageTokenResourceIT {
 
         // Create the MessageToken with an existing ID
         messageToken.setId(1L);
+        MessageTokenDTO messageTokenDTO = messageTokenMapper.toDto(messageToken);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restMessageTokenMockMvc.perform(post("/api/message-tokens")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(messageToken)))
+            .content(TestUtil.convertObjectToJsonBytes(messageTokenDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the MessageToken in the database
@@ -206,10 +211,11 @@ public class MessageTokenResourceIT {
         messageToken.setTimeSent(null);
 
         // Create the MessageToken, which fails.
+        MessageTokenDTO messageTokenDTO = messageTokenMapper.toDto(messageToken);
 
         restMessageTokenMockMvc.perform(post("/api/message-tokens")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(messageToken)))
+            .content(TestUtil.convertObjectToJsonBytes(messageTokenDTO)))
             .andExpect(status().isBadRequest());
 
         List<MessageToken> messageTokenList = messageTokenRepository.findAll();
@@ -224,10 +230,11 @@ public class MessageTokenResourceIT {
         messageToken.setTokenValue(null);
 
         // Create the MessageToken, which fails.
+        MessageTokenDTO messageTokenDTO = messageTokenMapper.toDto(messageToken);
 
         restMessageTokenMockMvc.perform(post("/api/message-tokens")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(messageToken)))
+            .content(TestUtil.convertObjectToJsonBytes(messageTokenDTO)))
             .andExpect(status().isBadRequest());
 
         List<MessageToken> messageTokenList = messageTokenRepository.findAll();
@@ -250,8 +257,7 @@ public class MessageTokenResourceIT {
             .andExpect(jsonPath("$.[*].tokenValue").value(hasItem(DEFAULT_TOKEN_VALUE.toString())))
             .andExpect(jsonPath("$.[*].received").value(hasItem(DEFAULT_RECEIVED.booleanValue())))
             .andExpect(jsonPath("$.[*].actioned").value(hasItem(DEFAULT_ACTIONED.booleanValue())))
-            .andExpect(jsonPath("$.[*].contentFullyEnqueued").value(hasItem(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue())))
-            .andExpect(jsonPath("$.[*].fileModelType").value(hasItem(DEFAULT_FILE_MODEL_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].contentFullyEnqueued").value(hasItem(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue())));
     }
     
     @Test
@@ -270,9 +276,308 @@ public class MessageTokenResourceIT {
             .andExpect(jsonPath("$.tokenValue").value(DEFAULT_TOKEN_VALUE.toString()))
             .andExpect(jsonPath("$.received").value(DEFAULT_RECEIVED.booleanValue()))
             .andExpect(jsonPath("$.actioned").value(DEFAULT_ACTIONED.booleanValue()))
-            .andExpect(jsonPath("$.contentFullyEnqueued").value(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue()))
-            .andExpect(jsonPath("$.fileModelType").value(DEFAULT_FILE_MODEL_TYPE.toString()));
+            .andExpect(jsonPath("$.contentFullyEnqueued").value(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue()));
     }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByDescriptionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where description equals to DEFAULT_DESCRIPTION
+        defaultMessageTokenShouldBeFound("description.equals=" + DEFAULT_DESCRIPTION);
+
+        // Get all the messageTokenList where description equals to UPDATED_DESCRIPTION
+        defaultMessageTokenShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByDescriptionIsInShouldWork() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where description in DEFAULT_DESCRIPTION or UPDATED_DESCRIPTION
+        defaultMessageTokenShouldBeFound("description.in=" + DEFAULT_DESCRIPTION + "," + UPDATED_DESCRIPTION);
+
+        // Get all the messageTokenList where description equals to UPDATED_DESCRIPTION
+        defaultMessageTokenShouldNotBeFound("description.in=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByDescriptionIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where description is not null
+        defaultMessageTokenShouldBeFound("description.specified=true");
+
+        // Get all the messageTokenList where description is null
+        defaultMessageTokenShouldNotBeFound("description.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTimeSentIsEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where timeSent equals to DEFAULT_TIME_SENT
+        defaultMessageTokenShouldBeFound("timeSent.equals=" + DEFAULT_TIME_SENT);
+
+        // Get all the messageTokenList where timeSent equals to UPDATED_TIME_SENT
+        defaultMessageTokenShouldNotBeFound("timeSent.equals=" + UPDATED_TIME_SENT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTimeSentIsInShouldWork() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where timeSent in DEFAULT_TIME_SENT or UPDATED_TIME_SENT
+        defaultMessageTokenShouldBeFound("timeSent.in=" + DEFAULT_TIME_SENT + "," + UPDATED_TIME_SENT);
+
+        // Get all the messageTokenList where timeSent equals to UPDATED_TIME_SENT
+        defaultMessageTokenShouldNotBeFound("timeSent.in=" + UPDATED_TIME_SENT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTimeSentIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where timeSent is not null
+        defaultMessageTokenShouldBeFound("timeSent.specified=true");
+
+        // Get all the messageTokenList where timeSent is null
+        defaultMessageTokenShouldNotBeFound("timeSent.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTimeSentIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where timeSent greater than or equals to DEFAULT_TIME_SENT
+        defaultMessageTokenShouldBeFound("timeSent.greaterOrEqualThan=" + DEFAULT_TIME_SENT);
+
+        // Get all the messageTokenList where timeSent greater than or equals to UPDATED_TIME_SENT
+        defaultMessageTokenShouldNotBeFound("timeSent.greaterOrEqualThan=" + UPDATED_TIME_SENT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTimeSentIsLessThanSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where timeSent less than or equals to DEFAULT_TIME_SENT
+        defaultMessageTokenShouldNotBeFound("timeSent.lessThan=" + DEFAULT_TIME_SENT);
+
+        // Get all the messageTokenList where timeSent less than or equals to UPDATED_TIME_SENT
+        defaultMessageTokenShouldBeFound("timeSent.lessThan=" + UPDATED_TIME_SENT);
+    }
+
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTokenValueIsEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where tokenValue equals to DEFAULT_TOKEN_VALUE
+        defaultMessageTokenShouldBeFound("tokenValue.equals=" + DEFAULT_TOKEN_VALUE);
+
+        // Get all the messageTokenList where tokenValue equals to UPDATED_TOKEN_VALUE
+        defaultMessageTokenShouldNotBeFound("tokenValue.equals=" + UPDATED_TOKEN_VALUE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTokenValueIsInShouldWork() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where tokenValue in DEFAULT_TOKEN_VALUE or UPDATED_TOKEN_VALUE
+        defaultMessageTokenShouldBeFound("tokenValue.in=" + DEFAULT_TOKEN_VALUE + "," + UPDATED_TOKEN_VALUE);
+
+        // Get all the messageTokenList where tokenValue equals to UPDATED_TOKEN_VALUE
+        defaultMessageTokenShouldNotBeFound("tokenValue.in=" + UPDATED_TOKEN_VALUE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTokenValueIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where tokenValue is not null
+        defaultMessageTokenShouldBeFound("tokenValue.specified=true");
+
+        // Get all the messageTokenList where tokenValue is null
+        defaultMessageTokenShouldNotBeFound("tokenValue.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByReceivedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where received equals to DEFAULT_RECEIVED
+        defaultMessageTokenShouldBeFound("received.equals=" + DEFAULT_RECEIVED);
+
+        // Get all the messageTokenList where received equals to UPDATED_RECEIVED
+        defaultMessageTokenShouldNotBeFound("received.equals=" + UPDATED_RECEIVED);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByReceivedIsInShouldWork() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where received in DEFAULT_RECEIVED or UPDATED_RECEIVED
+        defaultMessageTokenShouldBeFound("received.in=" + DEFAULT_RECEIVED + "," + UPDATED_RECEIVED);
+
+        // Get all the messageTokenList where received equals to UPDATED_RECEIVED
+        defaultMessageTokenShouldNotBeFound("received.in=" + UPDATED_RECEIVED);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByReceivedIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where received is not null
+        defaultMessageTokenShouldBeFound("received.specified=true");
+
+        // Get all the messageTokenList where received is null
+        defaultMessageTokenShouldNotBeFound("received.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByActionedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where actioned equals to DEFAULT_ACTIONED
+        defaultMessageTokenShouldBeFound("actioned.equals=" + DEFAULT_ACTIONED);
+
+        // Get all the messageTokenList where actioned equals to UPDATED_ACTIONED
+        defaultMessageTokenShouldNotBeFound("actioned.equals=" + UPDATED_ACTIONED);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByActionedIsInShouldWork() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where actioned in DEFAULT_ACTIONED or UPDATED_ACTIONED
+        defaultMessageTokenShouldBeFound("actioned.in=" + DEFAULT_ACTIONED + "," + UPDATED_ACTIONED);
+
+        // Get all the messageTokenList where actioned equals to UPDATED_ACTIONED
+        defaultMessageTokenShouldNotBeFound("actioned.in=" + UPDATED_ACTIONED);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByActionedIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where actioned is not null
+        defaultMessageTokenShouldBeFound("actioned.specified=true");
+
+        // Get all the messageTokenList where actioned is null
+        defaultMessageTokenShouldNotBeFound("actioned.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByContentFullyEnqueuedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where contentFullyEnqueued equals to DEFAULT_CONTENT_FULLY_ENQUEUED
+        defaultMessageTokenShouldBeFound("contentFullyEnqueued.equals=" + DEFAULT_CONTENT_FULLY_ENQUEUED);
+
+        // Get all the messageTokenList where contentFullyEnqueued equals to UPDATED_CONTENT_FULLY_ENQUEUED
+        defaultMessageTokenShouldNotBeFound("contentFullyEnqueued.equals=" + UPDATED_CONTENT_FULLY_ENQUEUED);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByContentFullyEnqueuedIsInShouldWork() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where contentFullyEnqueued in DEFAULT_CONTENT_FULLY_ENQUEUED or UPDATED_CONTENT_FULLY_ENQUEUED
+        defaultMessageTokenShouldBeFound("contentFullyEnqueued.in=" + DEFAULT_CONTENT_FULLY_ENQUEUED + "," + UPDATED_CONTENT_FULLY_ENQUEUED);
+
+        // Get all the messageTokenList where contentFullyEnqueued equals to UPDATED_CONTENT_FULLY_ENQUEUED
+        defaultMessageTokenShouldNotBeFound("contentFullyEnqueued.in=" + UPDATED_CONTENT_FULLY_ENQUEUED);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByContentFullyEnqueuedIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where contentFullyEnqueued is not null
+        defaultMessageTokenShouldBeFound("contentFullyEnqueued.specified=true");
+
+        // Get all the messageTokenList where contentFullyEnqueued is null
+        defaultMessageTokenShouldNotBeFound("contentFullyEnqueued.specified=false");
+    }
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultMessageTokenShouldBeFound(String filter) throws Exception {
+        restMessageTokenMockMvc.perform(get("/api/message-tokens?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(messageToken.getId().intValue())))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].timeSent").value(hasItem(DEFAULT_TIME_SENT.intValue())))
+            .andExpect(jsonPath("$.[*].tokenValue").value(hasItem(DEFAULT_TOKEN_VALUE)))
+            .andExpect(jsonPath("$.[*].received").value(hasItem(DEFAULT_RECEIVED.booleanValue())))
+            .andExpect(jsonPath("$.[*].actioned").value(hasItem(DEFAULT_ACTIONED.booleanValue())))
+            .andExpect(jsonPath("$.[*].contentFullyEnqueued").value(hasItem(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue())));
+
+        // Check, that the count call also returns 1
+        restMessageTokenMockMvc.perform(get("/api/message-tokens/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultMessageTokenShouldNotBeFound(String filter) throws Exception {
+        restMessageTokenMockMvc.perform(get("/api/message-tokens?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restMessageTokenMockMvc.perform(get("/api/message-tokens/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().string("0"));
+    }
+
 
     @Test
     @Transactional
@@ -286,9 +591,7 @@ public class MessageTokenResourceIT {
     @Transactional
     public void updateMessageToken() throws Exception {
         // Initialize the database
-        messageTokenService.save(messageToken);
-        // As the test used the service layer, reset the Elasticsearch mock repository
-        reset(mockMessageTokenSearchRepository);
+        messageTokenRepository.saveAndFlush(messageToken);
 
         int databaseSizeBeforeUpdate = messageTokenRepository.findAll().size();
 
@@ -302,12 +605,12 @@ public class MessageTokenResourceIT {
             .tokenValue(UPDATED_TOKEN_VALUE)
             .received(UPDATED_RECEIVED)
             .actioned(UPDATED_ACTIONED)
-            .contentFullyEnqueued(UPDATED_CONTENT_FULLY_ENQUEUED)
-            .fileModelType(UPDATED_FILE_MODEL_TYPE);
+            .contentFullyEnqueued(UPDATED_CONTENT_FULLY_ENQUEUED);
+        MessageTokenDTO messageTokenDTO = messageTokenMapper.toDto(updatedMessageToken);
 
         restMessageTokenMockMvc.perform(put("/api/message-tokens")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedMessageToken)))
+            .content(TestUtil.convertObjectToJsonBytes(messageTokenDTO)))
             .andExpect(status().isOk());
 
         // Validate the MessageToken in the database
@@ -320,7 +623,6 @@ public class MessageTokenResourceIT {
         assertThat(testMessageToken.isReceived()).isEqualTo(UPDATED_RECEIVED);
         assertThat(testMessageToken.isActioned()).isEqualTo(UPDATED_ACTIONED);
         assertThat(testMessageToken.isContentFullyEnqueued()).isEqualTo(UPDATED_CONTENT_FULLY_ENQUEUED);
-        assertThat(testMessageToken.getFileModelType()).isEqualTo(UPDATED_FILE_MODEL_TYPE);
 
         // Validate the MessageToken in Elasticsearch
         verify(mockMessageTokenSearchRepository, times(1)).save(testMessageToken);
@@ -332,11 +634,12 @@ public class MessageTokenResourceIT {
         int databaseSizeBeforeUpdate = messageTokenRepository.findAll().size();
 
         // Create the MessageToken
+        MessageTokenDTO messageTokenDTO = messageTokenMapper.toDto(messageToken);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restMessageTokenMockMvc.perform(put("/api/message-tokens")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(messageToken)))
+            .content(TestUtil.convertObjectToJsonBytes(messageTokenDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the MessageToken in the database
@@ -351,7 +654,7 @@ public class MessageTokenResourceIT {
     @Transactional
     public void deleteMessageToken() throws Exception {
         // Initialize the database
-        messageTokenService.save(messageToken);
+        messageTokenRepository.saveAndFlush(messageToken);
 
         int databaseSizeBeforeDelete = messageTokenRepository.findAll().size();
 
@@ -372,7 +675,7 @@ public class MessageTokenResourceIT {
     @Transactional
     public void searchMessageToken() throws Exception {
         // Initialize the database
-        messageTokenService.save(messageToken);
+        messageTokenRepository.saveAndFlush(messageToken);
         when(mockMessageTokenSearchRepository.search(queryStringQuery("id:" + messageToken.getId()), PageRequest.of(0, 20)))
             .thenReturn(new PageImpl<>(Collections.singletonList(messageToken), PageRequest.of(0, 1), 1));
         // Search the messageToken
@@ -385,8 +688,7 @@ public class MessageTokenResourceIT {
             .andExpect(jsonPath("$.[*].tokenValue").value(hasItem(DEFAULT_TOKEN_VALUE)))
             .andExpect(jsonPath("$.[*].received").value(hasItem(DEFAULT_RECEIVED.booleanValue())))
             .andExpect(jsonPath("$.[*].actioned").value(hasItem(DEFAULT_ACTIONED.booleanValue())))
-            .andExpect(jsonPath("$.[*].contentFullyEnqueued").value(hasItem(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue())))
-            .andExpect(jsonPath("$.[*].fileModelType").value(hasItem(DEFAULT_FILE_MODEL_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].contentFullyEnqueued").value(hasItem(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue())));
     }
 
     @Test
@@ -402,5 +704,28 @@ public class MessageTokenResourceIT {
         assertThat(messageToken1).isNotEqualTo(messageToken2);
         messageToken1.setId(null);
         assertThat(messageToken1).isNotEqualTo(messageToken2);
+    }
+
+    @Test
+    @Transactional
+    public void dtoEqualsVerifier() throws Exception {
+        TestUtil.equalsVerifier(MessageTokenDTO.class);
+        MessageTokenDTO messageTokenDTO1 = new MessageTokenDTO();
+        messageTokenDTO1.setId(1L);
+        MessageTokenDTO messageTokenDTO2 = new MessageTokenDTO();
+        assertThat(messageTokenDTO1).isNotEqualTo(messageTokenDTO2);
+        messageTokenDTO2.setId(messageTokenDTO1.getId());
+        assertThat(messageTokenDTO1).isEqualTo(messageTokenDTO2);
+        messageTokenDTO2.setId(2L);
+        assertThat(messageTokenDTO1).isNotEqualTo(messageTokenDTO2);
+        messageTokenDTO1.setId(null);
+        assertThat(messageTokenDTO1).isNotEqualTo(messageTokenDTO2);
+    }
+
+    @Test
+    @Transactional
+    public void testEntityFromId() {
+        assertThat(messageTokenMapper.fromId(42L).getId()).isEqualTo(42);
+        assertThat(messageTokenMapper.fromId(null)).isNull();
     }
 }

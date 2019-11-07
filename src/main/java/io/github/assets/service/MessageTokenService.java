@@ -1,6 +1,6 @@
 package io.github.assets.service;
 
-import io.github.assets.domain.MessageToken;
+import io.github.assets.service.dto.MessageTokenDTO;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,17 +8,17 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 /**
- * Service Interface for managing {@link MessageToken}.
+ * Service Interface for managing {@link io.github.assets.domain.MessageToken}.
  */
 public interface MessageTokenService {
 
     /**
      * Save a messageToken.
      *
-     * @param messageToken the entity to save.
+     * @param messageTokenDTO the entity to save.
      * @return the persisted entity.
      */
-    MessageToken save(MessageToken messageToken);
+    MessageTokenDTO save(MessageTokenDTO messageTokenDTO);
 
     /**
      * Get all the messageTokens.
@@ -26,7 +26,7 @@ public interface MessageTokenService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<MessageToken> findAll(Pageable pageable);
+    Page<MessageTokenDTO> findAll(Pageable pageable);
 
 
     /**
@@ -35,7 +35,7 @@ public interface MessageTokenService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<MessageToken> findOne(Long id);
+    Optional<MessageTokenDTO> findOne(Long id);
 
     /**
      * Delete the "id" messageToken.
@@ -52,5 +52,5 @@ public interface MessageTokenService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<MessageToken> search(String query, Pageable pageable);
+    Page<MessageTokenDTO> search(String query, Pageable pageable);
 }

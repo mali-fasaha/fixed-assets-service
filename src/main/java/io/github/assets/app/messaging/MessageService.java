@@ -1,6 +1,7 @@
 package io.github.assets.app.messaging;
 
 import io.github.assets.domain.MessageToken;
+import io.github.assets.service.dto.MessageTokenDTO;
 
 /**
  * This is an abstraction for sending a services into a queue. It is expected that the implemntation
@@ -16,5 +17,5 @@ public interface MessageService<T> {
      * @param message This is the item being sent
      * @return This is the token for the message that has just been sent
      */
-    MessageToken sendMessage(final T message);
+    MessageTokenDTO sendMessage(final T message);
 }

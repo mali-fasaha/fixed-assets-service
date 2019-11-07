@@ -1,7 +1,6 @@
 package io.github.assets.app.messaging.assetAcquisition;
 
 import io.github.assets.app.messaging.Mapping;
-import io.github.assets.domain.AssetAcquisition;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,7 @@ public class AssetAcquisitionMTOMapper implements Mapping<AssetAcquisitionDTO, A
 
     @Override
     public AssetAcquisitionDTO toValue1(final AssetAcquisitionMTO vs) {
-        AssetAcquisitionDTO assetAcquisitionDTO =  new AssetAcquisitionDTO();
+        AssetAcquisitionDTO assetAcquisitionDTO = new AssetAcquisitionDTO();
         assetAcquisitionDTO.setId(vs.getId());
         assetAcquisitionDTO.setDescription(vs.getDescription());
         assetAcquisitionDTO.setAcquisitionMonth(LocalDate.parse(vs.getAcquisitionMonth(), DATETIME_FORMATTER));

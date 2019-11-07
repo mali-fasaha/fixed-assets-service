@@ -4,6 +4,8 @@ import io.github.assets.service.MessageTokenService;
 import io.github.assets.domain.MessageToken;
 import io.github.assets.repository.MessageTokenRepository;
 import io.github.assets.repository.search.MessageTokenSearchRepository;
+import io.github.assets.service.dto.MessageTokenDTO;
+import io.github.assets.service.mapper.MessageTokenMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,24 +29,29 @@ public class MessageTokenServiceImpl implements MessageTokenService {
 
     private final MessageTokenRepository messageTokenRepository;
 
+    private final MessageTokenMapper messageTokenMapper;
+
     private final MessageTokenSearchRepository messageTokenSearchRepository;
 
-    public MessageTokenServiceImpl(MessageTokenRepository messageTokenRepository, MessageTokenSearchRepository messageTokenSearchRepository) {
+    public MessageTokenServiceImpl(MessageTokenRepository messageTokenRepository, MessageTokenMapper messageTokenMapper, MessageTokenSearchRepository messageTokenSearchRepository) {
         this.messageTokenRepository = messageTokenRepository;
+        this.messageTokenMapper = messageTokenMapper;
         this.messageTokenSearchRepository = messageTokenSearchRepository;
     }
 
     /**
      * Save a messageToken.
      *
-     * @param messageToken the entity to save.
+     * @param messageTokenDTO the entity to save.
      * @return the persisted entity.
      */
     @Override
-    public MessageToken save(MessageToken messageToken) {
-        log.debug("Request to save MessageToken : {}", messageToken);
-        MessageToken result = messageTokenRepository.save(messageToken);
-        messageTokenSearchRepository.save(result);
+    public MessageTokenDTO save(MessageTokenDTO messageTokenDTO) {
+        log.debug("Request to save MessageToken : {}", messageTokenDTO);
+        MessageToken messageToken = messageTokenMapper.toEntity(messageTokenDTO);
+        messageToken = messageTokenRepository.save(messageToken);
+        MessageTokenDTO result = messageTokenMapper.toDto(messageToken);
+        messageTokenSearchRepository.save(messageToken);
         return result;
     }
 
@@ -56,9 +63,10 @@ public class MessageTokenServiceImpl implements MessageTokenService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<MessageToken> findAll(Pageable pageable) {
+    public Page<MessageTokenDTO> findAll(Pageable pageable) {
         log.debug("Request to get all MessageTokens");
-        return messageTokenRepository.findAll(pageable);
+        return messageTokenRepository.findAll(pageable)
+            .map(messageTokenMapper::toDto);
     }
 
 
@@ -70,9 +78,10 @@ public class MessageTokenServiceImpl implements MessageTokenService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<MessageToken> findOne(Long id) {
+    public Optional<MessageTokenDTO> findOne(Long id) {
         log.debug("Request to get MessageToken : {}", id);
-        return messageTokenRepository.findById(id);
+        return messageTokenRepository.findById(id)
+            .map(messageTokenMapper::toDto);
     }
 
     /**
@@ -96,7 +105,9 @@ public class MessageTokenServiceImpl implements MessageTokenService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<MessageToken> search(String query, Pageable pageable) {
+    public Page<MessageTokenDTO> search(String query, Pageable pageable) {
         log.debug("Request to search for a page of MessageTokens for query {}", query);
-        return messageTokenSearchRepository.search(queryStringQuery(query), pageable);    }
+        return messageTokenSearchRepository.search(queryStringQuery(query), pageable)
+            .map(messageTokenMapper::toDto);
+    }
 }

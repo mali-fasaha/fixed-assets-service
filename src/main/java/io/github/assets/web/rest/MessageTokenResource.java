@@ -1,8 +1,10 @@
 package io.github.assets.web.rest;
 
-import io.github.assets.domain.MessageToken;
 import io.github.assets.service.MessageTokenService;
 import io.github.assets.web.rest.errors.BadRequestAlertException;
+import io.github.assets.service.dto.MessageTokenDTO;
+import io.github.assets.service.dto.MessageTokenCriteria;
+import io.github.assets.service.MessageTokenQueryService;
 
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
@@ -45,24 +47,27 @@ public class MessageTokenResource {
 
     private final MessageTokenService messageTokenService;
 
-    public MessageTokenResource(MessageTokenService messageTokenService) {
+    private final MessageTokenQueryService messageTokenQueryService;
+
+    public MessageTokenResource(MessageTokenService messageTokenService, MessageTokenQueryService messageTokenQueryService) {
         this.messageTokenService = messageTokenService;
+        this.messageTokenQueryService = messageTokenQueryService;
     }
 
     /**
      * {@code POST  /message-tokens} : Create a new messageToken.
      *
-     * @param messageToken the messageToken to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new messageToken, or with status {@code 400 (Bad Request)} if the messageToken has already an ID.
+     * @param messageTokenDTO the messageTokenDTO to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new messageTokenDTO, or with status {@code 400 (Bad Request)} if the messageToken has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/message-tokens")
-    public ResponseEntity<MessageToken> createMessageToken(@Valid @RequestBody MessageToken messageToken) throws URISyntaxException {
-        log.debug("REST request to save MessageToken : {}", messageToken);
-        if (messageToken.getId() != null) {
+    public ResponseEntity<MessageTokenDTO> createMessageToken(@Valid @RequestBody MessageTokenDTO messageTokenDTO) throws URISyntaxException {
+        log.debug("REST request to save MessageToken : {}", messageTokenDTO);
+        if (messageTokenDTO.getId() != null) {
             throw new BadRequestAlertException("A new messageToken cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        MessageToken result = messageTokenService.save(messageToken);
+        MessageTokenDTO result = messageTokenService.save(messageTokenDTO);
         return ResponseEntity.created(new URI("/api/message-tokens/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -71,21 +76,21 @@ public class MessageTokenResource {
     /**
      * {@code PUT  /message-tokens} : Updates an existing messageToken.
      *
-     * @param messageToken the messageToken to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated messageToken,
-     * or with status {@code 400 (Bad Request)} if the messageToken is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the messageToken couldn't be updated.
+     * @param messageTokenDTO the messageTokenDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated messageTokenDTO,
+     * or with status {@code 400 (Bad Request)} if the messageTokenDTO is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the messageTokenDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/message-tokens")
-    public ResponseEntity<MessageToken> updateMessageToken(@Valid @RequestBody MessageToken messageToken) throws URISyntaxException {
-        log.debug("REST request to update MessageToken : {}", messageToken);
-        if (messageToken.getId() == null) {
+    public ResponseEntity<MessageTokenDTO> updateMessageToken(@Valid @RequestBody MessageTokenDTO messageTokenDTO) throws URISyntaxException {
+        log.debug("REST request to update MessageToken : {}", messageTokenDTO);
+        if (messageTokenDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        MessageToken result = messageTokenService.save(messageToken);
+        MessageTokenDTO result = messageTokenService.save(messageTokenDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, messageToken.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, messageTokenDTO.getId().toString()))
             .body(result);
     }
 
@@ -93,33 +98,46 @@ public class MessageTokenResource {
      * {@code GET  /message-tokens} : get all the messageTokens.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of messageTokens in body.
      */
     @GetMapping("/message-tokens")
-    public ResponseEntity<List<MessageToken>> getAllMessageTokens(Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
-        log.debug("REST request to get a page of MessageTokens");
-        Page<MessageToken> page = messageTokenService.findAll(pageable);
+    public ResponseEntity<List<MessageTokenDTO>> getAllMessageTokens(MessageTokenCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+        log.debug("REST request to get MessageTokens by criteria: {}", criteria);
+        Page<MessageTokenDTO> page = messageTokenQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     /**
+    * {@code GET  /message-tokens/count} : count all the messageTokens.
+    *
+    * @param criteria the criteria which the requested entities should match.
+    * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+    */
+    @GetMapping("/message-tokens/count")
+    public ResponseEntity<Long> countMessageTokens(MessageTokenCriteria criteria) {
+        log.debug("REST request to count MessageTokens by criteria: {}", criteria);
+        return ResponseEntity.ok().body(messageTokenQueryService.countByCriteria(criteria));
+    }
+
+    /**
      * {@code GET  /message-tokens/:id} : get the "id" messageToken.
      *
-     * @param id the id of the messageToken to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the messageToken, or with status {@code 404 (Not Found)}.
+     * @param id the id of the messageTokenDTO to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the messageTokenDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/message-tokens/{id}")
-    public ResponseEntity<MessageToken> getMessageToken(@PathVariable Long id) {
+    public ResponseEntity<MessageTokenDTO> getMessageToken(@PathVariable Long id) {
         log.debug("REST request to get MessageToken : {}", id);
-        Optional<MessageToken> messageToken = messageTokenService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(messageToken);
+        Optional<MessageTokenDTO> messageTokenDTO = messageTokenService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(messageTokenDTO);
     }
 
     /**
      * {@code DELETE  /message-tokens/:id} : delete the "id" messageToken.
      *
-     * @param id the id of the messageToken to delete.
+     * @param id the id of the messageTokenDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/message-tokens/{id}")
@@ -138,9 +156,9 @@ public class MessageTokenResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/message-tokens")
-    public ResponseEntity<List<MessageToken>> searchMessageTokens(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<List<MessageTokenDTO>> searchMessageTokens(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
         log.debug("REST request to search for a page of MessageTokens for query {}", query);
-        Page<MessageToken> page = messageTokenService.search(query, pageable);
+        Page<MessageTokenDTO> page = messageTokenService.search(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

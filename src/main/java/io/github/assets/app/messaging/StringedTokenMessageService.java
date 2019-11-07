@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.domain.MessageToken;
 import io.github.assets.service.MessageTokenService;
+import io.github.assets.service.dto.MessageTokenDTO;
+import io.github.assets.service.mapper.MessageTokenMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
@@ -20,11 +22,14 @@ public class StringedTokenMessageService implements MessageService<TokenizableMe
     private final TokenGenerator tokenGenerator;
     private final MessageTokenService messageTokenService;
     private final MessageChannel messageChannel;
+    private final MessageTokenMapper messageTokenMapper;
 
-    public StringedTokenMessageService(final TokenGenerator tokenGenerator, final MessageTokenService messageTokenService, final MessageChannel messageChannel) {
+    public StringedTokenMessageService(final TokenGenerator tokenGenerator, final MessageTokenService messageTokenService, final MessageChannel messageChannel,
+                                       final MessageTokenMapper messageTokenMapper) {
         this.tokenGenerator = tokenGenerator;
         this.messageTokenService = messageTokenService;
         this.messageChannel = messageChannel;
+        this.messageTokenMapper = messageTokenMapper;
     }
 
     /**
@@ -34,7 +39,7 @@ public class StringedTokenMessageService implements MessageService<TokenizableMe
      * @return This is the token for the message that has just been sent
      */
     @Override
-    public MessageToken sendMessage(final TokenizableMessage<String> message) {
+    public MessageTokenDTO sendMessage(final TokenizableMessage<String> message) {
 
         log.debug("Tokenizable message {} received for submission", message);
 
@@ -57,6 +62,6 @@ public class StringedTokenMessageService implements MessageService<TokenizableMe
 
         messageChannel.send(MessageBuilder.withPayload(message).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
 
-        return messageTokenService.save(messageToken);
+        return messageTokenService.save(messageTokenMapper.toDto(messageToken));
     }
 }
