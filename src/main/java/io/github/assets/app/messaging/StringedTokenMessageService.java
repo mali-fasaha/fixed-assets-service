@@ -36,12 +36,20 @@ public class StringedTokenMessageService implements MessageService<TokenizableMe
     @Override
     public MessageToken sendMessage(final TokenizableMessage<String> message) {
 
-        MessageToken messageToken = null;
+        log.debug("Tokenizable message {} received for submission", message);
+
+        // Generate token before getting timestamps
+        String token  = null;
         try {
-            messageToken = new MessageToken().tokenValue(tokenGenerator.md5Digest(message)).description(message.getDescription()).timeSent(message.getTimestamp());
+            token = tokenGenerator.md5Digest(message);
         } catch (JsonProcessingException e) {
             log.error("The service has failed to create a message-token and has been aborted : ", e);
         }
+
+        long timestamp = System.currentTimeMillis();
+        message.setTimestamp(timestamp);
+
+        MessageToken messageToken = new MessageToken().tokenValue(token).description(message.getDescription()).timeSent(timestamp);
 
         if (messageToken != null) {
             message.setMessageToken(messageToken.getTokenValue());

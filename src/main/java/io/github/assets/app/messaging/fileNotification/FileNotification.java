@@ -24,4 +24,6 @@ public class FileNotification implements TokenizableMessage<String> {
     private String messageToken;
 
     private String description;
+
+
 }

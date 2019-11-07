@@ -5,6 +5,8 @@ import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
 import io.github.assets.service.dto.AssetAcquisitionCriteria;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.web.rest.errors.BadRequestAlertException;
+import io.github.jhipster.web.util.HeaderUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
@@ -29,6 +31,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/app")
 public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
+
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
 
     private final IAssetAcquisitionResource assetAcquisitionResourceDecorator;
     private static final String ENTITY_NAME = "fixedAssetServiceAssetAcquisition";
@@ -127,7 +132,9 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
     @DeleteMapping("/asset-acquisitions/{id}")
     public ResponseEntity<Void> deleteAssetAcquisition(@PathVariable Long id) {
 
-        return assetAcquisitionResourceDecorator.deleteAssetAcquisition(id);
+        assetAcquisitionMutationResource.deleteEntity(id);
+
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
     }
 
     /**

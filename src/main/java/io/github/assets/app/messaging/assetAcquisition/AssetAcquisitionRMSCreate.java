@@ -21,8 +21,6 @@ import javax.transaction.Transactional;
 @Service("assetAcquisitionRMSCreate")
 public class AssetAcquisitionRMSCreate implements MessageService<AssetAcquisitionDTO> {
 
-//    private final MessageTokenService messageTokenService;
-//    private final TokenGenerator tokenGenerator;
     private final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper;
 
     private final MessageService<TokenizableMessage<String>> messageService;
@@ -40,6 +38,9 @@ public class AssetAcquisitionRMSCreate implements MessageService<AssetAcquisitio
      * @return This is the token for the message that has just been sent
      */
     public MessageToken sendMessage(final AssetAcquisitionDTO assetAcquisitionDTO) {
+
+        // TODO update timestamp
+        log.debug("Al a carte create api has received entity {} and is enqueuing to the stream...", assetAcquisitionDTO);
 
         return messageService.sendMessage(assetAcquisitionMTOMapper.toValue2(assetAcquisitionDTO));
     }

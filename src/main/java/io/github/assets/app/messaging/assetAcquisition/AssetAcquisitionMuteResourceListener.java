@@ -1,12 +1,12 @@
 package io.github.assets.app.messaging.assetAcquisition;
 
+import io.github.assets.app.messaging.DeleteMessageDTO;
 import io.github.assets.app.messaging.Mapping;
 import io.github.assets.app.messaging.MuteResourceListener;
 import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
@@ -46,10 +46,10 @@ public class AssetAcquisitionMuteResourceListener implements MuteResourceListene
 
     @Override
     @StreamListener(AssetAcquisitionResourceStreams.DELETE_RESOURCES_IN)
-    public void deleteEntity(@Payload Message<Long> id) {
+    public void deleteEntity(@Payload DeleteMessageDTO deleteMessageDTO) {
 
-        log.debug("Resource DTO received for action : {}", id);
+        log.debug("Resource DTO received for action : {}", deleteMessageDTO);
 
-        assetAcquisitionResourceDecorator.deleteAssetAcquisition(id.getPayload());
+        assetAcquisitionResourceDecorator.deleteAssetAcquisition(deleteMessageDTO.getId());
     }
 }

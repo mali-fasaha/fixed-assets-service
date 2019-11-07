@@ -1,5 +1,6 @@
 package io.github.assets.app.messaging.assetAcquisition;
 
+import io.github.assets.app.messaging.DeleteMessageDTO;
 import io.github.assets.app.messaging.MessageService;
 import io.github.assets.app.messaging.StringedTokenMessageService;
 import io.github.assets.app.messaging.TokenizableMessage;
@@ -38,31 +39,13 @@ public class AssetAcquisitionRMSDelete implements MessageService<Long> {
     @Override
     public MessageToken sendMessage(final Long message) {
 
+        // TODO update timestamp
+        log.debug("Al a carte delete api has received request for Id {} and is enqueuing to the stream...", message);
+
         MessageService<TokenizableMessage<String>> messageService = new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundDeleteResource());
-
-        return messageService.sendMessage(new TokenizableMessage<String>() {
-            private long id;
-            private String messageToken;
-
-            @Override
-            public String getDescription() {
-                return String.valueOf(id);
-            }
-
-            @Override
-            public long getTimestamp() {
-                return System.currentTimeMillis();
-            }
-
-            @Override
-            public String getMessageToken() {
-                return messageToken;
-            }
-
-            @Override
-            public void setMessageToken(final String messageToken) {
-                this.messageToken = messageToken;
-            }
-        });
+        return messageService.sendMessage(DeleteMessageDTO.builder()
+                                                          .id(message)
+                                                          .description("Asset Acquisition id : " + message)
+                                                          .build());
     }
 }

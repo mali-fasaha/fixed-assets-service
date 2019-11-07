@@ -41,6 +41,9 @@ public class AssetAcquisitionRMSUpdate implements MessageService<AssetAcquisitio
      */
     public MessageToken sendMessage(final AssetAcquisitionDTO assetAcquisitionDTO) {
 
+        // TODO update timestamp
+        log.debug("Al a carte update api has received entity {} and is enqueuing to the stream...", assetAcquisitionDTO);
+
         MessageService<TokenizableMessage<String>> messageService = new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundUpdateResource());
 
         return messageService.sendMessage(assetAcquisitionMTOMapper.toValue2(assetAcquisitionDTO));

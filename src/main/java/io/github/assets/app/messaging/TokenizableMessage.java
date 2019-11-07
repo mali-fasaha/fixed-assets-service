@@ -10,4 +10,8 @@ public interface TokenizableMessage<T> extends Tokenizable<T> {
     String getDescription();
 
     long getTimestamp();
+
+    void setTimestamp(long timestamp);
+
+    void setDescription(String description);
 }
