@@ -1,7 +1,6 @@
 package io.github.assets.app.messaging.assetAcquisition;
 
 import io.github.assets.app.messaging.MutationResource;
-import io.github.assets.domain.MessageToken;
 import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.dto.MessageTokenDTO;
@@ -20,12 +19,14 @@ public class AssetAcquisitionMutationResource implements MutationResource<AssetA
     private final AssetAcquisitionRMSCreate assetAcquisitionRMSCreate;
     private final AssetAcquisitionRMSUpdate assetAcquisitionRMSUpdate;
     private final AssetAcquisitionRMSDelete assetAcquisitionRMSDelete;
+    private final MessageTokenService messageTokenService;
 
     public AssetAcquisitionMutationResource(final AssetAcquisitionRMSCreate assetAcquisitionRMSCreate, final AssetAcquisitionRMSUpdate assetAcquisitionRMSUpdate,
-                                            final AssetAcquisitionRMSDelete assetAcquisitionRMSDelete) {
+                                            final AssetAcquisitionRMSDelete assetAcquisitionRMSDelete, final MessageTokenService messageTokenService) {
         this.assetAcquisitionRMSCreate = assetAcquisitionRMSCreate;
         this.assetAcquisitionRMSUpdate = assetAcquisitionRMSUpdate;
         this.assetAcquisitionRMSDelete = assetAcquisitionRMSDelete;
+        this.messageTokenService = messageTokenService;
     }
 
     @Override
@@ -33,7 +34,7 @@ public class AssetAcquisitionMutationResource implements MutationResource<AssetA
         log.debug("Request to create entity received for action : {} and delegated to al a carte creation api", assetAcquisitionDTO);
         MessageTokenDTO tokenForEnqueued = assetAcquisitionRMSCreate.sendMessage(assetAcquisitionDTO);
         tokenForEnqueued.setContentFullyEnqueued(true);
-        return tokenForEnqueued;
+        return messageTokenService.save(tokenForEnqueued);
     }
 
     @Override
@@ -41,7 +42,7 @@ public class AssetAcquisitionMutationResource implements MutationResource<AssetA
         log.debug("Request to update entity id : {} received and delegated to al a carte update api", assetAcquisitionDTO);
         MessageTokenDTO tokenForEnqueued = assetAcquisitionRMSUpdate.sendMessage(assetAcquisitionDTO);
         tokenForEnqueued.setContentFullyEnqueued(true);
-        return tokenForEnqueued;
+        return messageTokenService.save(tokenForEnqueued);
     }
 
     @Override
@@ -49,6 +50,6 @@ public class AssetAcquisitionMutationResource implements MutationResource<AssetA
         log.debug("Request to delete entity id : {} received and delegated to al a carte deletion api", id);
         MessageTokenDTO tokenForEnqueued = assetAcquisitionRMSDelete.sendMessage(id);
         tokenForEnqueued.setContentFullyEnqueued(true);
-        return tokenForEnqueued;
+        return messageTokenService.save(tokenForEnqueued);
     }
 }
