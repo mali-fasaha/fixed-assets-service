@@ -23,7 +23,6 @@ import java.net.URISyntaxException;
 @Transactional
 public class AssetAcquisitionMuteResourceListener implements MuteResourceListener<AssetAcquisitionMTO> {
 
-    // TODO Perhaps this class is doing too much
     private final TokenValueSearch<String> stringTokenValueSearch;
     private final EntityResource<AssetAcquisitionMTO, DeleteMessageDTO> assetAcquisitionEntityResource;
 
