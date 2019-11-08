@@ -16,8 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -97,15 +96,17 @@ public class AssetDisposalResource {
     /**
      * {@code GET  /asset-disposals} : get all the assetDisposals.
      *
+
      * @param pageable the pagination information.
+
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of assetDisposals in body.
      */
     @GetMapping("/asset-disposals")
-    public ResponseEntity<List<AssetDisposalDTO>> getAllAssetDisposals(AssetDisposalCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<List<AssetDisposalDTO>> getAllAssetDisposals(AssetDisposalCriteria criteria, Pageable pageable) {
         log.debug("REST request to get AssetDisposals by criteria: {}", criteria);
         Page<AssetDisposalDTO> page = assetDisposalQueryService.findByCriteria(criteria, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -156,11 +157,10 @@ public class AssetDisposalResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/asset-disposals")
-    public ResponseEntity<List<AssetDisposalDTO>> searchAssetDisposals(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<List<AssetDisposalDTO>> searchAssetDisposals(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of AssetDisposals for query {}", query);
         Page<AssetDisposalDTO> page = assetDisposalService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
-
 }

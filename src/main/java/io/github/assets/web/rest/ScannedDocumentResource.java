@@ -16,8 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -96,15 +95,17 @@ public class ScannedDocumentResource {
     /**
      * {@code GET  /scanned-documents} : get all the scannedDocuments.
      *
+
      * @param pageable the pagination information.
+
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of scannedDocuments in body.
      */
     @GetMapping("/scanned-documents")
-    public ResponseEntity<List<ScannedDocumentDTO>> getAllScannedDocuments(ScannedDocumentCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<List<ScannedDocumentDTO>> getAllScannedDocuments(ScannedDocumentCriteria criteria, Pageable pageable) {
         log.debug("REST request to get ScannedDocuments by criteria: {}", criteria);
         Page<ScannedDocumentDTO> page = scannedDocumentQueryService.findByCriteria(criteria, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -155,11 +156,10 @@ public class ScannedDocumentResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/scanned-documents")
-    public ResponseEntity<List<ScannedDocumentDTO>> searchScannedDocuments(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<List<ScannedDocumentDTO>> searchScannedDocuments(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of ScannedDocuments for query {}", query);
         Page<ScannedDocumentDTO> page = scannedDocumentService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
-
 }

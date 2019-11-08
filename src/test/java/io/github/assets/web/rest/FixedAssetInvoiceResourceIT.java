@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link FixedAssetInvoiceResource} REST controller.
+ * Integration tests for the {@link FixedAssetInvoiceResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class FixedAssetInvoiceResourceIT {
@@ -55,9 +55,11 @@ public class FixedAssetInvoiceResourceIT {
 
     private static final LocalDate DEFAULT_INVOICE_DATE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_INVOICE_DATE = LocalDate.now(ZoneId.systemDefault());
+    private static final LocalDate SMALLER_INVOICE_DATE = LocalDate.ofEpochDay(-1L);
 
     private static final BigDecimal DEFAULT_INVOICE_AMOUNT = new BigDecimal(1);
     private static final BigDecimal UPDATED_INVOICE_AMOUNT = new BigDecimal(2);
+    private static final BigDecimal SMALLER_INVOICE_AMOUNT = new BigDecimal(1 - 1);
 
     private static final Boolean DEFAULT_IS_PROFORMA = false;
     private static final Boolean UPDATED_IS_PROFORMA = true;
@@ -243,7 +245,7 @@ public class FixedAssetInvoiceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(fixedAssetInvoice.getId().intValue())))
-            .andExpect(jsonPath("$.[*].invoiceReference").value(hasItem(DEFAULT_INVOICE_REFERENCE.toString())))
+            .andExpect(jsonPath("$.[*].invoiceReference").value(hasItem(DEFAULT_INVOICE_REFERENCE)))
             .andExpect(jsonPath("$.[*].invoiceDate").value(hasItem(DEFAULT_INVOICE_DATE.toString())))
             .andExpect(jsonPath("$.[*].invoiceAmount").value(hasItem(DEFAULT_INVOICE_AMOUNT.intValue())))
             .andExpect(jsonPath("$.[*].isProforma").value(hasItem(DEFAULT_IS_PROFORMA.booleanValue())))
@@ -263,7 +265,7 @@ public class FixedAssetInvoiceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(fixedAssetInvoice.getId().intValue()))
-            .andExpect(jsonPath("$.invoiceReference").value(DEFAULT_INVOICE_REFERENCE.toString()))
+            .andExpect(jsonPath("$.invoiceReference").value(DEFAULT_INVOICE_REFERENCE))
             .andExpect(jsonPath("$.invoiceDate").value(DEFAULT_INVOICE_DATE.toString()))
             .andExpect(jsonPath("$.invoiceAmount").value(DEFAULT_INVOICE_AMOUNT.intValue()))
             .andExpect(jsonPath("$.isProforma").value(DEFAULT_IS_PROFORMA.booleanValue()))
@@ -283,6 +285,19 @@ public class FixedAssetInvoiceResourceIT {
 
         // Get all the fixedAssetInvoiceList where invoiceReference equals to UPDATED_INVOICE_REFERENCE
         defaultFixedAssetInvoiceShouldNotBeFound("invoiceReference.equals=" + UPDATED_INVOICE_REFERENCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceReferenceIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceReference not equals to DEFAULT_INVOICE_REFERENCE
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceReference.notEquals=" + DEFAULT_INVOICE_REFERENCE);
+
+        // Get all the fixedAssetInvoiceList where invoiceReference not equals to UPDATED_INVOICE_REFERENCE
+        defaultFixedAssetInvoiceShouldBeFound("invoiceReference.notEquals=" + UPDATED_INVOICE_REFERENCE);
     }
 
     @Test
@@ -310,6 +325,32 @@ public class FixedAssetInvoiceResourceIT {
         // Get all the fixedAssetInvoiceList where invoiceReference is null
         defaultFixedAssetInvoiceShouldNotBeFound("invoiceReference.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceReferenceContainsSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceReference contains DEFAULT_INVOICE_REFERENCE
+        defaultFixedAssetInvoiceShouldBeFound("invoiceReference.contains=" + DEFAULT_INVOICE_REFERENCE);
+
+        // Get all the fixedAssetInvoiceList where invoiceReference contains UPDATED_INVOICE_REFERENCE
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceReference.contains=" + UPDATED_INVOICE_REFERENCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceReferenceNotContainsSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceReference does not contain DEFAULT_INVOICE_REFERENCE
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceReference.doesNotContain=" + DEFAULT_INVOICE_REFERENCE);
+
+        // Get all the fixedAssetInvoiceList where invoiceReference does not contain UPDATED_INVOICE_REFERENCE
+        defaultFixedAssetInvoiceShouldBeFound("invoiceReference.doesNotContain=" + UPDATED_INVOICE_REFERENCE);
+    }
+
 
     @Test
     @Transactional
@@ -322,6 +363,19 @@ public class FixedAssetInvoiceResourceIT {
 
         // Get all the fixedAssetInvoiceList where invoiceDate equals to UPDATED_INVOICE_DATE
         defaultFixedAssetInvoiceShouldNotBeFound("invoiceDate.equals=" + UPDATED_INVOICE_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceDateIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceDate not equals to DEFAULT_INVOICE_DATE
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceDate.notEquals=" + DEFAULT_INVOICE_DATE);
+
+        // Get all the fixedAssetInvoiceList where invoiceDate not equals to UPDATED_INVOICE_DATE
+        defaultFixedAssetInvoiceShouldBeFound("invoiceDate.notEquals=" + UPDATED_INVOICE_DATE);
     }
 
     @Test
@@ -356,11 +410,24 @@ public class FixedAssetInvoiceResourceIT {
         // Initialize the database
         fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
 
-        // Get all the fixedAssetInvoiceList where invoiceDate greater than or equals to DEFAULT_INVOICE_DATE
-        defaultFixedAssetInvoiceShouldBeFound("invoiceDate.greaterOrEqualThan=" + DEFAULT_INVOICE_DATE);
+        // Get all the fixedAssetInvoiceList where invoiceDate is greater than or equal to DEFAULT_INVOICE_DATE
+        defaultFixedAssetInvoiceShouldBeFound("invoiceDate.greaterThanOrEqual=" + DEFAULT_INVOICE_DATE);
 
-        // Get all the fixedAssetInvoiceList where invoiceDate greater than or equals to UPDATED_INVOICE_DATE
-        defaultFixedAssetInvoiceShouldNotBeFound("invoiceDate.greaterOrEqualThan=" + UPDATED_INVOICE_DATE);
+        // Get all the fixedAssetInvoiceList where invoiceDate is greater than or equal to UPDATED_INVOICE_DATE
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceDate.greaterThanOrEqual=" + UPDATED_INVOICE_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceDateIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceDate is less than or equal to DEFAULT_INVOICE_DATE
+        defaultFixedAssetInvoiceShouldBeFound("invoiceDate.lessThanOrEqual=" + DEFAULT_INVOICE_DATE);
+
+        // Get all the fixedAssetInvoiceList where invoiceDate is less than or equal to SMALLER_INVOICE_DATE
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceDate.lessThanOrEqual=" + SMALLER_INVOICE_DATE);
     }
 
     @Test
@@ -369,11 +436,24 @@ public class FixedAssetInvoiceResourceIT {
         // Initialize the database
         fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
 
-        // Get all the fixedAssetInvoiceList where invoiceDate less than or equals to DEFAULT_INVOICE_DATE
+        // Get all the fixedAssetInvoiceList where invoiceDate is less than DEFAULT_INVOICE_DATE
         defaultFixedAssetInvoiceShouldNotBeFound("invoiceDate.lessThan=" + DEFAULT_INVOICE_DATE);
 
-        // Get all the fixedAssetInvoiceList where invoiceDate less than or equals to UPDATED_INVOICE_DATE
+        // Get all the fixedAssetInvoiceList where invoiceDate is less than UPDATED_INVOICE_DATE
         defaultFixedAssetInvoiceShouldBeFound("invoiceDate.lessThan=" + UPDATED_INVOICE_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceDateIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceDate is greater than DEFAULT_INVOICE_DATE
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceDate.greaterThan=" + DEFAULT_INVOICE_DATE);
+
+        // Get all the fixedAssetInvoiceList where invoiceDate is greater than SMALLER_INVOICE_DATE
+        defaultFixedAssetInvoiceShouldBeFound("invoiceDate.greaterThan=" + SMALLER_INVOICE_DATE);
     }
 
 
@@ -388,6 +468,19 @@ public class FixedAssetInvoiceResourceIT {
 
         // Get all the fixedAssetInvoiceList where invoiceAmount equals to UPDATED_INVOICE_AMOUNT
         defaultFixedAssetInvoiceShouldNotBeFound("invoiceAmount.equals=" + UPDATED_INVOICE_AMOUNT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceAmountIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceAmount not equals to DEFAULT_INVOICE_AMOUNT
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceAmount.notEquals=" + DEFAULT_INVOICE_AMOUNT);
+
+        // Get all the fixedAssetInvoiceList where invoiceAmount not equals to UPDATED_INVOICE_AMOUNT
+        defaultFixedAssetInvoiceShouldBeFound("invoiceAmount.notEquals=" + UPDATED_INVOICE_AMOUNT);
     }
 
     @Test
@@ -418,6 +511,59 @@ public class FixedAssetInvoiceResourceIT {
 
     @Test
     @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceAmountIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceAmount is greater than or equal to DEFAULT_INVOICE_AMOUNT
+        defaultFixedAssetInvoiceShouldBeFound("invoiceAmount.greaterThanOrEqual=" + DEFAULT_INVOICE_AMOUNT);
+
+        // Get all the fixedAssetInvoiceList where invoiceAmount is greater than or equal to UPDATED_INVOICE_AMOUNT
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceAmount.greaterThanOrEqual=" + UPDATED_INVOICE_AMOUNT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceAmountIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceAmount is less than or equal to DEFAULT_INVOICE_AMOUNT
+        defaultFixedAssetInvoiceShouldBeFound("invoiceAmount.lessThanOrEqual=" + DEFAULT_INVOICE_AMOUNT);
+
+        // Get all the fixedAssetInvoiceList where invoiceAmount is less than or equal to SMALLER_INVOICE_AMOUNT
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceAmount.lessThanOrEqual=" + SMALLER_INVOICE_AMOUNT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceAmountIsLessThanSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceAmount is less than DEFAULT_INVOICE_AMOUNT
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceAmount.lessThan=" + DEFAULT_INVOICE_AMOUNT);
+
+        // Get all the fixedAssetInvoiceList where invoiceAmount is less than UPDATED_INVOICE_AMOUNT
+        defaultFixedAssetInvoiceShouldBeFound("invoiceAmount.lessThan=" + UPDATED_INVOICE_AMOUNT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByInvoiceAmountIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where invoiceAmount is greater than DEFAULT_INVOICE_AMOUNT
+        defaultFixedAssetInvoiceShouldNotBeFound("invoiceAmount.greaterThan=" + DEFAULT_INVOICE_AMOUNT);
+
+        // Get all the fixedAssetInvoiceList where invoiceAmount is greater than SMALLER_INVOICE_AMOUNT
+        defaultFixedAssetInvoiceShouldBeFound("invoiceAmount.greaterThan=" + SMALLER_INVOICE_AMOUNT);
+    }
+
+
+    @Test
+    @Transactional
     public void getAllFixedAssetInvoicesByIsProformaIsEqualToSomething() throws Exception {
         // Initialize the database
         fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
@@ -427,6 +573,19 @@ public class FixedAssetInvoiceResourceIT {
 
         // Get all the fixedAssetInvoiceList where isProforma equals to UPDATED_IS_PROFORMA
         defaultFixedAssetInvoiceShouldNotBeFound("isProforma.equals=" + UPDATED_IS_PROFORMA);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetInvoicesByIsProformaIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where isProforma not equals to DEFAULT_IS_PROFORMA
+        defaultFixedAssetInvoiceShouldNotBeFound("isProforma.notEquals=" + DEFAULT_IS_PROFORMA);
+
+        // Get all the fixedAssetInvoiceList where isProforma not equals to UPDATED_IS_PROFORMA
+        defaultFixedAssetInvoiceShouldBeFound("isProforma.notEquals=" + UPDATED_IS_PROFORMA);
     }
 
     @Test
@@ -470,6 +629,19 @@ public class FixedAssetInvoiceResourceIT {
 
     @Test
     @Transactional
+    public void getAllFixedAssetInvoicesByIsCreditNoteIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        // Get all the fixedAssetInvoiceList where isCreditNote not equals to DEFAULT_IS_CREDIT_NOTE
+        defaultFixedAssetInvoiceShouldNotBeFound("isCreditNote.notEquals=" + DEFAULT_IS_CREDIT_NOTE);
+
+        // Get all the fixedAssetInvoiceList where isCreditNote not equals to UPDATED_IS_CREDIT_NOTE
+        defaultFixedAssetInvoiceShouldBeFound("isCreditNote.notEquals=" + UPDATED_IS_CREDIT_NOTE);
+    }
+
+    @Test
+    @Transactional
     public void getAllFixedAssetInvoicesByIsCreditNoteIsInShouldWork() throws Exception {
         // Initialize the database
         fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
@@ -498,6 +670,7 @@ public class FixedAssetInvoiceResourceIT {
     @Transactional
     public void getAllFixedAssetInvoicesByDealerIsEqualToSomething() throws Exception {
         // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
         Dealer dealer = DealerResourceIT.createEntity(em);
         em.persist(dealer);
         em.flush();
@@ -639,7 +812,7 @@ public class FixedAssetInvoiceResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database is empty
+        // Validate the database contains one less item
         List<FixedAssetInvoice> fixedAssetInvoiceList = fixedAssetInvoiceRepository.findAll();
         assertThat(fixedAssetInvoiceList).hasSize(databaseSizeBeforeDelete - 1);
 

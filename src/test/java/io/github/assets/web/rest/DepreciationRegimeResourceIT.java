@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import io.github.assets.domain.enumeration.AssetDecayType;
 /**
- * Integration tests for the {@Link DepreciationRegimeResource} REST controller.
+ * Integration tests for the {@link DepreciationRegimeResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class DepreciationRegimeResourceIT {
@@ -51,6 +51,7 @@ public class DepreciationRegimeResourceIT {
 
     private static final Double DEFAULT_DEPRECIATION_RATE = 1D;
     private static final Double UPDATED_DEPRECIATION_RATE = 2D;
+    private static final Double SMALLER_DEPRECIATION_RATE = 1D - 1D;
 
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
@@ -237,7 +238,7 @@ public class DepreciationRegimeResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(depreciationRegime.getId().intValue())))
             .andExpect(jsonPath("$.[*].assetDecayType").value(hasItem(DEFAULT_ASSET_DECAY_TYPE.toString())))
             .andExpect(jsonPath("$.[*].depreciationRate").value(hasItem(DEFAULT_DEPRECIATION_RATE.doubleValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
     }
     
     @Test
@@ -253,7 +254,7 @@ public class DepreciationRegimeResourceIT {
             .andExpect(jsonPath("$.id").value(depreciationRegime.getId().intValue()))
             .andExpect(jsonPath("$.assetDecayType").value(DEFAULT_ASSET_DECAY_TYPE.toString()))
             .andExpect(jsonPath("$.depreciationRate").value(DEFAULT_DEPRECIATION_RATE.doubleValue()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()));
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION));
     }
 
     @Test
@@ -267,6 +268,19 @@ public class DepreciationRegimeResourceIT {
 
         // Get all the depreciationRegimeList where assetDecayType equals to UPDATED_ASSET_DECAY_TYPE
         defaultDepreciationRegimeShouldNotBeFound("assetDecayType.equals=" + UPDATED_ASSET_DECAY_TYPE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllDepreciationRegimesByAssetDecayTypeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
+
+        // Get all the depreciationRegimeList where assetDecayType not equals to DEFAULT_ASSET_DECAY_TYPE
+        defaultDepreciationRegimeShouldNotBeFound("assetDecayType.notEquals=" + DEFAULT_ASSET_DECAY_TYPE);
+
+        // Get all the depreciationRegimeList where assetDecayType not equals to UPDATED_ASSET_DECAY_TYPE
+        defaultDepreciationRegimeShouldBeFound("assetDecayType.notEquals=" + UPDATED_ASSET_DECAY_TYPE);
     }
 
     @Test
@@ -310,6 +324,19 @@ public class DepreciationRegimeResourceIT {
 
     @Test
     @Transactional
+    public void getAllDepreciationRegimesByDepreciationRateIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
+
+        // Get all the depreciationRegimeList where depreciationRate not equals to DEFAULT_DEPRECIATION_RATE
+        defaultDepreciationRegimeShouldNotBeFound("depreciationRate.notEquals=" + DEFAULT_DEPRECIATION_RATE);
+
+        // Get all the depreciationRegimeList where depreciationRate not equals to UPDATED_DEPRECIATION_RATE
+        defaultDepreciationRegimeShouldBeFound("depreciationRate.notEquals=" + UPDATED_DEPRECIATION_RATE);
+    }
+
+    @Test
+    @Transactional
     public void getAllDepreciationRegimesByDepreciationRateIsInShouldWork() throws Exception {
         // Initialize the database
         depreciationRegimeRepository.saveAndFlush(depreciationRegime);
@@ -336,6 +363,59 @@ public class DepreciationRegimeResourceIT {
 
     @Test
     @Transactional
+    public void getAllDepreciationRegimesByDepreciationRateIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
+
+        // Get all the depreciationRegimeList where depreciationRate is greater than or equal to DEFAULT_DEPRECIATION_RATE
+        defaultDepreciationRegimeShouldBeFound("depreciationRate.greaterThanOrEqual=" + DEFAULT_DEPRECIATION_RATE);
+
+        // Get all the depreciationRegimeList where depreciationRate is greater than or equal to UPDATED_DEPRECIATION_RATE
+        defaultDepreciationRegimeShouldNotBeFound("depreciationRate.greaterThanOrEqual=" + UPDATED_DEPRECIATION_RATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllDepreciationRegimesByDepreciationRateIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
+
+        // Get all the depreciationRegimeList where depreciationRate is less than or equal to DEFAULT_DEPRECIATION_RATE
+        defaultDepreciationRegimeShouldBeFound("depreciationRate.lessThanOrEqual=" + DEFAULT_DEPRECIATION_RATE);
+
+        // Get all the depreciationRegimeList where depreciationRate is less than or equal to SMALLER_DEPRECIATION_RATE
+        defaultDepreciationRegimeShouldNotBeFound("depreciationRate.lessThanOrEqual=" + SMALLER_DEPRECIATION_RATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllDepreciationRegimesByDepreciationRateIsLessThanSomething() throws Exception {
+        // Initialize the database
+        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
+
+        // Get all the depreciationRegimeList where depreciationRate is less than DEFAULT_DEPRECIATION_RATE
+        defaultDepreciationRegimeShouldNotBeFound("depreciationRate.lessThan=" + DEFAULT_DEPRECIATION_RATE);
+
+        // Get all the depreciationRegimeList where depreciationRate is less than UPDATED_DEPRECIATION_RATE
+        defaultDepreciationRegimeShouldBeFound("depreciationRate.lessThan=" + UPDATED_DEPRECIATION_RATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllDepreciationRegimesByDepreciationRateIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
+
+        // Get all the depreciationRegimeList where depreciationRate is greater than DEFAULT_DEPRECIATION_RATE
+        defaultDepreciationRegimeShouldNotBeFound("depreciationRate.greaterThan=" + DEFAULT_DEPRECIATION_RATE);
+
+        // Get all the depreciationRegimeList where depreciationRate is greater than SMALLER_DEPRECIATION_RATE
+        defaultDepreciationRegimeShouldBeFound("depreciationRate.greaterThan=" + SMALLER_DEPRECIATION_RATE);
+    }
+
+
+    @Test
+    @Transactional
     public void getAllDepreciationRegimesByDescriptionIsEqualToSomething() throws Exception {
         // Initialize the database
         depreciationRegimeRepository.saveAndFlush(depreciationRegime);
@@ -345,6 +425,19 @@ public class DepreciationRegimeResourceIT {
 
         // Get all the depreciationRegimeList where description equals to UPDATED_DESCRIPTION
         defaultDepreciationRegimeShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllDepreciationRegimesByDescriptionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
+
+        // Get all the depreciationRegimeList where description not equals to DEFAULT_DESCRIPTION
+        defaultDepreciationRegimeShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
+
+        // Get all the depreciationRegimeList where description not equals to UPDATED_DESCRIPTION
+        defaultDepreciationRegimeShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -372,6 +465,32 @@ public class DepreciationRegimeResourceIT {
         // Get all the depreciationRegimeList where description is null
         defaultDepreciationRegimeShouldNotBeFound("description.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllDepreciationRegimesByDescriptionContainsSomething() throws Exception {
+        // Initialize the database
+        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
+
+        // Get all the depreciationRegimeList where description contains DEFAULT_DESCRIPTION
+        defaultDepreciationRegimeShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
+
+        // Get all the depreciationRegimeList where description contains UPDATED_DESCRIPTION
+        defaultDepreciationRegimeShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllDepreciationRegimesByDescriptionNotContainsSomething() throws Exception {
+        // Initialize the database
+        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
+
+        // Get all the depreciationRegimeList where description does not contain DEFAULT_DESCRIPTION
+        defaultDepreciationRegimeShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
+
+        // Get all the depreciationRegimeList where description does not contain UPDATED_DESCRIPTION
+        defaultDepreciationRegimeShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -487,7 +606,7 @@ public class DepreciationRegimeResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database is empty
+        // Validate the database contains one less item
         List<DepreciationRegime> depreciationRegimeList = depreciationRegimeRepository.findAll();
         assertThat(depreciationRegimeList).hasSize(databaseSizeBeforeDelete - 1);
 

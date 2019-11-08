@@ -85,9 +85,11 @@ public class FixedAssetItemQueryService extends QueryService<FixedAssetItem> {
     }
 
     /**
-     * Function to convert FixedAssetItemCriteria to a {@link Specification}.
+     * Function to convert {@link FixedAssetItemCriteria} to a {@link Specification}
+     * @param criteria The object which holds all the filters, which the entities should match.
+     * @return the matching {@link Specification} of the entity.
      */
-    private Specification<FixedAssetItem> createSpecification(FixedAssetItemCriteria criteria) {
+    protected Specification<FixedAssetItem> createSpecification(FixedAssetItemCriteria criteria) {
         Specification<FixedAssetItem> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

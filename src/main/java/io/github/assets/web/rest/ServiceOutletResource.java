@@ -16,8 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -97,15 +96,17 @@ public class ServiceOutletResource {
     /**
      * {@code GET  /service-outlets} : get all the serviceOutlets.
      *
+
      * @param pageable the pagination information.
+
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of serviceOutlets in body.
      */
     @GetMapping("/service-outlets")
-    public ResponseEntity<List<ServiceOutletDTO>> getAllServiceOutlets(ServiceOutletCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<List<ServiceOutletDTO>> getAllServiceOutlets(ServiceOutletCriteria criteria, Pageable pageable) {
         log.debug("REST request to get ServiceOutlets by criteria: {}", criteria);
         Page<ServiceOutletDTO> page = serviceOutletQueryService.findByCriteria(criteria, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -156,11 +157,10 @@ public class ServiceOutletResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/service-outlets")
-    public ResponseEntity<List<ServiceOutletDTO>> searchServiceOutlets(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<List<ServiceOutletDTO>> searchServiceOutlets(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of ServiceOutlets for query {}", query);
         Page<ServiceOutletDTO> page = serviceOutletService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
-
 }

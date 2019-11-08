@@ -75,12 +75,12 @@ class AssetDisposalGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all assetDisposals")
-            .get("/fixedassetservice/api/asset-disposals")
+            .get("/services/fixedassetservice/api/asset-disposals")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new assetDisposal")
-            .post("/fixedassetservice/api/asset-disposals")
+            .post("/services/fixedassetservice/api/asset-disposals")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -100,12 +100,12 @@ class AssetDisposalGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created assetDisposal")
-                .get("/fixedassetservice${new_assetDisposal_url}")
+                .get("/services/fixedassetservice${new_assetDisposal_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created assetDisposal")
-            .delete("/fixedassetservice${new_assetDisposal_url}")
+            .delete("/services/fixedassetservice${new_assetDisposal_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

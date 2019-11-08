@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link ServiceOutletResource} REST controller.
+ * Integration tests for the {@link ServiceOutletResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class ServiceOutletResourceIT {
@@ -240,10 +240,10 @@ public class ServiceOutletResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(serviceOutlet.getId().intValue())))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE.toString())))
-            .andExpect(jsonPath("$.[*].serviceOutletDesignation").value(hasItem(DEFAULT_SERVICE_OUTLET_DESIGNATION.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].location").value(hasItem(DEFAULT_LOCATION.toString())));
+            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
+            .andExpect(jsonPath("$.[*].serviceOutletDesignation").value(hasItem(DEFAULT_SERVICE_OUTLET_DESIGNATION)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].location").value(hasItem(DEFAULT_LOCATION)));
     }
     
     @Test
@@ -257,10 +257,10 @@ public class ServiceOutletResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(serviceOutlet.getId().intValue()))
-            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE.toString()))
-            .andExpect(jsonPath("$.serviceOutletDesignation").value(DEFAULT_SERVICE_OUTLET_DESIGNATION.toString()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
-            .andExpect(jsonPath("$.location").value(DEFAULT_LOCATION.toString()));
+            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE))
+            .andExpect(jsonPath("$.serviceOutletDesignation").value(DEFAULT_SERVICE_OUTLET_DESIGNATION))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+            .andExpect(jsonPath("$.location").value(DEFAULT_LOCATION));
     }
 
     @Test
@@ -274,6 +274,19 @@ public class ServiceOutletResourceIT {
 
         // Get all the serviceOutletList where serviceOutletCode equals to UPDATED_SERVICE_OUTLET_CODE
         defaultServiceOutletShouldNotBeFound("serviceOutletCode.equals=" + UPDATED_SERVICE_OUTLET_CODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllServiceOutletsByServiceOutletCodeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where serviceOutletCode not equals to DEFAULT_SERVICE_OUTLET_CODE
+        defaultServiceOutletShouldNotBeFound("serviceOutletCode.notEquals=" + DEFAULT_SERVICE_OUTLET_CODE);
+
+        // Get all the serviceOutletList where serviceOutletCode not equals to UPDATED_SERVICE_OUTLET_CODE
+        defaultServiceOutletShouldBeFound("serviceOutletCode.notEquals=" + UPDATED_SERVICE_OUTLET_CODE);
     }
 
     @Test
@@ -301,6 +314,32 @@ public class ServiceOutletResourceIT {
         // Get all the serviceOutletList where serviceOutletCode is null
         defaultServiceOutletShouldNotBeFound("serviceOutletCode.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllServiceOutletsByServiceOutletCodeContainsSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where serviceOutletCode contains DEFAULT_SERVICE_OUTLET_CODE
+        defaultServiceOutletShouldBeFound("serviceOutletCode.contains=" + DEFAULT_SERVICE_OUTLET_CODE);
+
+        // Get all the serviceOutletList where serviceOutletCode contains UPDATED_SERVICE_OUTLET_CODE
+        defaultServiceOutletShouldNotBeFound("serviceOutletCode.contains=" + UPDATED_SERVICE_OUTLET_CODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllServiceOutletsByServiceOutletCodeNotContainsSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where serviceOutletCode does not contain DEFAULT_SERVICE_OUTLET_CODE
+        defaultServiceOutletShouldNotBeFound("serviceOutletCode.doesNotContain=" + DEFAULT_SERVICE_OUTLET_CODE);
+
+        // Get all the serviceOutletList where serviceOutletCode does not contain UPDATED_SERVICE_OUTLET_CODE
+        defaultServiceOutletShouldBeFound("serviceOutletCode.doesNotContain=" + UPDATED_SERVICE_OUTLET_CODE);
+    }
+
 
     @Test
     @Transactional
@@ -313,6 +352,19 @@ public class ServiceOutletResourceIT {
 
         // Get all the serviceOutletList where serviceOutletDesignation equals to UPDATED_SERVICE_OUTLET_DESIGNATION
         defaultServiceOutletShouldNotBeFound("serviceOutletDesignation.equals=" + UPDATED_SERVICE_OUTLET_DESIGNATION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllServiceOutletsByServiceOutletDesignationIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where serviceOutletDesignation not equals to DEFAULT_SERVICE_OUTLET_DESIGNATION
+        defaultServiceOutletShouldNotBeFound("serviceOutletDesignation.notEquals=" + DEFAULT_SERVICE_OUTLET_DESIGNATION);
+
+        // Get all the serviceOutletList where serviceOutletDesignation not equals to UPDATED_SERVICE_OUTLET_DESIGNATION
+        defaultServiceOutletShouldBeFound("serviceOutletDesignation.notEquals=" + UPDATED_SERVICE_OUTLET_DESIGNATION);
     }
 
     @Test
@@ -340,6 +392,32 @@ public class ServiceOutletResourceIT {
         // Get all the serviceOutletList where serviceOutletDesignation is null
         defaultServiceOutletShouldNotBeFound("serviceOutletDesignation.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllServiceOutletsByServiceOutletDesignationContainsSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where serviceOutletDesignation contains DEFAULT_SERVICE_OUTLET_DESIGNATION
+        defaultServiceOutletShouldBeFound("serviceOutletDesignation.contains=" + DEFAULT_SERVICE_OUTLET_DESIGNATION);
+
+        // Get all the serviceOutletList where serviceOutletDesignation contains UPDATED_SERVICE_OUTLET_DESIGNATION
+        defaultServiceOutletShouldNotBeFound("serviceOutletDesignation.contains=" + UPDATED_SERVICE_OUTLET_DESIGNATION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllServiceOutletsByServiceOutletDesignationNotContainsSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where serviceOutletDesignation does not contain DEFAULT_SERVICE_OUTLET_DESIGNATION
+        defaultServiceOutletShouldNotBeFound("serviceOutletDesignation.doesNotContain=" + DEFAULT_SERVICE_OUTLET_DESIGNATION);
+
+        // Get all the serviceOutletList where serviceOutletDesignation does not contain UPDATED_SERVICE_OUTLET_DESIGNATION
+        defaultServiceOutletShouldBeFound("serviceOutletDesignation.doesNotContain=" + UPDATED_SERVICE_OUTLET_DESIGNATION);
+    }
+
 
     @Test
     @Transactional
@@ -352,6 +430,19 @@ public class ServiceOutletResourceIT {
 
         // Get all the serviceOutletList where description equals to UPDATED_DESCRIPTION
         defaultServiceOutletShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllServiceOutletsByDescriptionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where description not equals to DEFAULT_DESCRIPTION
+        defaultServiceOutletShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
+
+        // Get all the serviceOutletList where description not equals to UPDATED_DESCRIPTION
+        defaultServiceOutletShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -379,6 +470,32 @@ public class ServiceOutletResourceIT {
         // Get all the serviceOutletList where description is null
         defaultServiceOutletShouldNotBeFound("description.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllServiceOutletsByDescriptionContainsSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where description contains DEFAULT_DESCRIPTION
+        defaultServiceOutletShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
+
+        // Get all the serviceOutletList where description contains UPDATED_DESCRIPTION
+        defaultServiceOutletShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllServiceOutletsByDescriptionNotContainsSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where description does not contain DEFAULT_DESCRIPTION
+        defaultServiceOutletShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
+
+        // Get all the serviceOutletList where description does not contain UPDATED_DESCRIPTION
+        defaultServiceOutletShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
+    }
+
 
     @Test
     @Transactional
@@ -391,6 +508,19 @@ public class ServiceOutletResourceIT {
 
         // Get all the serviceOutletList where location equals to UPDATED_LOCATION
         defaultServiceOutletShouldNotBeFound("location.equals=" + UPDATED_LOCATION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllServiceOutletsByLocationIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where location not equals to DEFAULT_LOCATION
+        defaultServiceOutletShouldNotBeFound("location.notEquals=" + DEFAULT_LOCATION);
+
+        // Get all the serviceOutletList where location not equals to UPDATED_LOCATION
+        defaultServiceOutletShouldBeFound("location.notEquals=" + UPDATED_LOCATION);
     }
 
     @Test
@@ -418,6 +548,32 @@ public class ServiceOutletResourceIT {
         // Get all the serviceOutletList where location is null
         defaultServiceOutletShouldNotBeFound("location.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllServiceOutletsByLocationContainsSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where location contains DEFAULT_LOCATION
+        defaultServiceOutletShouldBeFound("location.contains=" + DEFAULT_LOCATION);
+
+        // Get all the serviceOutletList where location contains UPDATED_LOCATION
+        defaultServiceOutletShouldNotBeFound("location.contains=" + UPDATED_LOCATION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllServiceOutletsByLocationNotContainsSomething() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        // Get all the serviceOutletList where location does not contain DEFAULT_LOCATION
+        defaultServiceOutletShouldNotBeFound("location.doesNotContain=" + DEFAULT_LOCATION);
+
+        // Get all the serviceOutletList where location does not contain UPDATED_LOCATION
+        defaultServiceOutletShouldBeFound("location.doesNotContain=" + UPDATED_LOCATION);
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -536,7 +692,7 @@ public class ServiceOutletResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database is empty
+        // Validate the database contains one less item
         List<ServiceOutlet> serviceOutletList = serviceOutletRepository.findAll();
         assertThat(serviceOutletList).hasSize(databaseSizeBeforeDelete - 1);
 

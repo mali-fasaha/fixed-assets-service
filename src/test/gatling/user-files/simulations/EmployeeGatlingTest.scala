@@ -75,12 +75,12 @@ class EmployeeGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all employees")
-            .get("/fixedassetservice/api/employees")
+            .get("/services/fixedassetservice/api/employees")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new employee")
-            .post("/fixedassetservice/api/employees")
+            .post("/services/fixedassetservice/api/employees")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -96,12 +96,12 @@ class EmployeeGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created employee")
-                .get("/fixedassetservice${new_employee_url}")
+                .get("/services/fixedassetservice${new_employee_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created employee")
-            .delete("/fixedassetservice${new_employee_url}")
+            .delete("/services/fixedassetservice${new_employee_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

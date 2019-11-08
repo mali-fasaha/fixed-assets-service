@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link FixedAssetItemResource} REST controller.
+ * Integration tests for the {@link FixedAssetItemResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class FixedAssetItemResourceIT {
@@ -54,6 +54,7 @@ public class FixedAssetItemResourceIT {
 
     private static final Long DEFAULT_ASSET_CATEGORY_ID = 1L;
     private static final Long UPDATED_ASSET_CATEGORY_ID = 2L;
+    private static final Long SMALLER_ASSET_CATEGORY_ID = 1L - 1L;
 
     private static final String DEFAULT_FIXED_ASSET_SERIAL_CODE = "AAAAAAAAAA";
     private static final String UPDATED_FIXED_ASSET_SERIAL_CODE = "BBBBBBBBBB";
@@ -63,15 +64,19 @@ public class FixedAssetItemResourceIT {
 
     private static final LocalDate DEFAULT_PURCHASE_DATE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_PURCHASE_DATE = LocalDate.now(ZoneId.systemDefault());
+    private static final LocalDate SMALLER_PURCHASE_DATE = LocalDate.ofEpochDay(-1L);
 
     private static final BigDecimal DEFAULT_PURCHASE_COST = new BigDecimal(1);
     private static final BigDecimal UPDATED_PURCHASE_COST = new BigDecimal(2);
+    private static final BigDecimal SMALLER_PURCHASE_COST = new BigDecimal(1 - 1);
 
     private static final Long DEFAULT_PURCHASE_TRANSACTION_ID = 1L;
     private static final Long UPDATED_PURCHASE_TRANSACTION_ID = 2L;
+    private static final Long SMALLER_PURCHASE_TRANSACTION_ID = 1L - 1L;
 
     private static final Long DEFAULT_OWNERSHIP_DOCUMENT_ID = 1L;
     private static final Long UPDATED_OWNERSHIP_DOCUMENT_ID = 2L;
+    private static final Long SMALLER_OWNERSHIP_DOCUMENT_ID = 1L - 1L;
 
     private static final byte[] DEFAULT_ASSET_PICTURE = TestUtil.createByteArray(1, "0");
     private static final byte[] UPDATED_ASSET_PICTURE = TestUtil.createByteArray(1, "1");
@@ -374,10 +379,10 @@ public class FixedAssetItemResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(fixedAssetItem.getId().intValue())))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE.toString())))
+            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
             .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
-            .andExpect(jsonPath("$.[*].fixedAssetSerialCode").value(hasItem(DEFAULT_FIXED_ASSET_SERIAL_CODE.toString())))
-            .andExpect(jsonPath("$.[*].fixedAssetDescription").value(hasItem(DEFAULT_FIXED_ASSET_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].fixedAssetSerialCode").value(hasItem(DEFAULT_FIXED_ASSET_SERIAL_CODE)))
+            .andExpect(jsonPath("$.[*].fixedAssetDescription").value(hasItem(DEFAULT_FIXED_ASSET_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].purchaseDate").value(hasItem(DEFAULT_PURCHASE_DATE.toString())))
             .andExpect(jsonPath("$.[*].purchaseCost").value(hasItem(DEFAULT_PURCHASE_COST.intValue())))
             .andExpect(jsonPath("$.[*].purchaseTransactionId").value(hasItem(DEFAULT_PURCHASE_TRANSACTION_ID.intValue())))
@@ -397,10 +402,10 @@ public class FixedAssetItemResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(fixedAssetItem.getId().intValue()))
-            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE.toString()))
+            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE))
             .andExpect(jsonPath("$.assetCategoryId").value(DEFAULT_ASSET_CATEGORY_ID.intValue()))
-            .andExpect(jsonPath("$.fixedAssetSerialCode").value(DEFAULT_FIXED_ASSET_SERIAL_CODE.toString()))
-            .andExpect(jsonPath("$.fixedAssetDescription").value(DEFAULT_FIXED_ASSET_DESCRIPTION.toString()))
+            .andExpect(jsonPath("$.fixedAssetSerialCode").value(DEFAULT_FIXED_ASSET_SERIAL_CODE))
+            .andExpect(jsonPath("$.fixedAssetDescription").value(DEFAULT_FIXED_ASSET_DESCRIPTION))
             .andExpect(jsonPath("$.purchaseDate").value(DEFAULT_PURCHASE_DATE.toString()))
             .andExpect(jsonPath("$.purchaseCost").value(DEFAULT_PURCHASE_COST.intValue()))
             .andExpect(jsonPath("$.purchaseTransactionId").value(DEFAULT_PURCHASE_TRANSACTION_ID.intValue()))
@@ -420,6 +425,19 @@ public class FixedAssetItemResourceIT {
 
         // Get all the fixedAssetItemList where serviceOutletCode equals to UPDATED_SERVICE_OUTLET_CODE
         defaultFixedAssetItemShouldNotBeFound("serviceOutletCode.equals=" + UPDATED_SERVICE_OUTLET_CODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByServiceOutletCodeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where serviceOutletCode not equals to DEFAULT_SERVICE_OUTLET_CODE
+        defaultFixedAssetItemShouldNotBeFound("serviceOutletCode.notEquals=" + DEFAULT_SERVICE_OUTLET_CODE);
+
+        // Get all the fixedAssetItemList where serviceOutletCode not equals to UPDATED_SERVICE_OUTLET_CODE
+        defaultFixedAssetItemShouldBeFound("serviceOutletCode.notEquals=" + UPDATED_SERVICE_OUTLET_CODE);
     }
 
     @Test
@@ -447,6 +465,32 @@ public class FixedAssetItemResourceIT {
         // Get all the fixedAssetItemList where serviceOutletCode is null
         defaultFixedAssetItemShouldNotBeFound("serviceOutletCode.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllFixedAssetItemsByServiceOutletCodeContainsSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where serviceOutletCode contains DEFAULT_SERVICE_OUTLET_CODE
+        defaultFixedAssetItemShouldBeFound("serviceOutletCode.contains=" + DEFAULT_SERVICE_OUTLET_CODE);
+
+        // Get all the fixedAssetItemList where serviceOutletCode contains UPDATED_SERVICE_OUTLET_CODE
+        defaultFixedAssetItemShouldNotBeFound("serviceOutletCode.contains=" + UPDATED_SERVICE_OUTLET_CODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByServiceOutletCodeNotContainsSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where serviceOutletCode does not contain DEFAULT_SERVICE_OUTLET_CODE
+        defaultFixedAssetItemShouldNotBeFound("serviceOutletCode.doesNotContain=" + DEFAULT_SERVICE_OUTLET_CODE);
+
+        // Get all the fixedAssetItemList where serviceOutletCode does not contain UPDATED_SERVICE_OUTLET_CODE
+        defaultFixedAssetItemShouldBeFound("serviceOutletCode.doesNotContain=" + UPDATED_SERVICE_OUTLET_CODE);
+    }
+
 
     @Test
     @Transactional
@@ -459,6 +503,19 @@ public class FixedAssetItemResourceIT {
 
         // Get all the fixedAssetItemList where assetCategoryId equals to UPDATED_ASSET_CATEGORY_ID
         defaultFixedAssetItemShouldNotBeFound("assetCategoryId.equals=" + UPDATED_ASSET_CATEGORY_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByAssetCategoryIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where assetCategoryId not equals to DEFAULT_ASSET_CATEGORY_ID
+        defaultFixedAssetItemShouldNotBeFound("assetCategoryId.notEquals=" + DEFAULT_ASSET_CATEGORY_ID);
+
+        // Get all the fixedAssetItemList where assetCategoryId not equals to UPDATED_ASSET_CATEGORY_ID
+        defaultFixedAssetItemShouldBeFound("assetCategoryId.notEquals=" + UPDATED_ASSET_CATEGORY_ID);
     }
 
     @Test
@@ -493,11 +550,24 @@ public class FixedAssetItemResourceIT {
         // Initialize the database
         fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
 
-        // Get all the fixedAssetItemList where assetCategoryId greater than or equals to DEFAULT_ASSET_CATEGORY_ID
-        defaultFixedAssetItemShouldBeFound("assetCategoryId.greaterOrEqualThan=" + DEFAULT_ASSET_CATEGORY_ID);
+        // Get all the fixedAssetItemList where assetCategoryId is greater than or equal to DEFAULT_ASSET_CATEGORY_ID
+        defaultFixedAssetItemShouldBeFound("assetCategoryId.greaterThanOrEqual=" + DEFAULT_ASSET_CATEGORY_ID);
 
-        // Get all the fixedAssetItemList where assetCategoryId greater than or equals to UPDATED_ASSET_CATEGORY_ID
-        defaultFixedAssetItemShouldNotBeFound("assetCategoryId.greaterOrEqualThan=" + UPDATED_ASSET_CATEGORY_ID);
+        // Get all the fixedAssetItemList where assetCategoryId is greater than or equal to UPDATED_ASSET_CATEGORY_ID
+        defaultFixedAssetItemShouldNotBeFound("assetCategoryId.greaterThanOrEqual=" + UPDATED_ASSET_CATEGORY_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByAssetCategoryIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where assetCategoryId is less than or equal to DEFAULT_ASSET_CATEGORY_ID
+        defaultFixedAssetItemShouldBeFound("assetCategoryId.lessThanOrEqual=" + DEFAULT_ASSET_CATEGORY_ID);
+
+        // Get all the fixedAssetItemList where assetCategoryId is less than or equal to SMALLER_ASSET_CATEGORY_ID
+        defaultFixedAssetItemShouldNotBeFound("assetCategoryId.lessThanOrEqual=" + SMALLER_ASSET_CATEGORY_ID);
     }
 
     @Test
@@ -506,11 +576,24 @@ public class FixedAssetItemResourceIT {
         // Initialize the database
         fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
 
-        // Get all the fixedAssetItemList where assetCategoryId less than or equals to DEFAULT_ASSET_CATEGORY_ID
+        // Get all the fixedAssetItemList where assetCategoryId is less than DEFAULT_ASSET_CATEGORY_ID
         defaultFixedAssetItemShouldNotBeFound("assetCategoryId.lessThan=" + DEFAULT_ASSET_CATEGORY_ID);
 
-        // Get all the fixedAssetItemList where assetCategoryId less than or equals to UPDATED_ASSET_CATEGORY_ID
+        // Get all the fixedAssetItemList where assetCategoryId is less than UPDATED_ASSET_CATEGORY_ID
         defaultFixedAssetItemShouldBeFound("assetCategoryId.lessThan=" + UPDATED_ASSET_CATEGORY_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByAssetCategoryIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where assetCategoryId is greater than DEFAULT_ASSET_CATEGORY_ID
+        defaultFixedAssetItemShouldNotBeFound("assetCategoryId.greaterThan=" + DEFAULT_ASSET_CATEGORY_ID);
+
+        // Get all the fixedAssetItemList where assetCategoryId is greater than SMALLER_ASSET_CATEGORY_ID
+        defaultFixedAssetItemShouldBeFound("assetCategoryId.greaterThan=" + SMALLER_ASSET_CATEGORY_ID);
     }
 
 
@@ -525,6 +608,19 @@ public class FixedAssetItemResourceIT {
 
         // Get all the fixedAssetItemList where fixedAssetSerialCode equals to UPDATED_FIXED_ASSET_SERIAL_CODE
         defaultFixedAssetItemShouldNotBeFound("fixedAssetSerialCode.equals=" + UPDATED_FIXED_ASSET_SERIAL_CODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByFixedAssetSerialCodeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where fixedAssetSerialCode not equals to DEFAULT_FIXED_ASSET_SERIAL_CODE
+        defaultFixedAssetItemShouldNotBeFound("fixedAssetSerialCode.notEquals=" + DEFAULT_FIXED_ASSET_SERIAL_CODE);
+
+        // Get all the fixedAssetItemList where fixedAssetSerialCode not equals to UPDATED_FIXED_ASSET_SERIAL_CODE
+        defaultFixedAssetItemShouldBeFound("fixedAssetSerialCode.notEquals=" + UPDATED_FIXED_ASSET_SERIAL_CODE);
     }
 
     @Test
@@ -552,6 +648,32 @@ public class FixedAssetItemResourceIT {
         // Get all the fixedAssetItemList where fixedAssetSerialCode is null
         defaultFixedAssetItemShouldNotBeFound("fixedAssetSerialCode.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllFixedAssetItemsByFixedAssetSerialCodeContainsSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where fixedAssetSerialCode contains DEFAULT_FIXED_ASSET_SERIAL_CODE
+        defaultFixedAssetItemShouldBeFound("fixedAssetSerialCode.contains=" + DEFAULT_FIXED_ASSET_SERIAL_CODE);
+
+        // Get all the fixedAssetItemList where fixedAssetSerialCode contains UPDATED_FIXED_ASSET_SERIAL_CODE
+        defaultFixedAssetItemShouldNotBeFound("fixedAssetSerialCode.contains=" + UPDATED_FIXED_ASSET_SERIAL_CODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByFixedAssetSerialCodeNotContainsSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where fixedAssetSerialCode does not contain DEFAULT_FIXED_ASSET_SERIAL_CODE
+        defaultFixedAssetItemShouldNotBeFound("fixedAssetSerialCode.doesNotContain=" + DEFAULT_FIXED_ASSET_SERIAL_CODE);
+
+        // Get all the fixedAssetItemList where fixedAssetSerialCode does not contain UPDATED_FIXED_ASSET_SERIAL_CODE
+        defaultFixedAssetItemShouldBeFound("fixedAssetSerialCode.doesNotContain=" + UPDATED_FIXED_ASSET_SERIAL_CODE);
+    }
+
 
     @Test
     @Transactional
@@ -564,6 +686,19 @@ public class FixedAssetItemResourceIT {
 
         // Get all the fixedAssetItemList where fixedAssetDescription equals to UPDATED_FIXED_ASSET_DESCRIPTION
         defaultFixedAssetItemShouldNotBeFound("fixedAssetDescription.equals=" + UPDATED_FIXED_ASSET_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByFixedAssetDescriptionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where fixedAssetDescription not equals to DEFAULT_FIXED_ASSET_DESCRIPTION
+        defaultFixedAssetItemShouldNotBeFound("fixedAssetDescription.notEquals=" + DEFAULT_FIXED_ASSET_DESCRIPTION);
+
+        // Get all the fixedAssetItemList where fixedAssetDescription not equals to UPDATED_FIXED_ASSET_DESCRIPTION
+        defaultFixedAssetItemShouldBeFound("fixedAssetDescription.notEquals=" + UPDATED_FIXED_ASSET_DESCRIPTION);
     }
 
     @Test
@@ -591,6 +726,32 @@ public class FixedAssetItemResourceIT {
         // Get all the fixedAssetItemList where fixedAssetDescription is null
         defaultFixedAssetItemShouldNotBeFound("fixedAssetDescription.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllFixedAssetItemsByFixedAssetDescriptionContainsSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where fixedAssetDescription contains DEFAULT_FIXED_ASSET_DESCRIPTION
+        defaultFixedAssetItemShouldBeFound("fixedAssetDescription.contains=" + DEFAULT_FIXED_ASSET_DESCRIPTION);
+
+        // Get all the fixedAssetItemList where fixedAssetDescription contains UPDATED_FIXED_ASSET_DESCRIPTION
+        defaultFixedAssetItemShouldNotBeFound("fixedAssetDescription.contains=" + UPDATED_FIXED_ASSET_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByFixedAssetDescriptionNotContainsSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where fixedAssetDescription does not contain DEFAULT_FIXED_ASSET_DESCRIPTION
+        defaultFixedAssetItemShouldNotBeFound("fixedAssetDescription.doesNotContain=" + DEFAULT_FIXED_ASSET_DESCRIPTION);
+
+        // Get all the fixedAssetItemList where fixedAssetDescription does not contain UPDATED_FIXED_ASSET_DESCRIPTION
+        defaultFixedAssetItemShouldBeFound("fixedAssetDescription.doesNotContain=" + UPDATED_FIXED_ASSET_DESCRIPTION);
+    }
+
 
     @Test
     @Transactional
@@ -603,6 +764,19 @@ public class FixedAssetItemResourceIT {
 
         // Get all the fixedAssetItemList where purchaseDate equals to UPDATED_PURCHASE_DATE
         defaultFixedAssetItemShouldNotBeFound("purchaseDate.equals=" + UPDATED_PURCHASE_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByPurchaseDateIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseDate not equals to DEFAULT_PURCHASE_DATE
+        defaultFixedAssetItemShouldNotBeFound("purchaseDate.notEquals=" + DEFAULT_PURCHASE_DATE);
+
+        // Get all the fixedAssetItemList where purchaseDate not equals to UPDATED_PURCHASE_DATE
+        defaultFixedAssetItemShouldBeFound("purchaseDate.notEquals=" + UPDATED_PURCHASE_DATE);
     }
 
     @Test
@@ -637,11 +811,24 @@ public class FixedAssetItemResourceIT {
         // Initialize the database
         fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
 
-        // Get all the fixedAssetItemList where purchaseDate greater than or equals to DEFAULT_PURCHASE_DATE
-        defaultFixedAssetItemShouldBeFound("purchaseDate.greaterOrEqualThan=" + DEFAULT_PURCHASE_DATE);
+        // Get all the fixedAssetItemList where purchaseDate is greater than or equal to DEFAULT_PURCHASE_DATE
+        defaultFixedAssetItemShouldBeFound("purchaseDate.greaterThanOrEqual=" + DEFAULT_PURCHASE_DATE);
 
-        // Get all the fixedAssetItemList where purchaseDate greater than or equals to UPDATED_PURCHASE_DATE
-        defaultFixedAssetItemShouldNotBeFound("purchaseDate.greaterOrEqualThan=" + UPDATED_PURCHASE_DATE);
+        // Get all the fixedAssetItemList where purchaseDate is greater than or equal to UPDATED_PURCHASE_DATE
+        defaultFixedAssetItemShouldNotBeFound("purchaseDate.greaterThanOrEqual=" + UPDATED_PURCHASE_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByPurchaseDateIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseDate is less than or equal to DEFAULT_PURCHASE_DATE
+        defaultFixedAssetItemShouldBeFound("purchaseDate.lessThanOrEqual=" + DEFAULT_PURCHASE_DATE);
+
+        // Get all the fixedAssetItemList where purchaseDate is less than or equal to SMALLER_PURCHASE_DATE
+        defaultFixedAssetItemShouldNotBeFound("purchaseDate.lessThanOrEqual=" + SMALLER_PURCHASE_DATE);
     }
 
     @Test
@@ -650,11 +837,24 @@ public class FixedAssetItemResourceIT {
         // Initialize the database
         fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
 
-        // Get all the fixedAssetItemList where purchaseDate less than or equals to DEFAULT_PURCHASE_DATE
+        // Get all the fixedAssetItemList where purchaseDate is less than DEFAULT_PURCHASE_DATE
         defaultFixedAssetItemShouldNotBeFound("purchaseDate.lessThan=" + DEFAULT_PURCHASE_DATE);
 
-        // Get all the fixedAssetItemList where purchaseDate less than or equals to UPDATED_PURCHASE_DATE
+        // Get all the fixedAssetItemList where purchaseDate is less than UPDATED_PURCHASE_DATE
         defaultFixedAssetItemShouldBeFound("purchaseDate.lessThan=" + UPDATED_PURCHASE_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByPurchaseDateIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseDate is greater than DEFAULT_PURCHASE_DATE
+        defaultFixedAssetItemShouldNotBeFound("purchaseDate.greaterThan=" + DEFAULT_PURCHASE_DATE);
+
+        // Get all the fixedAssetItemList where purchaseDate is greater than SMALLER_PURCHASE_DATE
+        defaultFixedAssetItemShouldBeFound("purchaseDate.greaterThan=" + SMALLER_PURCHASE_DATE);
     }
 
 
@@ -669,6 +869,19 @@ public class FixedAssetItemResourceIT {
 
         // Get all the fixedAssetItemList where purchaseCost equals to UPDATED_PURCHASE_COST
         defaultFixedAssetItemShouldNotBeFound("purchaseCost.equals=" + UPDATED_PURCHASE_COST);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByPurchaseCostIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseCost not equals to DEFAULT_PURCHASE_COST
+        defaultFixedAssetItemShouldNotBeFound("purchaseCost.notEquals=" + DEFAULT_PURCHASE_COST);
+
+        // Get all the fixedAssetItemList where purchaseCost not equals to UPDATED_PURCHASE_COST
+        defaultFixedAssetItemShouldBeFound("purchaseCost.notEquals=" + UPDATED_PURCHASE_COST);
     }
 
     @Test
@@ -699,6 +912,59 @@ public class FixedAssetItemResourceIT {
 
     @Test
     @Transactional
+    public void getAllFixedAssetItemsByPurchaseCostIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseCost is greater than or equal to DEFAULT_PURCHASE_COST
+        defaultFixedAssetItemShouldBeFound("purchaseCost.greaterThanOrEqual=" + DEFAULT_PURCHASE_COST);
+
+        // Get all the fixedAssetItemList where purchaseCost is greater than or equal to UPDATED_PURCHASE_COST
+        defaultFixedAssetItemShouldNotBeFound("purchaseCost.greaterThanOrEqual=" + UPDATED_PURCHASE_COST);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByPurchaseCostIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseCost is less than or equal to DEFAULT_PURCHASE_COST
+        defaultFixedAssetItemShouldBeFound("purchaseCost.lessThanOrEqual=" + DEFAULT_PURCHASE_COST);
+
+        // Get all the fixedAssetItemList where purchaseCost is less than or equal to SMALLER_PURCHASE_COST
+        defaultFixedAssetItemShouldNotBeFound("purchaseCost.lessThanOrEqual=" + SMALLER_PURCHASE_COST);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByPurchaseCostIsLessThanSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseCost is less than DEFAULT_PURCHASE_COST
+        defaultFixedAssetItemShouldNotBeFound("purchaseCost.lessThan=" + DEFAULT_PURCHASE_COST);
+
+        // Get all the fixedAssetItemList where purchaseCost is less than UPDATED_PURCHASE_COST
+        defaultFixedAssetItemShouldBeFound("purchaseCost.lessThan=" + UPDATED_PURCHASE_COST);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByPurchaseCostIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseCost is greater than DEFAULT_PURCHASE_COST
+        defaultFixedAssetItemShouldNotBeFound("purchaseCost.greaterThan=" + DEFAULT_PURCHASE_COST);
+
+        // Get all the fixedAssetItemList where purchaseCost is greater than SMALLER_PURCHASE_COST
+        defaultFixedAssetItemShouldBeFound("purchaseCost.greaterThan=" + SMALLER_PURCHASE_COST);
+    }
+
+
+    @Test
+    @Transactional
     public void getAllFixedAssetItemsByPurchaseTransactionIdIsEqualToSomething() throws Exception {
         // Initialize the database
         fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
@@ -708,6 +974,19 @@ public class FixedAssetItemResourceIT {
 
         // Get all the fixedAssetItemList where purchaseTransactionId equals to UPDATED_PURCHASE_TRANSACTION_ID
         defaultFixedAssetItemShouldNotBeFound("purchaseTransactionId.equals=" + UPDATED_PURCHASE_TRANSACTION_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByPurchaseTransactionIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseTransactionId not equals to DEFAULT_PURCHASE_TRANSACTION_ID
+        defaultFixedAssetItemShouldNotBeFound("purchaseTransactionId.notEquals=" + DEFAULT_PURCHASE_TRANSACTION_ID);
+
+        // Get all the fixedAssetItemList where purchaseTransactionId not equals to UPDATED_PURCHASE_TRANSACTION_ID
+        defaultFixedAssetItemShouldBeFound("purchaseTransactionId.notEquals=" + UPDATED_PURCHASE_TRANSACTION_ID);
     }
 
     @Test
@@ -742,11 +1021,24 @@ public class FixedAssetItemResourceIT {
         // Initialize the database
         fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
 
-        // Get all the fixedAssetItemList where purchaseTransactionId greater than or equals to DEFAULT_PURCHASE_TRANSACTION_ID
-        defaultFixedAssetItemShouldBeFound("purchaseTransactionId.greaterOrEqualThan=" + DEFAULT_PURCHASE_TRANSACTION_ID);
+        // Get all the fixedAssetItemList where purchaseTransactionId is greater than or equal to DEFAULT_PURCHASE_TRANSACTION_ID
+        defaultFixedAssetItemShouldBeFound("purchaseTransactionId.greaterThanOrEqual=" + DEFAULT_PURCHASE_TRANSACTION_ID);
 
-        // Get all the fixedAssetItemList where purchaseTransactionId greater than or equals to UPDATED_PURCHASE_TRANSACTION_ID
-        defaultFixedAssetItemShouldNotBeFound("purchaseTransactionId.greaterOrEqualThan=" + UPDATED_PURCHASE_TRANSACTION_ID);
+        // Get all the fixedAssetItemList where purchaseTransactionId is greater than or equal to UPDATED_PURCHASE_TRANSACTION_ID
+        defaultFixedAssetItemShouldNotBeFound("purchaseTransactionId.greaterThanOrEqual=" + UPDATED_PURCHASE_TRANSACTION_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByPurchaseTransactionIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseTransactionId is less than or equal to DEFAULT_PURCHASE_TRANSACTION_ID
+        defaultFixedAssetItemShouldBeFound("purchaseTransactionId.lessThanOrEqual=" + DEFAULT_PURCHASE_TRANSACTION_ID);
+
+        // Get all the fixedAssetItemList where purchaseTransactionId is less than or equal to SMALLER_PURCHASE_TRANSACTION_ID
+        defaultFixedAssetItemShouldNotBeFound("purchaseTransactionId.lessThanOrEqual=" + SMALLER_PURCHASE_TRANSACTION_ID);
     }
 
     @Test
@@ -755,11 +1047,24 @@ public class FixedAssetItemResourceIT {
         // Initialize the database
         fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
 
-        // Get all the fixedAssetItemList where purchaseTransactionId less than or equals to DEFAULT_PURCHASE_TRANSACTION_ID
+        // Get all the fixedAssetItemList where purchaseTransactionId is less than DEFAULT_PURCHASE_TRANSACTION_ID
         defaultFixedAssetItemShouldNotBeFound("purchaseTransactionId.lessThan=" + DEFAULT_PURCHASE_TRANSACTION_ID);
 
-        // Get all the fixedAssetItemList where purchaseTransactionId less than or equals to UPDATED_PURCHASE_TRANSACTION_ID
+        // Get all the fixedAssetItemList where purchaseTransactionId is less than UPDATED_PURCHASE_TRANSACTION_ID
         defaultFixedAssetItemShouldBeFound("purchaseTransactionId.lessThan=" + UPDATED_PURCHASE_TRANSACTION_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByPurchaseTransactionIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where purchaseTransactionId is greater than DEFAULT_PURCHASE_TRANSACTION_ID
+        defaultFixedAssetItemShouldNotBeFound("purchaseTransactionId.greaterThan=" + DEFAULT_PURCHASE_TRANSACTION_ID);
+
+        // Get all the fixedAssetItemList where purchaseTransactionId is greater than SMALLER_PURCHASE_TRANSACTION_ID
+        defaultFixedAssetItemShouldBeFound("purchaseTransactionId.greaterThan=" + SMALLER_PURCHASE_TRANSACTION_ID);
     }
 
 
@@ -774,6 +1079,19 @@ public class FixedAssetItemResourceIT {
 
         // Get all the fixedAssetItemList where ownershipDocumentId equals to UPDATED_OWNERSHIP_DOCUMENT_ID
         defaultFixedAssetItemShouldNotBeFound("ownershipDocumentId.equals=" + UPDATED_OWNERSHIP_DOCUMENT_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByOwnershipDocumentIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where ownershipDocumentId not equals to DEFAULT_OWNERSHIP_DOCUMENT_ID
+        defaultFixedAssetItemShouldNotBeFound("ownershipDocumentId.notEquals=" + DEFAULT_OWNERSHIP_DOCUMENT_ID);
+
+        // Get all the fixedAssetItemList where ownershipDocumentId not equals to UPDATED_OWNERSHIP_DOCUMENT_ID
+        defaultFixedAssetItemShouldBeFound("ownershipDocumentId.notEquals=" + UPDATED_OWNERSHIP_DOCUMENT_ID);
     }
 
     @Test
@@ -808,11 +1126,24 @@ public class FixedAssetItemResourceIT {
         // Initialize the database
         fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
 
-        // Get all the fixedAssetItemList where ownershipDocumentId greater than or equals to DEFAULT_OWNERSHIP_DOCUMENT_ID
-        defaultFixedAssetItemShouldBeFound("ownershipDocumentId.greaterOrEqualThan=" + DEFAULT_OWNERSHIP_DOCUMENT_ID);
+        // Get all the fixedAssetItemList where ownershipDocumentId is greater than or equal to DEFAULT_OWNERSHIP_DOCUMENT_ID
+        defaultFixedAssetItemShouldBeFound("ownershipDocumentId.greaterThanOrEqual=" + DEFAULT_OWNERSHIP_DOCUMENT_ID);
 
-        // Get all the fixedAssetItemList where ownershipDocumentId greater than or equals to UPDATED_OWNERSHIP_DOCUMENT_ID
-        defaultFixedAssetItemShouldNotBeFound("ownershipDocumentId.greaterOrEqualThan=" + UPDATED_OWNERSHIP_DOCUMENT_ID);
+        // Get all the fixedAssetItemList where ownershipDocumentId is greater than or equal to UPDATED_OWNERSHIP_DOCUMENT_ID
+        defaultFixedAssetItemShouldNotBeFound("ownershipDocumentId.greaterThanOrEqual=" + UPDATED_OWNERSHIP_DOCUMENT_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByOwnershipDocumentIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where ownershipDocumentId is less than or equal to DEFAULT_OWNERSHIP_DOCUMENT_ID
+        defaultFixedAssetItemShouldBeFound("ownershipDocumentId.lessThanOrEqual=" + DEFAULT_OWNERSHIP_DOCUMENT_ID);
+
+        // Get all the fixedAssetItemList where ownershipDocumentId is less than or equal to SMALLER_OWNERSHIP_DOCUMENT_ID
+        defaultFixedAssetItemShouldNotBeFound("ownershipDocumentId.lessThanOrEqual=" + SMALLER_OWNERSHIP_DOCUMENT_ID);
     }
 
     @Test
@@ -821,11 +1152,24 @@ public class FixedAssetItemResourceIT {
         // Initialize the database
         fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
 
-        // Get all the fixedAssetItemList where ownershipDocumentId less than or equals to DEFAULT_OWNERSHIP_DOCUMENT_ID
+        // Get all the fixedAssetItemList where ownershipDocumentId is less than DEFAULT_OWNERSHIP_DOCUMENT_ID
         defaultFixedAssetItemShouldNotBeFound("ownershipDocumentId.lessThan=" + DEFAULT_OWNERSHIP_DOCUMENT_ID);
 
-        // Get all the fixedAssetItemList where ownershipDocumentId less than or equals to UPDATED_OWNERSHIP_DOCUMENT_ID
+        // Get all the fixedAssetItemList where ownershipDocumentId is less than UPDATED_OWNERSHIP_DOCUMENT_ID
         defaultFixedAssetItemShouldBeFound("ownershipDocumentId.lessThan=" + UPDATED_OWNERSHIP_DOCUMENT_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllFixedAssetItemsByOwnershipDocumentIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        // Get all the fixedAssetItemList where ownershipDocumentId is greater than DEFAULT_OWNERSHIP_DOCUMENT_ID
+        defaultFixedAssetItemShouldNotBeFound("ownershipDocumentId.greaterThan=" + DEFAULT_OWNERSHIP_DOCUMENT_ID);
+
+        // Get all the fixedAssetItemList where ownershipDocumentId is greater than SMALLER_OWNERSHIP_DOCUMENT_ID
+        defaultFixedAssetItemShouldBeFound("ownershipDocumentId.greaterThan=" + SMALLER_OWNERSHIP_DOCUMENT_ID);
     }
 
     /**
@@ -964,7 +1308,7 @@ public class FixedAssetItemResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database is empty
+        // Validate the database contains one less item
         List<FixedAssetItem> fixedAssetItemList = fixedAssetItemRepository.findAll();
         assertThat(fixedAssetItemList).hasSize(databaseSizeBeforeDelete - 1);
 

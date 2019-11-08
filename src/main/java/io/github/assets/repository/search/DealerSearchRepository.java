@@ -1,5 +1,4 @@
 package io.github.assets.repository.search;
-
 import io.github.assets.domain.Dealer;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 

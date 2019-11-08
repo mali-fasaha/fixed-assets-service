@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link AssetTransactionResource} REST controller.
+ * Integration tests for the {@link AssetTransactionResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class AssetTransactionResourceIT {
@@ -52,12 +52,15 @@ public class AssetTransactionResourceIT {
 
     private static final LocalDate DEFAULT_TRANSACTION_DATE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_TRANSACTION_DATE = LocalDate.now(ZoneId.systemDefault());
+    private static final LocalDate SMALLER_TRANSACTION_DATE = LocalDate.ofEpochDay(-1L);
 
     private static final Long DEFAULT_SCANNED_DOCUMENT_ID = 1L;
     private static final Long UPDATED_SCANNED_DOCUMENT_ID = 2L;
+    private static final Long SMALLER_SCANNED_DOCUMENT_ID = 1L - 1L;
 
     private static final Long DEFAULT_TRANSACTION_APPROVAL_ID = 1L;
     private static final Long UPDATED_TRANSACTION_APPROVAL_ID = 2L;
+    private static final Long SMALLER_TRANSACTION_APPROVAL_ID = 1L - 1L;
 
     @Autowired
     private AssetTransactionRepository assetTransactionRepository;
@@ -242,7 +245,7 @@ public class AssetTransactionResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(assetTransaction.getId().intValue())))
-            .andExpect(jsonPath("$.[*].transactionReference").value(hasItem(DEFAULT_TRANSACTION_REFERENCE.toString())))
+            .andExpect(jsonPath("$.[*].transactionReference").value(hasItem(DEFAULT_TRANSACTION_REFERENCE)))
             .andExpect(jsonPath("$.[*].transactionDate").value(hasItem(DEFAULT_TRANSACTION_DATE.toString())))
             .andExpect(jsonPath("$.[*].scannedDocumentId").value(hasItem(DEFAULT_SCANNED_DOCUMENT_ID.intValue())))
             .andExpect(jsonPath("$.[*].transactionApprovalId").value(hasItem(DEFAULT_TRANSACTION_APPROVAL_ID.intValue())));
@@ -259,7 +262,7 @@ public class AssetTransactionResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(assetTransaction.getId().intValue()))
-            .andExpect(jsonPath("$.transactionReference").value(DEFAULT_TRANSACTION_REFERENCE.toString()))
+            .andExpect(jsonPath("$.transactionReference").value(DEFAULT_TRANSACTION_REFERENCE))
             .andExpect(jsonPath("$.transactionDate").value(DEFAULT_TRANSACTION_DATE.toString()))
             .andExpect(jsonPath("$.scannedDocumentId").value(DEFAULT_SCANNED_DOCUMENT_ID.intValue()))
             .andExpect(jsonPath("$.transactionApprovalId").value(DEFAULT_TRANSACTION_APPROVAL_ID.intValue()));
@@ -276,6 +279,19 @@ public class AssetTransactionResourceIT {
 
         // Get all the assetTransactionList where transactionReference equals to UPDATED_TRANSACTION_REFERENCE
         defaultAssetTransactionShouldNotBeFound("transactionReference.equals=" + UPDATED_TRANSACTION_REFERENCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByTransactionReferenceIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where transactionReference not equals to DEFAULT_TRANSACTION_REFERENCE
+        defaultAssetTransactionShouldNotBeFound("transactionReference.notEquals=" + DEFAULT_TRANSACTION_REFERENCE);
+
+        // Get all the assetTransactionList where transactionReference not equals to UPDATED_TRANSACTION_REFERENCE
+        defaultAssetTransactionShouldBeFound("transactionReference.notEquals=" + UPDATED_TRANSACTION_REFERENCE);
     }
 
     @Test
@@ -303,6 +319,32 @@ public class AssetTransactionResourceIT {
         // Get all the assetTransactionList where transactionReference is null
         defaultAssetTransactionShouldNotBeFound("transactionReference.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllAssetTransactionsByTransactionReferenceContainsSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where transactionReference contains DEFAULT_TRANSACTION_REFERENCE
+        defaultAssetTransactionShouldBeFound("transactionReference.contains=" + DEFAULT_TRANSACTION_REFERENCE);
+
+        // Get all the assetTransactionList where transactionReference contains UPDATED_TRANSACTION_REFERENCE
+        defaultAssetTransactionShouldNotBeFound("transactionReference.contains=" + UPDATED_TRANSACTION_REFERENCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByTransactionReferenceNotContainsSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where transactionReference does not contain DEFAULT_TRANSACTION_REFERENCE
+        defaultAssetTransactionShouldNotBeFound("transactionReference.doesNotContain=" + DEFAULT_TRANSACTION_REFERENCE);
+
+        // Get all the assetTransactionList where transactionReference does not contain UPDATED_TRANSACTION_REFERENCE
+        defaultAssetTransactionShouldBeFound("transactionReference.doesNotContain=" + UPDATED_TRANSACTION_REFERENCE);
+    }
+
 
     @Test
     @Transactional
@@ -315,6 +357,19 @@ public class AssetTransactionResourceIT {
 
         // Get all the assetTransactionList where transactionDate equals to UPDATED_TRANSACTION_DATE
         defaultAssetTransactionShouldNotBeFound("transactionDate.equals=" + UPDATED_TRANSACTION_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByTransactionDateIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where transactionDate not equals to DEFAULT_TRANSACTION_DATE
+        defaultAssetTransactionShouldNotBeFound("transactionDate.notEquals=" + DEFAULT_TRANSACTION_DATE);
+
+        // Get all the assetTransactionList where transactionDate not equals to UPDATED_TRANSACTION_DATE
+        defaultAssetTransactionShouldBeFound("transactionDate.notEquals=" + UPDATED_TRANSACTION_DATE);
     }
 
     @Test
@@ -349,11 +404,24 @@ public class AssetTransactionResourceIT {
         // Initialize the database
         assetTransactionRepository.saveAndFlush(assetTransaction);
 
-        // Get all the assetTransactionList where transactionDate greater than or equals to DEFAULT_TRANSACTION_DATE
-        defaultAssetTransactionShouldBeFound("transactionDate.greaterOrEqualThan=" + DEFAULT_TRANSACTION_DATE);
+        // Get all the assetTransactionList where transactionDate is greater than or equal to DEFAULT_TRANSACTION_DATE
+        defaultAssetTransactionShouldBeFound("transactionDate.greaterThanOrEqual=" + DEFAULT_TRANSACTION_DATE);
 
-        // Get all the assetTransactionList where transactionDate greater than or equals to UPDATED_TRANSACTION_DATE
-        defaultAssetTransactionShouldNotBeFound("transactionDate.greaterOrEqualThan=" + UPDATED_TRANSACTION_DATE);
+        // Get all the assetTransactionList where transactionDate is greater than or equal to UPDATED_TRANSACTION_DATE
+        defaultAssetTransactionShouldNotBeFound("transactionDate.greaterThanOrEqual=" + UPDATED_TRANSACTION_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByTransactionDateIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where transactionDate is less than or equal to DEFAULT_TRANSACTION_DATE
+        defaultAssetTransactionShouldBeFound("transactionDate.lessThanOrEqual=" + DEFAULT_TRANSACTION_DATE);
+
+        // Get all the assetTransactionList where transactionDate is less than or equal to SMALLER_TRANSACTION_DATE
+        defaultAssetTransactionShouldNotBeFound("transactionDate.lessThanOrEqual=" + SMALLER_TRANSACTION_DATE);
     }
 
     @Test
@@ -362,11 +430,24 @@ public class AssetTransactionResourceIT {
         // Initialize the database
         assetTransactionRepository.saveAndFlush(assetTransaction);
 
-        // Get all the assetTransactionList where transactionDate less than or equals to DEFAULT_TRANSACTION_DATE
+        // Get all the assetTransactionList where transactionDate is less than DEFAULT_TRANSACTION_DATE
         defaultAssetTransactionShouldNotBeFound("transactionDate.lessThan=" + DEFAULT_TRANSACTION_DATE);
 
-        // Get all the assetTransactionList where transactionDate less than or equals to UPDATED_TRANSACTION_DATE
+        // Get all the assetTransactionList where transactionDate is less than UPDATED_TRANSACTION_DATE
         defaultAssetTransactionShouldBeFound("transactionDate.lessThan=" + UPDATED_TRANSACTION_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByTransactionDateIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where transactionDate is greater than DEFAULT_TRANSACTION_DATE
+        defaultAssetTransactionShouldNotBeFound("transactionDate.greaterThan=" + DEFAULT_TRANSACTION_DATE);
+
+        // Get all the assetTransactionList where transactionDate is greater than SMALLER_TRANSACTION_DATE
+        defaultAssetTransactionShouldBeFound("transactionDate.greaterThan=" + SMALLER_TRANSACTION_DATE);
     }
 
 
@@ -381,6 +462,19 @@ public class AssetTransactionResourceIT {
 
         // Get all the assetTransactionList where scannedDocumentId equals to UPDATED_SCANNED_DOCUMENT_ID
         defaultAssetTransactionShouldNotBeFound("scannedDocumentId.equals=" + UPDATED_SCANNED_DOCUMENT_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByScannedDocumentIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where scannedDocumentId not equals to DEFAULT_SCANNED_DOCUMENT_ID
+        defaultAssetTransactionShouldNotBeFound("scannedDocumentId.notEquals=" + DEFAULT_SCANNED_DOCUMENT_ID);
+
+        // Get all the assetTransactionList where scannedDocumentId not equals to UPDATED_SCANNED_DOCUMENT_ID
+        defaultAssetTransactionShouldBeFound("scannedDocumentId.notEquals=" + UPDATED_SCANNED_DOCUMENT_ID);
     }
 
     @Test
@@ -415,11 +509,24 @@ public class AssetTransactionResourceIT {
         // Initialize the database
         assetTransactionRepository.saveAndFlush(assetTransaction);
 
-        // Get all the assetTransactionList where scannedDocumentId greater than or equals to DEFAULT_SCANNED_DOCUMENT_ID
-        defaultAssetTransactionShouldBeFound("scannedDocumentId.greaterOrEqualThan=" + DEFAULT_SCANNED_DOCUMENT_ID);
+        // Get all the assetTransactionList where scannedDocumentId is greater than or equal to DEFAULT_SCANNED_DOCUMENT_ID
+        defaultAssetTransactionShouldBeFound("scannedDocumentId.greaterThanOrEqual=" + DEFAULT_SCANNED_DOCUMENT_ID);
 
-        // Get all the assetTransactionList where scannedDocumentId greater than or equals to UPDATED_SCANNED_DOCUMENT_ID
-        defaultAssetTransactionShouldNotBeFound("scannedDocumentId.greaterOrEqualThan=" + UPDATED_SCANNED_DOCUMENT_ID);
+        // Get all the assetTransactionList where scannedDocumentId is greater than or equal to UPDATED_SCANNED_DOCUMENT_ID
+        defaultAssetTransactionShouldNotBeFound("scannedDocumentId.greaterThanOrEqual=" + UPDATED_SCANNED_DOCUMENT_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByScannedDocumentIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where scannedDocumentId is less than or equal to DEFAULT_SCANNED_DOCUMENT_ID
+        defaultAssetTransactionShouldBeFound("scannedDocumentId.lessThanOrEqual=" + DEFAULT_SCANNED_DOCUMENT_ID);
+
+        // Get all the assetTransactionList where scannedDocumentId is less than or equal to SMALLER_SCANNED_DOCUMENT_ID
+        defaultAssetTransactionShouldNotBeFound("scannedDocumentId.lessThanOrEqual=" + SMALLER_SCANNED_DOCUMENT_ID);
     }
 
     @Test
@@ -428,11 +535,24 @@ public class AssetTransactionResourceIT {
         // Initialize the database
         assetTransactionRepository.saveAndFlush(assetTransaction);
 
-        // Get all the assetTransactionList where scannedDocumentId less than or equals to DEFAULT_SCANNED_DOCUMENT_ID
+        // Get all the assetTransactionList where scannedDocumentId is less than DEFAULT_SCANNED_DOCUMENT_ID
         defaultAssetTransactionShouldNotBeFound("scannedDocumentId.lessThan=" + DEFAULT_SCANNED_DOCUMENT_ID);
 
-        // Get all the assetTransactionList where scannedDocumentId less than or equals to UPDATED_SCANNED_DOCUMENT_ID
+        // Get all the assetTransactionList where scannedDocumentId is less than UPDATED_SCANNED_DOCUMENT_ID
         defaultAssetTransactionShouldBeFound("scannedDocumentId.lessThan=" + UPDATED_SCANNED_DOCUMENT_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByScannedDocumentIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where scannedDocumentId is greater than DEFAULT_SCANNED_DOCUMENT_ID
+        defaultAssetTransactionShouldNotBeFound("scannedDocumentId.greaterThan=" + DEFAULT_SCANNED_DOCUMENT_ID);
+
+        // Get all the assetTransactionList where scannedDocumentId is greater than SMALLER_SCANNED_DOCUMENT_ID
+        defaultAssetTransactionShouldBeFound("scannedDocumentId.greaterThan=" + SMALLER_SCANNED_DOCUMENT_ID);
     }
 
 
@@ -447,6 +567,19 @@ public class AssetTransactionResourceIT {
 
         // Get all the assetTransactionList where transactionApprovalId equals to UPDATED_TRANSACTION_APPROVAL_ID
         defaultAssetTransactionShouldNotBeFound("transactionApprovalId.equals=" + UPDATED_TRANSACTION_APPROVAL_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByTransactionApprovalIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where transactionApprovalId not equals to DEFAULT_TRANSACTION_APPROVAL_ID
+        defaultAssetTransactionShouldNotBeFound("transactionApprovalId.notEquals=" + DEFAULT_TRANSACTION_APPROVAL_ID);
+
+        // Get all the assetTransactionList where transactionApprovalId not equals to UPDATED_TRANSACTION_APPROVAL_ID
+        defaultAssetTransactionShouldBeFound("transactionApprovalId.notEquals=" + UPDATED_TRANSACTION_APPROVAL_ID);
     }
 
     @Test
@@ -481,11 +614,24 @@ public class AssetTransactionResourceIT {
         // Initialize the database
         assetTransactionRepository.saveAndFlush(assetTransaction);
 
-        // Get all the assetTransactionList where transactionApprovalId greater than or equals to DEFAULT_TRANSACTION_APPROVAL_ID
-        defaultAssetTransactionShouldBeFound("transactionApprovalId.greaterOrEqualThan=" + DEFAULT_TRANSACTION_APPROVAL_ID);
+        // Get all the assetTransactionList where transactionApprovalId is greater than or equal to DEFAULT_TRANSACTION_APPROVAL_ID
+        defaultAssetTransactionShouldBeFound("transactionApprovalId.greaterThanOrEqual=" + DEFAULT_TRANSACTION_APPROVAL_ID);
 
-        // Get all the assetTransactionList where transactionApprovalId greater than or equals to UPDATED_TRANSACTION_APPROVAL_ID
-        defaultAssetTransactionShouldNotBeFound("transactionApprovalId.greaterOrEqualThan=" + UPDATED_TRANSACTION_APPROVAL_ID);
+        // Get all the assetTransactionList where transactionApprovalId is greater than or equal to UPDATED_TRANSACTION_APPROVAL_ID
+        defaultAssetTransactionShouldNotBeFound("transactionApprovalId.greaterThanOrEqual=" + UPDATED_TRANSACTION_APPROVAL_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByTransactionApprovalIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where transactionApprovalId is less than or equal to DEFAULT_TRANSACTION_APPROVAL_ID
+        defaultAssetTransactionShouldBeFound("transactionApprovalId.lessThanOrEqual=" + DEFAULT_TRANSACTION_APPROVAL_ID);
+
+        // Get all the assetTransactionList where transactionApprovalId is less than or equal to SMALLER_TRANSACTION_APPROVAL_ID
+        defaultAssetTransactionShouldNotBeFound("transactionApprovalId.lessThanOrEqual=" + SMALLER_TRANSACTION_APPROVAL_ID);
     }
 
     @Test
@@ -494,11 +640,24 @@ public class AssetTransactionResourceIT {
         // Initialize the database
         assetTransactionRepository.saveAndFlush(assetTransaction);
 
-        // Get all the assetTransactionList where transactionApprovalId less than or equals to DEFAULT_TRANSACTION_APPROVAL_ID
+        // Get all the assetTransactionList where transactionApprovalId is less than DEFAULT_TRANSACTION_APPROVAL_ID
         defaultAssetTransactionShouldNotBeFound("transactionApprovalId.lessThan=" + DEFAULT_TRANSACTION_APPROVAL_ID);
 
-        // Get all the assetTransactionList where transactionApprovalId less than or equals to UPDATED_TRANSACTION_APPROVAL_ID
+        // Get all the assetTransactionList where transactionApprovalId is less than UPDATED_TRANSACTION_APPROVAL_ID
         defaultAssetTransactionShouldBeFound("transactionApprovalId.lessThan=" + UPDATED_TRANSACTION_APPROVAL_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetTransactionsByTransactionApprovalIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        assetTransactionRepository.saveAndFlush(assetTransaction);
+
+        // Get all the assetTransactionList where transactionApprovalId is greater than DEFAULT_TRANSACTION_APPROVAL_ID
+        defaultAssetTransactionShouldNotBeFound("transactionApprovalId.greaterThan=" + DEFAULT_TRANSACTION_APPROVAL_ID);
+
+        // Get all the assetTransactionList where transactionApprovalId is greater than SMALLER_TRANSACTION_APPROVAL_ID
+        defaultAssetTransactionShouldBeFound("transactionApprovalId.greaterThan=" + SMALLER_TRANSACTION_APPROVAL_ID);
     }
 
     /**
@@ -619,7 +778,7 @@ public class AssetTransactionResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database is empty
+        // Validate the database contains one less item
         List<AssetTransaction> assetTransactionList = assetTransactionRepository.findAll();
         assertThat(assetTransactionList).hasSize(databaseSizeBeforeDelete - 1);
 

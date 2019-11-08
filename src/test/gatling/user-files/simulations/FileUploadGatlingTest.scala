@@ -75,12 +75,12 @@ class FileUploadGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all fileUploads")
-            .get("/fixedassetservice/api/file-uploads")
+            .get("/services/fixedassetservice/api/file-uploads")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new fileUpload")
-            .post("/fixedassetservice/api/file-uploads")
+            .post("/services/fixedassetservice/api/file-uploads")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -99,12 +99,12 @@ class FileUploadGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created fileUpload")
-                .get("/fixedassetservice${new_fileUpload_url}")
+                .get("/services/fixedassetservice${new_fileUpload_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created fileUpload")
-            .delete("/fixedassetservice${new_fileUpload_url}")
+            .delete("/services/fixedassetservice${new_fileUpload_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

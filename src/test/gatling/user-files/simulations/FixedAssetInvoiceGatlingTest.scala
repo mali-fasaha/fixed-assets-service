@@ -75,12 +75,12 @@ class FixedAssetInvoiceGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all fixedAssetInvoices")
-            .get("/fixedassetservice/api/fixed-asset-invoices")
+            .get("/services/fixedassetservice/api/fixed-asset-invoices")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new fixedAssetInvoice")
-            .post("/fixedassetservice/api/fixed-asset-invoices")
+            .post("/services/fixedassetservice/api/fixed-asset-invoices")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -96,12 +96,12 @@ class FixedAssetInvoiceGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created fixedAssetInvoice")
-                .get("/fixedassetservice${new_fixedAssetInvoice_url}")
+                .get("/services/fixedassetservice${new_fixedAssetInvoice_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created fixedAssetInvoice")
-            .delete("/fixedassetservice${new_fixedAssetInvoice_url}")
+            .delete("/services/fixedassetservice${new_fixedAssetInvoice_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

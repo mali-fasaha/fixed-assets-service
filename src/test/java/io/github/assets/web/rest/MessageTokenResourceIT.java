@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link MessageTokenResource} REST controller.
+ * Integration tests for the {@link MessageTokenResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class MessageTokenResourceIT {
@@ -50,6 +50,7 @@ public class MessageTokenResourceIT {
 
     private static final Long DEFAULT_TIME_SENT = 1L;
     private static final Long UPDATED_TIME_SENT = 2L;
+    private static final Long SMALLER_TIME_SENT = 1L - 1L;
 
     private static final String DEFAULT_TOKEN_VALUE = "AAAAAAAAAA";
     private static final String UPDATED_TOKEN_VALUE = "BBBBBBBBBB";
@@ -252,9 +253,9 @@ public class MessageTokenResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(messageToken.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].timeSent").value(hasItem(DEFAULT_TIME_SENT.intValue())))
-            .andExpect(jsonPath("$.[*].tokenValue").value(hasItem(DEFAULT_TOKEN_VALUE.toString())))
+            .andExpect(jsonPath("$.[*].tokenValue").value(hasItem(DEFAULT_TOKEN_VALUE)))
             .andExpect(jsonPath("$.[*].received").value(hasItem(DEFAULT_RECEIVED.booleanValue())))
             .andExpect(jsonPath("$.[*].actioned").value(hasItem(DEFAULT_ACTIONED.booleanValue())))
             .andExpect(jsonPath("$.[*].contentFullyEnqueued").value(hasItem(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue())));
@@ -271,9 +272,9 @@ public class MessageTokenResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(messageToken.getId().intValue()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.timeSent").value(DEFAULT_TIME_SENT.intValue()))
-            .andExpect(jsonPath("$.tokenValue").value(DEFAULT_TOKEN_VALUE.toString()))
+            .andExpect(jsonPath("$.tokenValue").value(DEFAULT_TOKEN_VALUE))
             .andExpect(jsonPath("$.received").value(DEFAULT_RECEIVED.booleanValue()))
             .andExpect(jsonPath("$.actioned").value(DEFAULT_ACTIONED.booleanValue()))
             .andExpect(jsonPath("$.contentFullyEnqueued").value(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue()));
@@ -290,6 +291,19 @@ public class MessageTokenResourceIT {
 
         // Get all the messageTokenList where description equals to UPDATED_DESCRIPTION
         defaultMessageTokenShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByDescriptionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where description not equals to DEFAULT_DESCRIPTION
+        defaultMessageTokenShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
+
+        // Get all the messageTokenList where description not equals to UPDATED_DESCRIPTION
+        defaultMessageTokenShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -317,6 +331,32 @@ public class MessageTokenResourceIT {
         // Get all the messageTokenList where description is null
         defaultMessageTokenShouldNotBeFound("description.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllMessageTokensByDescriptionContainsSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where description contains DEFAULT_DESCRIPTION
+        defaultMessageTokenShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
+
+        // Get all the messageTokenList where description contains UPDATED_DESCRIPTION
+        defaultMessageTokenShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByDescriptionNotContainsSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where description does not contain DEFAULT_DESCRIPTION
+        defaultMessageTokenShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
+
+        // Get all the messageTokenList where description does not contain UPDATED_DESCRIPTION
+        defaultMessageTokenShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
+    }
+
 
     @Test
     @Transactional
@@ -329,6 +369,19 @@ public class MessageTokenResourceIT {
 
         // Get all the messageTokenList where timeSent equals to UPDATED_TIME_SENT
         defaultMessageTokenShouldNotBeFound("timeSent.equals=" + UPDATED_TIME_SENT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTimeSentIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where timeSent not equals to DEFAULT_TIME_SENT
+        defaultMessageTokenShouldNotBeFound("timeSent.notEquals=" + DEFAULT_TIME_SENT);
+
+        // Get all the messageTokenList where timeSent not equals to UPDATED_TIME_SENT
+        defaultMessageTokenShouldBeFound("timeSent.notEquals=" + UPDATED_TIME_SENT);
     }
 
     @Test
@@ -363,11 +416,24 @@ public class MessageTokenResourceIT {
         // Initialize the database
         messageTokenRepository.saveAndFlush(messageToken);
 
-        // Get all the messageTokenList where timeSent greater than or equals to DEFAULT_TIME_SENT
-        defaultMessageTokenShouldBeFound("timeSent.greaterOrEqualThan=" + DEFAULT_TIME_SENT);
+        // Get all the messageTokenList where timeSent is greater than or equal to DEFAULT_TIME_SENT
+        defaultMessageTokenShouldBeFound("timeSent.greaterThanOrEqual=" + DEFAULT_TIME_SENT);
 
-        // Get all the messageTokenList where timeSent greater than or equals to UPDATED_TIME_SENT
-        defaultMessageTokenShouldNotBeFound("timeSent.greaterOrEqualThan=" + UPDATED_TIME_SENT);
+        // Get all the messageTokenList where timeSent is greater than or equal to UPDATED_TIME_SENT
+        defaultMessageTokenShouldNotBeFound("timeSent.greaterThanOrEqual=" + UPDATED_TIME_SENT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTimeSentIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where timeSent is less than or equal to DEFAULT_TIME_SENT
+        defaultMessageTokenShouldBeFound("timeSent.lessThanOrEqual=" + DEFAULT_TIME_SENT);
+
+        // Get all the messageTokenList where timeSent is less than or equal to SMALLER_TIME_SENT
+        defaultMessageTokenShouldNotBeFound("timeSent.lessThanOrEqual=" + SMALLER_TIME_SENT);
     }
 
     @Test
@@ -376,11 +442,24 @@ public class MessageTokenResourceIT {
         // Initialize the database
         messageTokenRepository.saveAndFlush(messageToken);
 
-        // Get all the messageTokenList where timeSent less than or equals to DEFAULT_TIME_SENT
+        // Get all the messageTokenList where timeSent is less than DEFAULT_TIME_SENT
         defaultMessageTokenShouldNotBeFound("timeSent.lessThan=" + DEFAULT_TIME_SENT);
 
-        // Get all the messageTokenList where timeSent less than or equals to UPDATED_TIME_SENT
+        // Get all the messageTokenList where timeSent is less than UPDATED_TIME_SENT
         defaultMessageTokenShouldBeFound("timeSent.lessThan=" + UPDATED_TIME_SENT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTimeSentIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where timeSent is greater than DEFAULT_TIME_SENT
+        defaultMessageTokenShouldNotBeFound("timeSent.greaterThan=" + DEFAULT_TIME_SENT);
+
+        // Get all the messageTokenList where timeSent is greater than SMALLER_TIME_SENT
+        defaultMessageTokenShouldBeFound("timeSent.greaterThan=" + SMALLER_TIME_SENT);
     }
 
 
@@ -395,6 +474,19 @@ public class MessageTokenResourceIT {
 
         // Get all the messageTokenList where tokenValue equals to UPDATED_TOKEN_VALUE
         defaultMessageTokenShouldNotBeFound("tokenValue.equals=" + UPDATED_TOKEN_VALUE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTokenValueIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where tokenValue not equals to DEFAULT_TOKEN_VALUE
+        defaultMessageTokenShouldNotBeFound("tokenValue.notEquals=" + DEFAULT_TOKEN_VALUE);
+
+        // Get all the messageTokenList where tokenValue not equals to UPDATED_TOKEN_VALUE
+        defaultMessageTokenShouldBeFound("tokenValue.notEquals=" + UPDATED_TOKEN_VALUE);
     }
 
     @Test
@@ -422,6 +514,32 @@ public class MessageTokenResourceIT {
         // Get all the messageTokenList where tokenValue is null
         defaultMessageTokenShouldNotBeFound("tokenValue.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllMessageTokensByTokenValueContainsSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where tokenValue contains DEFAULT_TOKEN_VALUE
+        defaultMessageTokenShouldBeFound("tokenValue.contains=" + DEFAULT_TOKEN_VALUE);
+
+        // Get all the messageTokenList where tokenValue contains UPDATED_TOKEN_VALUE
+        defaultMessageTokenShouldNotBeFound("tokenValue.contains=" + UPDATED_TOKEN_VALUE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByTokenValueNotContainsSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where tokenValue does not contain DEFAULT_TOKEN_VALUE
+        defaultMessageTokenShouldNotBeFound("tokenValue.doesNotContain=" + DEFAULT_TOKEN_VALUE);
+
+        // Get all the messageTokenList where tokenValue does not contain UPDATED_TOKEN_VALUE
+        defaultMessageTokenShouldBeFound("tokenValue.doesNotContain=" + UPDATED_TOKEN_VALUE);
+    }
+
 
     @Test
     @Transactional
@@ -434,6 +552,19 @@ public class MessageTokenResourceIT {
 
         // Get all the messageTokenList where received equals to UPDATED_RECEIVED
         defaultMessageTokenShouldNotBeFound("received.equals=" + UPDATED_RECEIVED);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByReceivedIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where received not equals to DEFAULT_RECEIVED
+        defaultMessageTokenShouldNotBeFound("received.notEquals=" + DEFAULT_RECEIVED);
+
+        // Get all the messageTokenList where received not equals to UPDATED_RECEIVED
+        defaultMessageTokenShouldBeFound("received.notEquals=" + UPDATED_RECEIVED);
     }
 
     @Test
@@ -477,6 +608,19 @@ public class MessageTokenResourceIT {
 
     @Test
     @Transactional
+    public void getAllMessageTokensByActionedIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where actioned not equals to DEFAULT_ACTIONED
+        defaultMessageTokenShouldNotBeFound("actioned.notEquals=" + DEFAULT_ACTIONED);
+
+        // Get all the messageTokenList where actioned not equals to UPDATED_ACTIONED
+        defaultMessageTokenShouldBeFound("actioned.notEquals=" + UPDATED_ACTIONED);
+    }
+
+    @Test
+    @Transactional
     public void getAllMessageTokensByActionedIsInShouldWork() throws Exception {
         // Initialize the database
         messageTokenRepository.saveAndFlush(messageToken);
@@ -512,6 +656,19 @@ public class MessageTokenResourceIT {
 
         // Get all the messageTokenList where contentFullyEnqueued equals to UPDATED_CONTENT_FULLY_ENQUEUED
         defaultMessageTokenShouldNotBeFound("contentFullyEnqueued.equals=" + UPDATED_CONTENT_FULLY_ENQUEUED);
+    }
+
+    @Test
+    @Transactional
+    public void getAllMessageTokensByContentFullyEnqueuedIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        // Get all the messageTokenList where contentFullyEnqueued not equals to DEFAULT_CONTENT_FULLY_ENQUEUED
+        defaultMessageTokenShouldNotBeFound("contentFullyEnqueued.notEquals=" + DEFAULT_CONTENT_FULLY_ENQUEUED);
+
+        // Get all the messageTokenList where contentFullyEnqueued not equals to UPDATED_CONTENT_FULLY_ENQUEUED
+        defaultMessageTokenShouldBeFound("contentFullyEnqueued.notEquals=" + UPDATED_CONTENT_FULLY_ENQUEUED);
     }
 
     @Test
@@ -663,7 +820,7 @@ public class MessageTokenResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database is empty
+        // Validate the database contains one less item
         List<MessageToken> messageTokenList = messageTokenRepository.findAll();
         assertThat(messageTokenList).hasSize(databaseSizeBeforeDelete - 1);
 

@@ -85,9 +85,11 @@ public class FixedAssetInvoiceQueryService extends QueryService<FixedAssetInvoic
     }
 
     /**
-     * Function to convert FixedAssetInvoiceCriteria to a {@link Specification}.
+     * Function to convert {@link FixedAssetInvoiceCriteria} to a {@link Specification}
+     * @param criteria The object which holds all the filters, which the entities should match.
+     * @return the matching {@link Specification} of the entity.
      */
-    private Specification<FixedAssetInvoice> createSpecification(FixedAssetInvoiceCriteria criteria) {
+    protected Specification<FixedAssetInvoice> createSpecification(FixedAssetInvoiceCriteria criteria) {
         Specification<FixedAssetInvoice> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

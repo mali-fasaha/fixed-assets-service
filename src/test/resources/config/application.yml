@@ -23,18 +23,9 @@ eureka:
 spring:
   application:
     name: fixedAssetService
-  cloud:
-    stream:
-      kafka:
-        binder:
-          brokers: localhost
-          zk-nodes: localhost
-      bindings:
-        output:
-          destination: topic-jhipster
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:mem:fixedAssetService;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:fixedAssetService;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MULTI_THREADED=FALSE
     name:
     username:
     password:
@@ -104,9 +95,8 @@ jhipster:
   logging:
     # To test json console appender
     use-json-format: true # By default, logs are in Json format
-    # To test logstash appender
     logstash:
-      enabled: true
+      enabled: false
       host: localhost
       port: 5000
       queue-size: 512
@@ -126,7 +116,17 @@ jhipster:
     logs: # Reports metrics in the logs
       enabled: true
       report-frequency: 60 # in seconds
-
+kafka:
+  consumer:
+    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    bootstrap.servers: ${kafkaBootstrapServers}
+    group.id: fixed-asset-service
+    auto.offset.reset: earliest
+  producer:
+    key.serializer: org.apache.kafka.common.serialization.StringSerializer
+    value.serializer: org.apache.kafka.common.serialization.StringSerializer
+    bootstrap.servers: ${kafkaBootstrapServers}
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
