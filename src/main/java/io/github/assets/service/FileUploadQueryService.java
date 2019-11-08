@@ -85,9 +85,11 @@ public class FileUploadQueryService extends QueryService<FileUpload> {
     }
 
     /**
-     * Function to convert FileUploadCriteria to a {@link Specification}.
+     * Function to convert {@link FileUploadCriteria} to a {@link Specification}
+     * @param criteria The object which holds all the filters, which the entities should match.
+     * @return the matching {@link Specification} of the entity.
      */
-    private Specification<FileUpload> createSpecification(FileUploadCriteria criteria) {
+    protected Specification<FileUpload> createSpecification(FileUploadCriteria criteria) {
         Specification<FileUpload> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

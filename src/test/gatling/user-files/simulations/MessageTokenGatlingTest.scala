@@ -75,12 +75,12 @@ class MessageTokenGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all messageTokens")
-            .get("/fixedassetservice/api/message-tokens")
+            .get("/services/fixedassetservice/api/message-tokens")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new messageToken")
-            .post("/fixedassetservice/api/message-tokens")
+            .post("/services/fixedassetservice/api/message-tokens")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -96,12 +96,12 @@ class MessageTokenGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created messageToken")
-                .get("/fixedassetservice${new_messageToken_url}")
+                .get("/services/fixedassetservice${new_messageToken_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created messageToken")
-            .delete("/fixedassetservice${new_messageToken_url}")
+            .delete("/services/fixedassetservice${new_messageToken_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

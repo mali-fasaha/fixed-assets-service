@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import io.github.assets.domain.enumeration.FileMediumTypes;
 import io.github.assets.domain.enumeration.FileModelType;
 /**
- * Integration tests for the {@Link FileTypeResource} REST controller.
+ * Integration tests for the {@link FileTypeResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class FileTypeResourceIT {
@@ -240,9 +240,9 @@ public class FileTypeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(fileType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].fileTypeName").value(hasItem(DEFAULT_FILE_TYPE_NAME.toString())))
+            .andExpect(jsonPath("$.[*].fileTypeName").value(hasItem(DEFAULT_FILE_TYPE_NAME)))
             .andExpect(jsonPath("$.[*].fileMediumType").value(hasItem(DEFAULT_FILE_MEDIUM_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].fileTemplateContentType").value(hasItem(DEFAULT_FILE_TEMPLATE_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].fileTemplate").value(hasItem(Base64Utils.encodeToString(DEFAULT_FILE_TEMPLATE))))
             .andExpect(jsonPath("$.[*].fileType").value(hasItem(DEFAULT_FILE_TYPE.toString())));
@@ -259,9 +259,9 @@ public class FileTypeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(fileType.getId().intValue()))
-            .andExpect(jsonPath("$.fileTypeName").value(DEFAULT_FILE_TYPE_NAME.toString()))
+            .andExpect(jsonPath("$.fileTypeName").value(DEFAULT_FILE_TYPE_NAME))
             .andExpect(jsonPath("$.fileMediumType").value(DEFAULT_FILE_MEDIUM_TYPE.toString()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.fileTemplateContentType").value(DEFAULT_FILE_TEMPLATE_CONTENT_TYPE))
             .andExpect(jsonPath("$.fileTemplate").value(Base64Utils.encodeToString(DEFAULT_FILE_TEMPLATE)))
             .andExpect(jsonPath("$.fileType").value(DEFAULT_FILE_TYPE.toString()));
@@ -351,7 +351,7 @@ public class FileTypeResourceIT {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
-        // Validate the database is empty
+        // Validate the database contains one less item
         List<FileType> fileTypeList = fileTypeRepository.findAll();
         assertThat(fileTypeList).hasSize(databaseSizeBeforeDelete - 1);
 

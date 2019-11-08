@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-
+    
     <!--
         Added the entity AssetAcquisition.
     -->
@@ -18,43 +18,38 @@
             <column name="description" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-
             <column name="acquisition_month" type="date">
                 <constraints nullable="false" />
             </column>
-
             <column name="asset_serial" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-
             <column name="service_outlet_code" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-
             <column name="acquisition_transaction_id" type="bigint">
                 <constraints nullable="false" />
             </column>
-
             <column name="asset_category_id" type="bigint">
                 <constraints nullable="false" />
             </column>
-
             <column name="purchase_amount" type="decimal(21,2)">
                 <constraints nullable="false" />
             </column>
-
             <column name="asset_dealer_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
             <column name="asset_invoice_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+    </changeSet>
+
+    <changeSet id="20190725165704-1-relations" author="jhipster">
 
     </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
     <!--
         Load sample data generated with Faker.js
@@ -66,10 +61,9 @@
     -->
     <changeSet id="20190725165704-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/data/asset_acquisition.csv"
+                  file="config/liquibase/fake-data/asset_acquisition.csv"
                   separator=";"
-                  tableName="asset_acquisition"
-                  context="dev">
+                  tableName="asset_acquisition">
             <column name="id" type="numeric"/>
             <column name="description" type="string"/>
             <column name="acquisition_month" type="date"/>
@@ -80,11 +74,8 @@
             <column name="purchase_amount" type="numeric"/>
             <column name="asset_dealer_id" type="numeric"/>
             <column name="asset_invoice_id" type="numeric"/>
+            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>
 
-    <changeSet id="20190725165704-1-relations" author="jhipster">
-
-    </changeSet>
-    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 </databaseChangeLog>

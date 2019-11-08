@@ -85,9 +85,11 @@ public class AssetAcquisitionQueryService extends QueryService<AssetAcquisition>
     }
 
     /**
-     * Function to convert AssetAcquisitionCriteria to a {@link Specification}.
+     * Function to convert {@link AssetAcquisitionCriteria} to a {@link Specification}
+     * @param criteria The object which holds all the filters, which the entities should match.
+     * @return the matching {@link Specification} of the entity.
      */
-    private Specification<AssetAcquisition> createSpecification(AssetAcquisitionCriteria criteria) {
+    protected Specification<AssetAcquisition> createSpecification(AssetAcquisitionCriteria criteria) {
         Specification<AssetAcquisition> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

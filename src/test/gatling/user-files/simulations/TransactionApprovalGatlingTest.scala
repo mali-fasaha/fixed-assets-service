@@ -75,12 +75,12 @@ class TransactionApprovalGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all transactionApprovals")
-            .get("/fixedassetservice/api/transaction-approvals")
+            .get("/services/fixedassetservice/api/transaction-approvals")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new transactionApproval")
-            .post("/fixedassetservice/api/transaction-approvals")
+            .post("/services/fixedassetservice/api/transaction-approvals")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -98,12 +98,12 @@ class TransactionApprovalGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created transactionApproval")
-                .get("/fixedassetservice${new_transactionApproval_url}")
+                .get("/services/fixedassetservice${new_transactionApproval_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created transactionApproval")
-            .delete("/fixedassetservice${new_transactionApproval_url}")
+            .delete("/services/fixedassetservice${new_transactionApproval_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

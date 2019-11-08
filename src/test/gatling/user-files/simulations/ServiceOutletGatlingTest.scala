@@ -75,12 +75,12 @@ class ServiceOutletGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all serviceOutlets")
-            .get("/fixedassetservice/api/service-outlets")
+            .get("/services/fixedassetservice/api/service-outlets")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new serviceOutlet")
-            .post("/fixedassetservice/api/service-outlets")
+            .post("/services/fixedassetservice/api/service-outlets")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -94,12 +94,12 @@ class ServiceOutletGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created serviceOutlet")
-                .get("/fixedassetservice${new_serviceOutlet_url}")
+                .get("/services/fixedassetservice${new_serviceOutlet_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created serviceOutlet")
-            .delete("/fixedassetservice${new_serviceOutlet_url}")
+            .delete("/services/fixedassetservice${new_serviceOutlet_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

@@ -75,12 +75,12 @@ class DealerGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all dealers")
-            .get("/fixedassetservice/api/dealers")
+            .get("/services/fixedassetservice/api/dealers")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new dealer")
-            .post("/fixedassetservice/api/dealers")
+            .post("/services/fixedassetservice/api/dealers")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -102,12 +102,12 @@ class DealerGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created dealer")
-                .get("/fixedassetservice${new_dealer_url}")
+                .get("/services/fixedassetservice${new_dealer_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created dealer")
-            .delete("/fixedassetservice${new_dealer_url}")
+            .delete("/services/fixedassetservice${new_dealer_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

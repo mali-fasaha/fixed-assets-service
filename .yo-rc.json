@@ -3,7 +3,7 @@
     "promptValues": {
       "packageName": "io.github.assets"
     },
-    "jhipsterVersion": "6.0.1",
+    "jhipsterVersion": "6.4.1",
     "applicationType": "microservice",
     "baseName": "fixedAssetService",
     "packageName": "io.github.assets",
@@ -103,6 +103,8 @@
     "enableTranslation": false,
     "clientPackageManager": "npm",
     "skipClient": true,
-    "skipUserManagement": true
+    "skipUserManagement": true,
+    "embeddableLaunchScript": false,
+    "blueprints": []
   }
 }

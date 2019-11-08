@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-
+    
     <!--
         Added the entity FileType.
     -->
@@ -18,30 +18,29 @@
             <column name="file_type_name" type="varchar(255)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="ux_file_type_file_type_name" />
             </column>
-
             <column name="file_medium_type" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-
             <column name="description" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="file_template" type="longblob">
                 <constraints nullable="true" />
             </column>
             <column name="file_template_content_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="file_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+    </changeSet>
+
+    <changeSet id="20190726070646-1-relations" author="jhipster">
 
     </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
     <!--
         Load sample data generated with Faker.js
@@ -53,22 +52,18 @@
     -->
     <changeSet id="20190726070646-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/data/file_type.csv"
+                  file="config/liquibase/fake-data/file_type.csv"
                   separator=";"
-                  tableName="file_type"
-                  context="dev">
+                  tableName="file_type">
             <column name="id" type="numeric"/>
             <column name="file_type_name" type="string"/>
             <column name="file_medium_type" type="string"/>
             <column name="description" type="string"/>
-            <column name="file_template" type="string"/>
+            <column name="file_template" type="blob"/>
             <column name="file_template_content_type" type="string"/>
             <column name="file_type" type="string"/>
+            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>
 
-    <changeSet id="20190726070646-1-relations" author="jhipster">
-
-    </changeSet>
-    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 </databaseChangeLog>

@@ -72,7 +72,8 @@ public class FileUploadResourceDecorator implements IFileUploadResource {
     public ResponseEntity<List<FileUploadDTO>> getAllFileUploads(FileUploadCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
                                                                  UriComponentsBuilder uriBuilder) {
 
-        return fileUploadResource.getAllFileUploads(criteria, pageable, queryParams, uriBuilder);
+//        return fileUploadResource.getAllFileUploads(criteria, pageable, queryParams, uriBuilder);
+        return fileUploadResource.getAllFileUploads(criteria, pageable);
     }
 
     /**
@@ -122,6 +123,7 @@ public class FileUploadResourceDecorator implements IFileUploadResource {
     public ResponseEntity<List<FileUploadDTO>> searchFileUploads(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
                                                                  UriComponentsBuilder uriBuilder) {
 
-        return fileUploadResource.searchFileUploads(query, pageable, queryParams, uriBuilder);
+//        return fileUploadResource.searchFileUploads(query, pageable, queryParams, uriBuilder);
+        return fileUploadResource.searchFileUploads(query, pageable);
     }
 }

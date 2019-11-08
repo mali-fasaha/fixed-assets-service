@@ -85,9 +85,11 @@ public class DepreciationRegimeQueryService extends QueryService<DepreciationReg
     }
 
     /**
-     * Function to convert DepreciationRegimeCriteria to a {@link Specification}.
+     * Function to convert {@link DepreciationRegimeCriteria} to a {@link Specification}
+     * @param criteria The object which holds all the filters, which the entities should match.
+     * @return the matching {@link Specification} of the entity.
      */
-    private Specification<DepreciationRegime> createSpecification(DepreciationRegimeCriteria criteria) {
+    protected Specification<DepreciationRegime> createSpecification(DepreciationRegimeCriteria criteria) {
         Specification<DepreciationRegime> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {

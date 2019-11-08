@@ -74,7 +74,8 @@ public class AssetAcquisitionResourceDecorator implements IAssetAcquisitionResou
     public ResponseEntity<List<AssetAcquisitionDTO>> getAllAssetAcquisitions(AssetAcquisitionCriteria criteria, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
                                                                              UriComponentsBuilder uriBuilder) {
 
-        return assetAcquisitionResource.getAllAssetAcquisitions(criteria, pageable, queryParams, uriBuilder);
+//        return assetAcquisitionResource.getAllAssetAcquisitions(criteria, pageable, queryParams, uriBuilder);
+        return assetAcquisitionResource.getAllAssetAcquisitions(criteria, pageable);
     }
 
     /**
@@ -127,7 +128,8 @@ public class AssetAcquisitionResourceDecorator implements IAssetAcquisitionResou
     public ResponseEntity<List<AssetAcquisitionDTO>> searchAssetAcquisitions(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
                                                                              UriComponentsBuilder uriBuilder) {
 
-        return assetAcquisitionResource.searchAssetAcquisitions(query, pageable, queryParams, uriBuilder);
+//        return assetAcquisitionResource.searchAssetAcquisitions(query, pageable, queryParams, uriBuilder);
+        return assetAcquisitionResource.searchAssetAcquisitions(query, pageable);
     }
 
 }

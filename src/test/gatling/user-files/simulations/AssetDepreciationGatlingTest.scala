@@ -75,12 +75,12 @@ class AssetDepreciationGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all assetDepreciations")
-            .get("/fixedassetservice/api/asset-depreciations")
+            .get("/services/fixedassetservice/api/asset-depreciations")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new assetDepreciation")
-            .post("/fixedassetservice/api/asset-depreciations")
+            .post("/services/fixedassetservice/api/asset-depreciations")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -95,12 +95,12 @@ class AssetDepreciationGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created assetDepreciation")
-                .get("/fixedassetservice${new_assetDepreciation_url}")
+                .get("/services/fixedassetservice${new_assetDepreciation_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created assetDepreciation")
-            .delete("/fixedassetservice${new_assetDepreciation_url}")
+            .delete("/services/fixedassetservice${new_assetDepreciation_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }

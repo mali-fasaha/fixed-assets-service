@@ -75,12 +75,12 @@ class DepreciationRegimeGatlingTest extends Simulation {
         .pause(10)
         .repeat(2) {
             exec(http("Get all depreciationRegimes")
-            .get("/fixedassetservice/api/depreciation-regimes")
+            .get("/services/fixedassetservice/api/depreciation-regimes")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
             .pause(10 seconds, 20 seconds)
             .exec(http("Create new depreciationRegime")
-            .post("/fixedassetservice/api/depreciation-regimes")
+            .post("/services/fixedassetservice/api/depreciation-regimes")
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
@@ -93,12 +93,12 @@ class DepreciationRegimeGatlingTest extends Simulation {
             .pause(10)
             .repeat(5) {
                 exec(http("Get created depreciationRegime")
-                .get("/fixedassetservice${new_depreciationRegime_url}")
+                .get("/services/fixedassetservice${new_depreciationRegime_url}")
                 .headers(headers_http_authenticated))
                 .pause(10)
             }
             .exec(http("Delete created depreciationRegime")
-            .delete("/fixedassetservice${new_depreciationRegime_url}")
+            .delete("/services/fixedassetservice${new_depreciationRegime_url}")
             .headers(headers_http_authenticated))
             .pause(10)
         }
