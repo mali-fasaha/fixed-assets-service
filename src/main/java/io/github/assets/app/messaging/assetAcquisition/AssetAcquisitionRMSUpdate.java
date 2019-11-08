@@ -5,7 +5,6 @@ import io.github.assets.app.messaging.MessageService;
 import io.github.assets.app.messaging.StringedTokenMessageService;
 import io.github.assets.app.messaging.TokenizableMessage;
 import io.github.assets.app.util.TokenGenerator;
-import io.github.assets.domain.MessageToken;
 import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.dto.MessageTokenDTO;
@@ -23,20 +22,13 @@ import javax.transaction.Transactional;
 @Service("assetAcquisitionRMSUpdate")
 public class AssetAcquisitionRMSUpdate implements MessageService<AssetAcquisitionDTO> {
 
-    private final MessageTokenService messageTokenService;
-    private final TokenGenerator tokenGenerator;
-    private final AssetAcquisitionResourceStreams assetAcquisitionResourceStreams;
     private final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper;
     MessageService<TokenizableMessage<String>> messageService;
 
     public AssetAcquisitionRMSUpdate(final MessageTokenService messageTokenService, final TokenGenerator tokenGenerator, final AssetAcquisitionResourceStreams assetAcquisitionResourceStreams,
                                      final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper, final MessageTokenMapper messageTokenMapper) {
-        this.messageTokenService = messageTokenService;
-        this.tokenGenerator = tokenGenerator;
-        this.assetAcquisitionResourceStreams = assetAcquisitionResourceStreams;
         this.assetAcquisitionMTOMapper = assetAcquisitionMTOMapper;
-        messageService = new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundUpdateResource(),
-                                                                                                    messageTokenMapper);
+        messageService = new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundUpdateResource(), messageTokenMapper);
     }
 
     /**

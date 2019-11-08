@@ -26,9 +26,6 @@ public class AssetAcquisitionMTOMapper implements Mapping<AssetAcquisitionDTO, A
         assetAcquisitionDTO.setPurchaseAmount(toScaledBigDecimal(vs.getPurchaseAmount()));
         assetAcquisitionDTO.setAssetDealerId(vs.getAssetDealerId());
         assetAcquisitionDTO.setAssetInvoiceId(vs.getAssetInvoiceId());
-        // TODO confirm effects of this mutation
-        // TODO .timestamp(System.currentTimeMillis())
-        // TODO .messageToken(vs.getMessageToken)
         return assetAcquisitionDTO;
     }
 

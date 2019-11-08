@@ -2,16 +2,11 @@ package io.github.assets.app.messaging.assetAcquisition;
 
 import io.github.assets.app.messaging.DeleteMessageDTO;
 import io.github.assets.app.messaging.EntityResource;
-import io.github.assets.app.messaging.Mapping;
 import io.github.assets.app.messaging.MuteResourceListener;
 import io.github.assets.app.messaging.TokenValueSearch;
-import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
-import io.github.assets.service.MessageTokenService;
-import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
