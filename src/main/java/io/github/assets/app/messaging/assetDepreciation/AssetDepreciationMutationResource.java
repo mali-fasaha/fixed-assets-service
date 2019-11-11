@@ -13,7 +13,7 @@ import java.net.URISyntaxException;
 
 @Slf4j
 @Transactional
-@Service("assetDepreciationMutationResourcee")
+@Service("assetDepreciationMutationResource")
 public class AssetDepreciationMutationResource implements MutationResource<AssetDepreciationDTO> {
 
     private final MessageTokenService messageTokenService;

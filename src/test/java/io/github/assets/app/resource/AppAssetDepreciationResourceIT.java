@@ -1,7 +1,8 @@
 package io.github.assets.app.resource;
 
 import io.github.assets.FixedAssetServiceApp;
-import io.github.assets.app.resource.decorator.AssetDepreciationResourceDecorator;
+import io.github.assets.app.messaging.MutationResource;
+import io.github.assets.app.messaging.assetDepreciation.AssetDepreciationResourceStreams;
 import io.github.assets.app.resource.decorator.IAssetDepreciationResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetDepreciation;
@@ -11,7 +12,6 @@ import io.github.assets.service.AssetDepreciationQueryService;
 import io.github.assets.service.AssetDepreciationService;
 import io.github.assets.service.dto.AssetDepreciationDTO;
 import io.github.assets.service.mapper.AssetDepreciationMapper;
-import io.github.assets.web.rest.AssetDepreciationResource;
 import io.github.assets.web.rest.TestUtil;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -36,6 +37,7 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
+import static io.github.assets.app.AppConstants.DATETIME_FORMATTER;
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
@@ -108,6 +110,9 @@ public class AppAssetDepreciationResourceIT {
     @Autowired
     private Validator validator;
 
+    @Autowired
+    private MessageCollector messageCollector;
+
     private MockMvc restAssetDepreciationMockMvc;
 
     private AssetDepreciation assetDepreciation;
@@ -115,47 +120,51 @@ public class AppAssetDepreciationResourceIT {
     @Autowired
     private IAssetDepreciationResource assetDepreciationResourceDecorator;
 
+    @Autowired
+    private AssetDepreciationResourceStreams assetDepreciationResourceStreams;
+
+    @Autowired
+    private MutationResource<AssetDepreciationDTO> assetDepreciationMutationResource;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
         // ! Using decorator resource
-        final IAssetDepreciationResource assetDepreciationResource = new AppAssetDepreciationResource(assetDepreciationResourceDecorator);
+        final IAssetDepreciationResource assetDepreciationResource = new AppAssetDepreciationResource(assetDepreciationResourceDecorator, assetDepreciationMutationResource);
         this.restAssetDepreciationMockMvc = MockMvcBuilders.standaloneSetup(assetDepreciationResource)
                                                            .setCustomArgumentResolvers(pageableArgumentResolver)
                                                            .setControllerAdvice(exceptionTranslator)
                                                            .setConversionService(createFormattingConversionService())
                                                            .setMessageConverters(jacksonMessageConverter)
-                                                           .setValidator(validator).build();
+                                                           .setValidator(validator)
+                                                           .build();
     }
 
     /**
      * Create an entity for this test.
-     *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * <p>
+     * This is a static method, as tests for other entities might also need it, if they test an entity which requires the current entity.
      */
     public static AssetDepreciation createEntity(EntityManager em) {
-        AssetDepreciation assetDepreciation = new AssetDepreciation()
-            .description(DEFAULT_DESCRIPTION)
-            .depreciationAmount(DEFAULT_DEPRECIATION_AMOUNT)
-            .depreciationDate(DEFAULT_DEPRECIATION_DATE)
-            .categoryId(DEFAULT_CATEGORY_ID)
-            .assetItemId(DEFAULT_ASSET_ITEM_ID);
+        AssetDepreciation assetDepreciation = new AssetDepreciation().description(DEFAULT_DESCRIPTION)
+                                                                     .depreciationAmount(DEFAULT_DEPRECIATION_AMOUNT)
+                                                                     .depreciationDate(DEFAULT_DEPRECIATION_DATE)
+                                                                     .categoryId(DEFAULT_CATEGORY_ID)
+                                                                     .assetItemId(DEFAULT_ASSET_ITEM_ID);
         return assetDepreciation;
     }
+
     /**
      * Create an updated entity for this test.
-     *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * <p>
+     * This is a static method, as tests for other entities might also need it, if they test an entity which requires the current entity.
      */
     public static AssetDepreciation createUpdatedEntity(EntityManager em) {
-        AssetDepreciation assetDepreciation = new AssetDepreciation()
-            .description(UPDATED_DESCRIPTION)
-            .depreciationAmount(UPDATED_DEPRECIATION_AMOUNT)
-            .depreciationDate(UPDATED_DEPRECIATION_DATE)
-            .categoryId(UPDATED_CATEGORY_ID)
-            .assetItemId(UPDATED_ASSET_ITEM_ID);
+        AssetDepreciation assetDepreciation = new AssetDepreciation().description(UPDATED_DESCRIPTION)
+                                                                     .depreciationAmount(UPDATED_DEPRECIATION_AMOUNT)
+                                                                     .depreciationDate(UPDATED_DEPRECIATION_DATE)
+                                                                     .categoryId(UPDATED_CATEGORY_ID)
+                                                                     .assetItemId(UPDATED_ASSET_ITEM_ID);
         return assetDepreciation;
     }
 
@@ -171,23 +180,18 @@ public class AppAssetDepreciationResourceIT {
 
         // Create the AssetDepreciation
         AssetDepreciationDTO assetDepreciationDTO = assetDepreciationMapper.toDto(assetDepreciation);
-        restAssetDepreciationMockMvc.perform(post("/api/app/asset-depreciations")
-                                                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                                 .content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
-                                    .andExpect(status().isCreated());
+        restAssetDepreciationMockMvc.perform(post("/api/app/asset-depreciations").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
+                                    // ! Implement create response
+                                    .andExpect(status().isOk());
 
-        // Validate the AssetDepreciation in the database
-        List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
-        assertThat(assetDepreciationList).hasSize(databaseSizeBeforeCreate + 1);
-        AssetDepreciation testAssetDepreciation = assetDepreciationList.get(assetDepreciationList.size() - 1);
-        assertThat(testAssetDepreciation.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertThat(testAssetDepreciation.getDepreciationAmount()).isEqualTo(DEFAULT_DEPRECIATION_AMOUNT);
-        assertThat(testAssetDepreciation.getDepreciationDate()).isEqualTo(DEFAULT_DEPRECIATION_DATE);
-        assertThat(testAssetDepreciation.getCategoryId()).isEqualTo(DEFAULT_CATEGORY_ID);
-        assertThat(testAssetDepreciation.getAssetItemId()).isEqualTo(DEFAULT_ASSET_ITEM_ID);
+        Object payload = messageCollector.forChannel(assetDepreciationResourceStreams.outboundCreateResource()).poll().getPayload();
 
-        // Validate the AssetDepreciation in Elasticsearch
-        verify(mockAssetDepreciationSearchRepository, times(1)).save(testAssetDepreciation);
+        assertThat(payload).isNotNull();
+        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_DESCRIPTION));
+        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_DEPRECIATION_AMOUNT));
+        assertThat(payload.toString()).containsSequence(String.valueOf(DATETIME_FORMATTER.format(DEFAULT_DEPRECIATION_DATE)));
+        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_CATEGORY_ID));
+        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_ASSET_ITEM_ID));
     }
 
     @Test
@@ -200,9 +204,7 @@ public class AppAssetDepreciationResourceIT {
         AssetDepreciationDTO assetDepreciationDTO = assetDepreciationMapper.toDto(assetDepreciation);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restAssetDepreciationMockMvc.perform(post("/api/app/asset-depreciations")
-                                                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                                 .content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
+        restAssetDepreciationMockMvc.perform(post("/api/app/asset-depreciations").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
                                     .andExpect(status().isBadRequest());
 
         // Validate the AssetDepreciation in the database
@@ -224,9 +226,7 @@ public class AppAssetDepreciationResourceIT {
         // Create the AssetDepreciation, which fails.
         AssetDepreciationDTO assetDepreciationDTO = assetDepreciationMapper.toDto(assetDepreciation);
 
-        restAssetDepreciationMockMvc.perform(post("/api/app/asset-depreciations")
-                                                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                                 .content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
+        restAssetDepreciationMockMvc.perform(post("/api/app/asset-depreciations").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
                                     .andExpect(status().isBadRequest());
 
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
@@ -243,9 +243,7 @@ public class AppAssetDepreciationResourceIT {
         // Create the AssetDepreciation, which fails.
         AssetDepreciationDTO assetDepreciationDTO = assetDepreciationMapper.toDto(assetDepreciation);
 
-        restAssetDepreciationMockMvc.perform(post("/api/app/asset-depreciations")
-                                                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                                 .content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
+        restAssetDepreciationMockMvc.perform(post("/api/app/asset-depreciations").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
                                     .andExpect(status().isBadRequest());
 
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
@@ -339,6 +337,7 @@ public class AppAssetDepreciationResourceIT {
         // Get all the assetDepreciationList where description is null
         defaultAssetDepreciationShouldNotBeFound("description.specified=false");
     }
+
     @Test
     @Transactional
     public void getAllAssetDepreciationsByDescriptionContainsSomething() throws Exception {
@@ -828,8 +827,7 @@ public class AppAssetDepreciationResourceIT {
     @Transactional
     public void getNonExistingAssetDepreciation() throws Exception {
         // Get the assetDepreciation
-        restAssetDepreciationMockMvc.perform(get("/api/app/asset-depreciations/{id}", Long.MAX_VALUE))
-                                    .andExpect(status().isNotFound());
+        restAssetDepreciationMockMvc.perform(get("/api/app/asset-depreciations/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
     }
 
     @Test
@@ -844,31 +842,38 @@ public class AppAssetDepreciationResourceIT {
         AssetDepreciation updatedAssetDepreciation = assetDepreciationRepository.findById(assetDepreciation.getId()).get();
         // Disconnect from session so that the updates on updatedAssetDepreciation are not directly saved in db
         em.detach(updatedAssetDepreciation);
-        updatedAssetDepreciation
-            .description(UPDATED_DESCRIPTION)
-            .depreciationAmount(UPDATED_DEPRECIATION_AMOUNT)
-            .depreciationDate(UPDATED_DEPRECIATION_DATE)
-            .categoryId(UPDATED_CATEGORY_ID)
-            .assetItemId(UPDATED_ASSET_ITEM_ID);
+        updatedAssetDepreciation.description(UPDATED_DESCRIPTION)
+                                .depreciationAmount(UPDATED_DEPRECIATION_AMOUNT)
+                                .depreciationDate(UPDATED_DEPRECIATION_DATE)
+                                .categoryId(UPDATED_CATEGORY_ID)
+                                .assetItemId(UPDATED_ASSET_ITEM_ID);
         AssetDepreciationDTO assetDepreciationDTO = assetDepreciationMapper.toDto(updatedAssetDepreciation);
 
-        restAssetDepreciationMockMvc.perform(put("/api/app/asset-depreciations")
-                                                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                                 .content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
+        restAssetDepreciationMockMvc.perform(put("/api/app/asset-depreciations").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
                                     .andExpect(status().isOk());
 
         // Validate the AssetDepreciation in the database
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeUpdate);
         AssetDepreciation testAssetDepreciation = assetDepreciationList.get(assetDepreciationList.size() - 1);
-        assertThat(testAssetDepreciation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-        assertThat(testAssetDepreciation.getDepreciationAmount()).isEqualTo(UPDATED_DEPRECIATION_AMOUNT);
-        assertThat(testAssetDepreciation.getDepreciationDate()).isEqualTo(UPDATED_DEPRECIATION_DATE);
-        assertThat(testAssetDepreciation.getCategoryId()).isEqualTo(UPDATED_CATEGORY_ID);
-        assertThat(testAssetDepreciation.getAssetItemId()).isEqualTo(UPDATED_ASSET_ITEM_ID);
 
-        // Validate the AssetDepreciation in Elasticsearch
-        verify(mockAssetDepreciationSearchRepository, times(1)).save(testAssetDepreciation);
+        Object payload = messageCollector.forChannel(assetDepreciationResourceStreams.outboundUpdateResource()).poll().getPayload();
+
+        assertThat(payload).isNotNull();
+        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_DESCRIPTION));
+        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_DEPRECIATION_AMOUNT.toPlainString()));
+        assertThat(payload.toString()).containsSequence(DATETIME_FORMATTER.format(UPDATED_DEPRECIATION_DATE));
+        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_CATEGORY_ID));
+        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_ASSET_ITEM_ID));
+
+        //        assertThat(testAssetDepreciation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        //        assertThat(testAssetDepreciation.getDepreciationAmount()).isEqualTo(UPDATED_DEPRECIATION_AMOUNT);
+        //        assertThat(testAssetDepreciation.getDepreciationDate()).isEqualTo(UPDATED_DEPRECIATION_DATE);
+        //        assertThat(testAssetDepreciation.getCategoryId()).isEqualTo(UPDATED_CATEGORY_ID);
+        //        assertThat(testAssetDepreciation.getAssetItemId()).isEqualTo(UPDATED_ASSET_ITEM_ID);
+        //
+        //        // Validate the AssetDepreciation in Elasticsearch
+        //        verify(mockAssetDepreciationSearchRepository, times(1)).save(testAssetDepreciation);
     }
 
     @Test
@@ -880,9 +885,7 @@ public class AppAssetDepreciationResourceIT {
         AssetDepreciationDTO assetDepreciationDTO = assetDepreciationMapper.toDto(assetDepreciation);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restAssetDepreciationMockMvc.perform(put("/api/app/asset-depreciations")
-                                                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                                 .content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
+        restAssetDepreciationMockMvc.perform(put("/api/app/asset-depreciations").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
                                     .andExpect(status().isBadRequest());
 
         // Validate the AssetDepreciation in the database
@@ -902,16 +905,19 @@ public class AppAssetDepreciationResourceIT {
         int databaseSizeBeforeDelete = assetDepreciationRepository.findAll().size();
 
         // Delete the assetDepreciation
-        restAssetDepreciationMockMvc.perform(delete("/api/app/asset-depreciations/{id}", assetDepreciation.getId())
-                                                 .accept(TestUtil.APPLICATION_JSON_UTF8))
-                                    .andExpect(status().isNoContent());
+        restAssetDepreciationMockMvc.perform(delete("/api/app/asset-depreciations/{id}", assetDepreciation.getId()).accept(TestUtil.APPLICATION_JSON_UTF8)).andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
-        List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
-        assertThat(assetDepreciationList).hasSize(databaseSizeBeforeDelete - 1);
+        Object payload = messageCollector.forChannel(assetDepreciationResourceStreams.outboundDeleteResource()).poll().getPayload();
 
-        // Validate the AssetDepreciation in Elasticsearch
-        verify(mockAssetDepreciationSearchRepository, times(1)).deleteById(assetDepreciation.getId());
+        assertThat(payload).isNotNull();
+        assertThat(payload.toString()).containsSequence(String.valueOf(assetDepreciation.getId()));
+
+        //        // Validate the database contains one less item
+        //        List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
+        //        assertThat(assetDepreciationList).hasSize(databaseSizeBeforeDelete - 1);
+        //
+        //        // Validate the AssetDepreciation in Elasticsearch
+        //        verify(mockAssetDepreciationSearchRepository, times(1)).deleteById(assetDepreciation.getId());
     }
 
     @Test
@@ -919,8 +925,8 @@ public class AppAssetDepreciationResourceIT {
     public void searchAssetDepreciation() throws Exception {
         // Initialize the database
         assetDepreciationRepository.saveAndFlush(assetDepreciation);
-        when(mockAssetDepreciationSearchRepository.search(queryStringQuery("id:" + assetDepreciation.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(assetDepreciation), PageRequest.of(0, 1), 1));
+        when(mockAssetDepreciationSearchRepository.search(queryStringQuery("id:" + assetDepreciation.getId()), PageRequest.of(0, 20))).thenReturn(
+            new PageImpl<>(Collections.singletonList(assetDepreciation), PageRequest.of(0, 1), 1));
         // Search the assetDepreciation
         restAssetDepreciationMockMvc.perform(get("/api/app/_search/asset-depreciations?query=id:" + assetDepreciation.getId()))
                                     .andExpect(status().isOk())
