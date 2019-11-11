@@ -17,22 +17,22 @@ public interface AssetAcquisitionResourceStreams {
     String DELETE_RESOURCES_IN = "asset-acquisition-resource-delete-in";
     String DELETE_RESOURCES_OUT = "asset-acquisition-resource-delete-out";
 
-    @Input(AssetAcquisitionResourceStreams.CREATE_RESOURCE_IN)
+    @Input(CREATE_RESOURCE_IN)
     SubscribableChannel inboundCreateResource();
 
-    @Output(AssetAcquisitionResourceStreams.CREATE_RESOURCE_OUT)
+    @Output(CREATE_RESOURCE_OUT)
     MessageChannel outboundCreateResource();
 
-    @Input(AssetAcquisitionResourceStreams.UPDATE_RESOURCES_IN)
+    @Input(UPDATE_RESOURCES_IN)
     SubscribableChannel inboundUpdateResource();
 
-    @Output(AssetAcquisitionResourceStreams.UPDATE_RESOURCES_OUT)
+    @Output(UPDATE_RESOURCES_OUT)
     MessageChannel outboundUpdateResource();
 
-    @Input(AssetAcquisitionResourceStreams.DELETE_RESOURCES_IN)
+    @Input(DELETE_RESOURCES_IN)
     SubscribableChannel inboundDeleteResource();
 
-    @Output(AssetAcquisitionResourceStreams.DELETE_RESOURCES_OUT)
+    @Output(DELETE_RESOURCES_OUT)
     MessageChannel outboundDeleteResource();
 
 }

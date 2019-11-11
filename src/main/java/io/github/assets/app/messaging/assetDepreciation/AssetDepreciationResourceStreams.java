@@ -1,6 +1,5 @@
 package io.github.assets.app.messaging.assetDepreciation;
 
-import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionResourceStreams;
 import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
