@@ -4,9 +4,9 @@ import java.net.URISyntaxException;
 
 public interface MuteResourceListener<MTO> {
 
-    void createEntityAcquisition(MTO dto) throws URISyntaxException;
+    void createEntity(MTO dto) throws URISyntaxException;
 
-    void updateEntityAcquisition(MTO dto) throws URISyntaxException;
+    void updateEntity(MTO dto) throws URISyntaxException;
 
     void deleteEntity(DeleteMessageDTO deleteMessageDTO);
 }

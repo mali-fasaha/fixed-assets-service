@@ -232,7 +232,7 @@ public class AppAssetAcquisitionResourceIT {
         assertThat(mq).isNotNull();
         assertThat(mq.contains(assetAcquisitionDTO));
 
-//        verify(assetAcquisitionMuteResourceListener, times(1)).createEntityAcquisition(assetAcquisitionMTOMapper.toValue2(assetAcquisitionDTO));
+//        verify(assetAcquisitionMuteResourceListener, times(1)).createEntity(assetAcquisitionMTOMapper.toValue2(assetAcquisitionDTO));
 
         //        // TODO confirm why persistence is not responsive
         //        // Validate the AssetAcquisition in the database
