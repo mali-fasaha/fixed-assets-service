@@ -19,7 +19,7 @@ import javax.transaction.Transactional;
 public class AssetAcquisitionRMSUpdate implements MessageService<AssetAcquisitionDTO> {
 
     private final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetMTOMapper;
-    MessageService<TokenizableMessage<String>> messageService;
+    private MessageService<TokenizableMessage<String>> messageService;
 
     public AssetAcquisitionRMSUpdate(Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper, MessageService<TokenizableMessage<String>> assetAcquisitionUpdateMessageService) {
         this.assetMTOMapper = assetAcquisitionMTOMapper;
