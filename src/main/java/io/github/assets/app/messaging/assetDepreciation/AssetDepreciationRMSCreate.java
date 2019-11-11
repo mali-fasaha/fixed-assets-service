@@ -3,8 +3,6 @@ package io.github.assets.app.messaging.assetDepreciation;
 import io.github.assets.app.messaging.Mapping;
 import io.github.assets.app.messaging.MessageService;
 import io.github.assets.app.messaging.TokenizableMessage;
-import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionMTO;
-import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.dto.AssetDepreciationDTO;
 import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +18,8 @@ public class AssetDepreciationRMSCreate implements MessageService<AssetDepreciat
     private final Mapping<AssetDepreciationDTO, AssetDepreciationMTO> assetMTOMapper;
     private final MessageService<TokenizableMessage<String>> messageService;
 
-    public AssetDepreciationRMSCreate(final Mapping<AssetDepreciationDTO, AssetDepreciationMTO> assetDepreciationMTOMapping, final MessageService<TokenizableMessage<String>> assetDepreciationCreateMessageService) {
+    public AssetDepreciationRMSCreate(final Mapping<AssetDepreciationDTO, AssetDepreciationMTO> assetDepreciationMTOMapping,
+                                      final MessageService<TokenizableMessage<String>> assetDepreciationCreateMessageService) {
         this.assetMTOMapper = assetDepreciationMTOMapping;
         this.messageService = assetDepreciationCreateMessageService;
     }

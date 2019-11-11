@@ -34,9 +34,29 @@ public class MessageServiceConfigurations {
         return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundCreateResource(), messageTokenMapper);
     }
 
+    @Bean("assetAcquisitionUpdateMessageService")
+    public MessageService<TokenizableMessage<String>> assetAcquisitionUpdateMessageService(){
+
+        return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundUpdateResource(), messageTokenMapper);
+    }
+
+    @Bean("assetAcquisitionDeleteMessageService")
+    public MessageService<TokenizableMessage<String>> assetAcquisitionDeleteMessageService(){
+
+        return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundDeleteResource(), messageTokenMapper);
+    }
+
     @Bean("assetDepreciationCreateMessageService")
     public MessageService<TokenizableMessage<String>> assetDepreciationCreateMessageService(){
 
         return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetDepreciationResourceStreams.outboundCreateResource(), messageTokenMapper);
     }
+
+    @Bean("assetDepreciationUpdateMessageService")
+    public MessageService<TokenizableMessage<String>> assetDepreciationUpdateMessageService(){
+
+        return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetDepreciationResourceStreams.outboundUpdateResource(), messageTokenMapper);
+    }
+
+
 }

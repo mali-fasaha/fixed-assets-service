@@ -2,13 +2,9 @@ package io.github.assets.app.messaging.assetAcquisition;
 
 import io.github.assets.app.messaging.Mapping;
 import io.github.assets.app.messaging.MessageService;
-import io.github.assets.app.messaging.StringedTokenMessageService;
 import io.github.assets.app.messaging.TokenizableMessage;
-import io.github.assets.app.util.TokenGenerator;
-import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.dto.MessageTokenDTO;
-import io.github.assets.service.mapper.MessageTokenMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +35,7 @@ public class AssetAcquisitionRMSCreate implements MessageService<AssetAcquisitio
      */
     public MessageTokenDTO sendMessage(final AssetAcquisitionDTO assetAcquisitionDTO) {
 
-        // TODO update timestamp
+        // ? update timestamp
         log.debug("Al a carte create api has received entity {} and is enqueuing to the stream...", assetAcquisitionDTO);
 
         return messageService.sendMessage(assetAcquisitionMTOMapper.toValue2(assetAcquisitionDTO));
