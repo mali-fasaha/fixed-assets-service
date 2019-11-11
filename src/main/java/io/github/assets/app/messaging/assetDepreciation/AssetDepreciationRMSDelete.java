@@ -1,6 +1,8 @@
 package io.github.assets.app.messaging.assetDepreciation;
 
+import io.github.assets.app.messaging.DeleteMessageDTO;
 import io.github.assets.app.messaging.MessageService;
+import io.github.assets.app.messaging.TokenizableMessage;
 import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,12 @@ import javax.transaction.Transactional;
 @Service("assetDepreciationRMSDelete")
 public class AssetDepreciationRMSDelete implements MessageService<Long> {
 
+    private final MessageService<TokenizableMessage<String>> messageService;
+
+    public AssetDepreciationRMSDelete(MessageService<TokenizableMessage<String>> assetDepreciationDeleteMessageService) {
+        this.messageService = assetDepreciationDeleteMessageService;
+    }
+
     /**
      * This method sends a services of type T into a queue destination and returns a token id.
      *
@@ -20,6 +28,10 @@ public class AssetDepreciationRMSDelete implements MessageService<Long> {
      */
     @Override
     public MessageTokenDTO sendMessage(final Long message) {
-        return null;
+
+        // ? update timestamp
+        log.debug("Al a carte delete api has received request for Id {} and is enqueuing to the stream...", message);
+
+        return messageService.sendMessage(DeleteMessageDTO.builder().id(message).description("Delete Asset-Entity request id : " + message).build());
     }
 }

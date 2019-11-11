@@ -58,5 +58,11 @@ public class MessageServiceConfigurations {
         return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetDepreciationResourceStreams.outboundUpdateResource(), messageTokenMapper);
     }
 
+    @Bean("assetDepreciationDeleteMessageService")
+    public MessageService<TokenizableMessage<String>> assetDepreciationDeleteMessageService(){
+
+        return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetDepreciationResourceStreams.outboundDeleteResource(), messageTokenMapper);
+    }
+
 
 }
