@@ -23,14 +23,13 @@ import javax.transaction.Transactional;
 public class AssetAcquisitionRMSCreate implements MessageService<AssetAcquisitionDTO> {
 
     private final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper;
-
     private final MessageService<TokenizableMessage<String>> messageService;
 
-    public AssetAcquisitionRMSCreate(final MessageTokenService messageTokenService, final TokenGenerator tokenGenerator, final AssetAcquisitionResourceStreams assetAcquisitionResourceStreams,
-                                     final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper, final MessageTokenMapper messageTokenMapper) {
-        this.assetAcquisitionMTOMapper = assetAcquisitionMTOMapper;
 
-        messageService = new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundCreateResource(), messageTokenMapper);
+    public AssetAcquisitionRMSCreate(final Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper,
+                                     final MessageService<TokenizableMessage<String>> assetAcquisitionCreateMessageService) {
+        this.assetAcquisitionMTOMapper = assetAcquisitionMTOMapper;
+        this.messageService = assetAcquisitionCreateMessageService;
     }
 
     /**
