@@ -139,6 +139,24 @@ spring:
           asset-acquisition-resource-delete-out:
             destination: assetAcquisitionsDelete
             contentType: application/json
+          asset-depreciation-resource-create-in:
+            destination: assetDepreciationsCreate
+            contentType: application/json
+          asset-depreciation-resource-create-out:
+            destination: assetDepreciationsCreate
+            contentType: application/json
+          asset-depreciation-resource-update-in:
+            destination: assetDepreciationsUpdate
+            contentType: application/json
+          asset-depreciation-resource-update-out:
+            destination: assetDepreciationsUpdate
+            contentType: application/json
+          asset-depreciation-resource-delete-in:
+            destination: assetDepreciationsDelete
+            contentType: application/json
+          asset-depreciation-resource-delete-out:
+            destination: assetDepreciationsDelete
+            contentType: application/json
   autoconfigure:
     exclude: org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
   application:
