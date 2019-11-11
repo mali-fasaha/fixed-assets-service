@@ -28,7 +28,7 @@ public class AssetAcquisitionMuteResourceListener implements MuteResourceListene
 
     @Override
     @StreamListener(AssetAcquisitionResourceStreams.CREATE_RESOURCE_IN)
-    public void createAssetAcquisition(@Payload AssetAcquisitionMTO assetAcquisitionMTO) throws URISyntaxException {
+    public void createEntityAcquisition(@Payload AssetAcquisitionMTO assetAcquisitionMTO) throws URISyntaxException {
 
         log.debug("Resource DTO received for action : {}", assetAcquisitionMTO);
 
@@ -41,7 +41,7 @@ public class AssetAcquisitionMuteResourceListener implements MuteResourceListene
 
     @Override
     @StreamListener(AssetAcquisitionResourceStreams.UPDATE_RESOURCES_IN)
-    public void updateAssetAcquisition(@Payload AssetAcquisitionMTO assetAcquisitionMTO) throws URISyntaxException {
+    public void updateEntityAcquisition(@Payload AssetAcquisitionMTO assetAcquisitionMTO) throws URISyntaxException {
 
         log.debug("Resource DTO received for action : {}", assetAcquisitionMTO);
 

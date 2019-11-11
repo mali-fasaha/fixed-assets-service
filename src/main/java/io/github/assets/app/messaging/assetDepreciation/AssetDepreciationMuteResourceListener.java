@@ -8,12 +8,12 @@ import java.net.URISyntaxException;
 public class AssetDepreciationMuteResourceListener implements MuteResourceListener<AssetDepreciationMTO> {
 
     @Override
-    public void createAssetAcquisition(final AssetDepreciationMTO dto) throws URISyntaxException {
+    public void createEntityAcquisition(final AssetDepreciationMTO dto) throws URISyntaxException {
 
     }
 
     @Override
-    public void updateAssetAcquisition(final AssetDepreciationMTO dto) throws URISyntaxException {
+    public void updateEntityAcquisition(final AssetDepreciationMTO dto) throws URISyntaxException {
 
     }
 
