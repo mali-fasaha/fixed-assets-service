@@ -3,6 +3,7 @@ package io.github.assets.app.messaging;
 import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionMTO;
 import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionResourceStreams;
 import io.github.assets.app.messaging.assetDepreciation.AssetDepreciationResourceStreams;
+import io.github.assets.app.messaging.fileUpload.FileUploadResourceStreams;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
@@ -24,6 +25,8 @@ public class MessageServiceConfigurations {
     private AssetAcquisitionResourceStreams assetAcquisitionResourceStreams;
     @Autowired
     private AssetDepreciationResourceStreams assetDepreciationResourceStreams;
+    @Autowired
+    private FileUploadResourceStreams fileUploadResourceStreams;
     @Autowired
     private Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper;
 
@@ -61,6 +64,24 @@ public class MessageServiceConfigurations {
     public MessageService<TokenizableMessage<String>> assetDepreciationDeleteMessageService() {
 
         return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetDepreciationResourceStreams.outboundDeleteResource(), messageTokenMapper);
+    }
+
+    @Bean("fileUploadCreateMessageService")
+    public MessageService<TokenizableMessage<String>> fileUploadCreateMessageService() {
+
+        return new StringedTokenMessageService(tokenGenerator, messageTokenService, fileUploadResourceStreams.outboundCreateResource(), messageTokenMapper);
+    }
+
+    @Bean("fileUploadUpdateMessageService")
+    public MessageService<TokenizableMessage<String>> fileUploadUpdateMessageService() {
+
+        return new StringedTokenMessageService(tokenGenerator, messageTokenService, fileUploadResourceStreams.outboundUpdateResource(), messageTokenMapper);
+    }
+
+    @Bean("fileUploadDeleteMessageService")
+    public MessageService<TokenizableMessage<String>> fileUploadDeleteMessageService() {
+
+        return new StringedTokenMessageService(tokenGenerator, messageTokenService, fileUploadResourceStreams.outboundDeleteResource(), messageTokenMapper);
     }
 
 
