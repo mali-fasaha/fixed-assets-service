@@ -1,10 +1,16 @@
 package io.github.assets.app.resource;
 
+import io.github.assets.app.messaging.MutationResource;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
+import io.github.assets.domain.MessageToken;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
+import io.github.assets.service.dto.MessageTokenDTO;
+import io.github.assets.web.rest.errors.BadRequestAlertException;
+import io.github.jhipster.web.util.HeaderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
@@ -20,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -33,10 +40,17 @@ import java.util.List;
 @RequestMapping("/api/app")
 public class AppFileUploadResource implements IFileUploadResource {
 
-    private final IFileUploadResource fileUploadResource;
+    private static final String ENTITY_NAME = "fixedAssetServiceFileUpload";
 
-    public AppFileUploadResource(final @Qualifier("fileUploadResourceDecorator") IFileUploadResource fileUploadResource) {
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
+
+    private final IFileUploadResource fileUploadResource;
+    private final MutationResource<FileUploadDTO> fileUploadMutationResource;
+
+    public AppFileUploadResource(final @Qualifier("fileUploadResourceDecorator") IFileUploadResource fileUploadResource, final MutationResource<FileUploadDTO> fileUploadMutationResource) {
         this.fileUploadResource = fileUploadResource;
+        this.fileUploadMutationResource = fileUploadMutationResource;
     }
 
     /**
@@ -50,9 +64,15 @@ public class AppFileUploadResource implements IFileUploadResource {
     @PostMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> createFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
-        ResponseEntity<FileUploadDTO> res = fileUploadResource.createFileUpload(fileUploadDTO);
+        if (fileUploadDTO.getId() != null) {
+            throw new BadRequestAlertException("A new fileUpload cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        MessageTokenDTO messageToken = fileUploadMutationResource.createEntity(fileUploadDTO);
 
-        return res;
+        // ! Attempting response with message tokens
+        return ResponseEntity.created(new URI("/api/message-tokens/" + messageToken.getId()))
+                             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, messageToken.getId().toString()))
+                             .body(fileUploadDTO);
     }
 
     /**
@@ -67,7 +87,12 @@ public class AppFileUploadResource implements IFileUploadResource {
     @PutMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> updateFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
-        return fileUploadResource.updateFileUpload(fileUploadDTO);
+        if (fileUploadDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        fileUploadMutationResource.updateEntity(fileUploadDTO);
+
+        return ResponseEntity.ok(fileUploadDTO);
     }
 
     /**
@@ -118,7 +143,9 @@ public class AppFileUploadResource implements IFileUploadResource {
     @DeleteMapping("/file-uploads/{id}")
     public ResponseEntity<Void> deleteFileUpload(@PathVariable Long id) {
 
-        return fileUploadResource.deleteFileUpload(id);
+        fileUploadMutationResource.deleteEntity(id);
+
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
     }
 
     /**

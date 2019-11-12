@@ -1,17 +1,20 @@
 package io.github.assets.app.resource;
 
 import io.github.assets.FixedAssetServiceApp;
-import io.github.assets.app.resource.decorator.FileUploadResourceDecorator;
+import io.github.assets.app.messaging.MutationResource;
+import io.github.assets.app.messaging.fileUpload.FileUploadResourceStreams;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.FileUpload;
+import io.github.assets.domain.MessageToken;
 import io.github.assets.repository.FileUploadRepository;
+import io.github.assets.repository.MessageTokenRepository;
 import io.github.assets.repository.search.FileUploadSearchRepository;
+import io.github.assets.repository.search.MessageTokenSearchRepository;
 import io.github.assets.service.FileUploadQueryService;
 import io.github.assets.service.FileUploadService;
 import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.service.mapper.FileUploadMapper;
-import io.github.assets.web.rest.FileUploadResource;
 import io.github.assets.web.rest.TestUtil;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +23,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -37,6 +42,7 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
+import static io.github.assets.app.AppConstants.DATETIME_FORMATTER;
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
@@ -94,6 +100,9 @@ class AppFileUploadResourceIT {
     private FileUploadRepository fileUploadRepository;
 
     @Autowired
+    private MessageTokenRepository messageTokenRepository;
+
+    @Autowired
     private FileUploadMapper fileUploadMapper;
 
     @Autowired
@@ -133,10 +142,22 @@ class AppFileUploadResourceIT {
     @Qualifier("fileUploadResourceDecorator")
     private IFileUploadResource fileUploadController;
 
+    @Autowired
+    private MutationResource<FileUploadDTO> fileUploadMutationResource;
+
+    @Autowired
+    private MessageTokenSearchRepository messageTokenSearchRepository;
+
+    @Autowired
+    private MessageCollector messageCollector;
+
+    @Autowired
+    private FileUploadResourceStreams fileUploadResourceStreams;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final IFileUploadResource fileUploadResource = new AppFileUploadResource(fileUploadController);
+        final IFileUploadResource fileUploadResource = new AppFileUploadResource(fileUploadController, fileUploadMutationResource);
         this.restFileUploadMockMvc = MockMvcBuilders.standaloneSetup(fileUploadResource)
                                                     .setCustomArgumentResolvers(pageableArgumentResolver)
                                                     .setControllerAdvice(exceptionTranslator)
@@ -195,6 +216,7 @@ class AppFileUploadResourceIT {
     @Transactional
     public void createFileUpload() throws Exception {
         int databaseSizeBeforeCreate = fileUploadRepository.findAll().size();
+        int tokenDatabaseBeforeCreate = messageTokenRepository.findAll().size();
 
         // Create the FileUpload
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
@@ -203,23 +225,39 @@ class AppFileUploadResourceIT {
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isCreated());
 
-        // Validate the FileUpload in the database
-        List<FileUpload> fileUploadList = fileUploadRepository.findAll();
-        assertThat(fileUploadList).hasSize(databaseSizeBeforeCreate + 1);
-        FileUpload testFileUpload = fileUploadList.get(fileUploadList.size() - 1);
-        assertThat(testFileUpload.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertThat(testFileUpload.getFileName()).isEqualTo(DEFAULT_FILE_NAME);
-        assertThat(testFileUpload.getPeriodFrom()).isEqualTo(DEFAULT_PERIOD_FROM);
-        assertThat(testFileUpload.getPeriodTo()).isEqualTo(DEFAULT_PERIOD_TO);
-        assertThat(testFileUpload.getFileTypeId()).isEqualTo(DEFAULT_FILE_TYPE_ID);
-        assertThat(testFileUpload.getDataFile()).isEqualTo(DEFAULT_DATA_FILE);
-        assertThat(testFileUpload.getDataFileContentType()).isEqualTo(DEFAULT_DATA_FILE_CONTENT_TYPE);
-        assertThat(testFileUpload.isUploadSuccessful()).isEqualTo(DEFAULT_UPLOAD_SUCCESSFUL);
-        assertThat(testFileUpload.isUploadProcessed()).isEqualTo(DEFAULT_UPLOAD_PROCESSED);
-        assertThat(testFileUpload.getUploadToken()).isEqualTo(DEFAULT_UPLOAD_TOKEN);
+        // * Message tokens created as side effect
+        List<MessageToken> messageTokenList = messageTokenRepository.findAll();
+        assertThat(messageTokenList).hasSize(databaseSizeBeforeCreate + 1);
+        MessageToken testMessageToken = messageTokenList.get(messageTokenList.size() - 1);
+        // * Validate the MessageToken in elasticSearch. Expect the method called at origin and destination
+        verify(messageTokenSearchRepository, times(2)).save(testMessageToken);
 
-        // Validate the FileUpload in Elasticsearch
-        verify(mockFileUploadSearchRepository, times(1)).save(testFileUpload);
+        Object payload = messageCollector.forChannel(fileUploadResourceStreams.outboundCreateResource()).poll().getPayload();
+
+        assertThat(payload).isNotNull();
+        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_DESCRIPTION));
+        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_FILE_NAME));
+        assertThat(payload.toString()).containsSequence(DATETIME_FORMATTER.format(DEFAULT_PERIOD_FROM));
+        assertThat(payload.toString()).containsSequence(DATETIME_FORMATTER.format(DEFAULT_PERIOD_TO));
+        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_FILE_TYPE_ID));
+        assertThat(payload.toString()).containsSequence(DEFAULT_DATA_FILE_CONTENT_TYPE);
+        assertThat(payload.toString()).containsSequence(DEFAULT_UPLOAD_TOKEN);
+        assertThat(payload.toString()).containsSequence("AA==");
+
+        // Validate the FileUpload in the database
+        //        List<FileUpload> fileUploadList = fileUploadRepository.findAll();
+        //        assertThat(fileUploadList).hasSize(databaseSizeBeforeCreate + 1);
+        //        FileUpload testFileUpload = fileUploadList.get(fileUploadList.size() - 1);
+        //        assertThat(testFileUpload.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        //        assertThat(testFileUpload.getFileName()).isEqualTo(DEFAULT_FILE_NAME);
+        //        assertThat(testFileUpload.getPeriodFrom()).isEqualTo(DEFAULT_PERIOD_FROM);
+        //        assertThat(testFileUpload.getPeriodTo()).isEqualTo(DEFAULT_PERIOD_TO);
+        //        assertThat(testFileUpload.getFileTypeId()).isEqualTo(DEFAULT_FILE_TYPE_ID);
+        //        assertThat(testFileUpload.getDataFile()).isEqualTo(DEFAULT_DATA_FILE);
+        //        assertThat(testFileUpload.getDataFileContentType()).isEqualTo(DEFAULT_DATA_FILE_CONTENT_TYPE);
+        //        assertThat(testFileUpload.isUploadSuccessful()).isEqualTo(DEFAULT_UPLOAD_SUCCESSFUL);
+        //        assertThat(testFileUpload.isUploadProcessed()).isEqualTo(DEFAULT_UPLOAD_PROCESSED);
+        //        assertThat(testFileUpload.getUploadToken()).isEqualTo(DEFAULT_UPLOAD_TOKEN);
     }
 
     @Test
@@ -826,6 +864,7 @@ class AppFileUploadResourceIT {
         fileUploadRepository.saveAndFlush(fileUpload);
 
         int databaseSizeBeforeUpdate = fileUploadRepository.findAll().size();
+        int tokenDatabaseBeforeCreate = messageTokenRepository.findAll().size();
 
         // Update the fileUpload
         FileUpload updatedFileUpload = fileUploadRepository.findById(fileUpload.getId()).get();
@@ -849,23 +888,43 @@ class AppFileUploadResourceIT {
                                           .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isOk());
 
-        // Validate the FileUpload in the database
-        List<FileUpload> fileUploadList = fileUploadRepository.findAll();
-        assertThat(fileUploadList).hasSize(databaseSizeBeforeUpdate);
-        FileUpload testFileUpload = fileUploadList.get(fileUploadList.size() - 1);
-        assertThat(testFileUpload.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-        assertThat(testFileUpload.getFileName()).isEqualTo(UPDATED_FILE_NAME);
-        assertThat(testFileUpload.getPeriodFrom()).isEqualTo(UPDATED_PERIOD_FROM);
-        assertThat(testFileUpload.getPeriodTo()).isEqualTo(UPDATED_PERIOD_TO);
-        assertThat(testFileUpload.getFileTypeId()).isEqualTo(UPDATED_FILE_TYPE_ID);
-        assertThat(testFileUpload.getDataFile()).isEqualTo(UPDATED_DATA_FILE);
-        assertThat(testFileUpload.getDataFileContentType()).isEqualTo(UPDATED_DATA_FILE_CONTENT_TYPE);
-        assertThat(testFileUpload.isUploadSuccessful()).isEqualTo(UPDATED_UPLOAD_SUCCESSFUL);
-        assertThat(testFileUpload.isUploadProcessed()).isEqualTo(UPDATED_UPLOAD_PROCESSED);
-        assertThat(testFileUpload.getUploadToken()).isEqualTo(UPDATED_UPLOAD_TOKEN);
+        // * Message tokens created as side effect
+        List<MessageToken> messageTokenList = messageTokenRepository.findAll();
+        // * Every request regardless of update or create produces a token
+        assertThat(messageTokenList).hasSize(tokenDatabaseBeforeCreate + 1);
+        MessageToken testMessageToken = messageTokenList.get(messageTokenList.size() - 1);
+        // * Validate the MessageToken in elasticSearch. Expect the method called at origin and destination
+        verify(messageTokenSearchRepository, times(2)).save(testMessageToken);
 
-        // Validate the FileUpload in Elasticsearch
-        verify(mockFileUploadSearchRepository, times(1)).save(testFileUpload);
+        Object payload = messageCollector.forChannel(fileUploadResourceStreams.outboundUpdateResource()).poll().getPayload();
+
+        assertThat(payload).isNotNull();
+        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_DESCRIPTION));
+        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_FILE_NAME));
+        assertThat(payload.toString()).containsSequence(DATETIME_FORMATTER.format(UPDATED_PERIOD_FROM));
+        assertThat(payload.toString()).containsSequence(DATETIME_FORMATTER.format(UPDATED_PERIOD_TO));
+        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_FILE_TYPE_ID));
+        assertThat(payload.toString()).containsSequence(UPDATED_DATA_FILE_CONTENT_TYPE);
+        assertThat(payload.toString()).containsSequence(UPDATED_UPLOAD_TOKEN);
+        assertThat(payload.toString()).containsSequence("AQ==");
+//
+//        // Validate the FileUpload in the database
+//        List<FileUpload> fileUploadList = fileUploadRepository.findAll();
+//        assertThat(fileUploadList).hasSize(databaseSizeBeforeUpdate);
+//        FileUpload testFileUpload = fileUploadList.get(fileUploadList.size() - 1);
+//        assertThat(testFileUpload.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+//        assertThat(testFileUpload.getFileName()).isEqualTo(UPDATED_FILE_NAME);
+//        assertThat(testFileUpload.getPeriodFrom()).isEqualTo(UPDATED_PERIOD_FROM);
+//        assertThat(testFileUpload.getPeriodTo()).isEqualTo(UPDATED_PERIOD_TO);
+//        assertThat(testFileUpload.getFileTypeId()).isEqualTo(UPDATED_FILE_TYPE_ID);
+//        assertThat(testFileUpload.getDataFile()).isEqualTo(UPDATED_DATA_FILE);
+//        assertThat(testFileUpload.getDataFileContentType()).isEqualTo(UPDATED_DATA_FILE_CONTENT_TYPE);
+//        assertThat(testFileUpload.isUploadSuccessful()).isEqualTo(UPDATED_UPLOAD_SUCCESSFUL);
+//        assertThat(testFileUpload.isUploadProcessed()).isEqualTo(UPDATED_UPLOAD_PROCESSED);
+//        assertThat(testFileUpload.getUploadToken()).isEqualTo(UPDATED_UPLOAD_TOKEN);
+//
+//        // Validate the FileUpload in Elasticsearch
+//        verify(mockFileUploadSearchRepository, times(1)).save(testFileUpload);
     }
 
     @Test
@@ -903,12 +962,26 @@ class AppFileUploadResourceIT {
                                           .accept(TestUtil.APPLICATION_JSON_UTF8))
                              .andExpect(status().isNoContent());
 
-        // Validate the database contains one less item
-        List<FileUpload> fileUploadList = fileUploadRepository.findAll();
-        assertThat(fileUploadList).hasSize(databaseSizeBeforeDelete - 1);
+        int tokenDatabaseBeforeCreate = messageTokenRepository.findAll().size();
+        // * Message tokens created as side effect
+        List<MessageToken> messageTokenList = messageTokenRepository.findAll();
+        // ! Every request regardless of update or create or delete produces a token
+        assertThat(messageTokenList).hasSize(tokenDatabaseBeforeCreate);
+        MessageToken testMessageToken = messageTokenList.get(messageTokenList.size() - 1);
+        // * Validate the MessageToken in elasticSearch. Expect the method called at origin and destination
+        verify(messageTokenSearchRepository, times(2)).save(testMessageToken);
 
-        // Validate the FileUpload in Elasticsearch
-        verify(mockFileUploadSearchRepository, times(1)).deleteById(fileUpload.getId());
+        Object payload = messageCollector.forChannel(fileUploadResourceStreams.outboundDeleteResource()).poll().getPayload();
+
+        assertThat(payload).isNotNull();
+        assertThat(payload.toString()).containsSequence(String.valueOf(fileUpload.getId()));
+
+//        // Validate the database contains one less item
+//        List<FileUpload> fileUploadList = fileUploadRepository.findAll();
+//        assertThat(fileUploadList).hasSize(databaseSizeBeforeDelete - 1);
+//
+//        // Validate the FileUpload in Elasticsearch
+//        verify(mockFileUploadSearchRepository, times(1)).deleteById(fileUpload.getId());
     }
 
     @Test

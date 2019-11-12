@@ -129,7 +129,7 @@ public class AppAssetDepreciationResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        // ! Using decorator resource
+        // * Using decorator resource
         final IAssetDepreciationResource assetDepreciationResource = new AppAssetDepreciationResource(assetDepreciationResourceDecorator, assetDepreciationMutationResource);
         this.restAssetDepreciationMockMvc = MockMvcBuilders.standaloneSetup(assetDepreciationResource)
                                                            .setCustomArgumentResolvers(pageableArgumentResolver)
