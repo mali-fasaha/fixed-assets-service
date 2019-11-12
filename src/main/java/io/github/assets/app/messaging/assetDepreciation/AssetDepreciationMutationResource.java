@@ -30,7 +30,7 @@ public class AssetDepreciationMutationResource implements MutationResource<Asset
     }
 
     @Override
-    public MessageTokenDTO createAssetAcquisition(final AssetDepreciationDTO assetDepreciationDTO) throws URISyntaxException {
+    public MessageTokenDTO createEntity(final AssetDepreciationDTO assetDepreciationDTO) throws URISyntaxException {
         log.debug("Request to create entity received for action : {} and delegated to al a carte creation api", assetDepreciationDTO);
         MessageTokenDTO tokenForEnqueued = assetDepreciationRMSCreate.sendMessage(assetDepreciationDTO);
         tokenForEnqueued.setContentFullyEnqueued(true);
@@ -38,7 +38,7 @@ public class AssetDepreciationMutationResource implements MutationResource<Asset
     }
 
     @Override
-    public MessageTokenDTO updateAssetAcquisition(final AssetDepreciationDTO assetDepreciationDTO) throws URISyntaxException {
+    public MessageTokenDTO updateEntity(final AssetDepreciationDTO assetDepreciationDTO) throws URISyntaxException {
         log.debug("Request to update entity id : {} received and delegated to al a carte update api", assetDepreciationDTO);
         MessageTokenDTO tokenForEnqueued = assetDepreciationRMSUpdate.sendMessage(assetDepreciationDTO);
         tokenForEnqueued.setContentFullyEnqueued(true);

@@ -57,7 +57,7 @@ public class AppAssetDepreciationResource implements IAssetDepreciationResource 
         if (assetDepreciationDTO.getId() != null) {
             throw new BadRequestAlertException("A new assetDepreciation cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        assetDepreciationMutationResource.createAssetAcquisition(assetDepreciationDTO);
+        assetDepreciationMutationResource.createEntity(assetDepreciationDTO);
         return ResponseEntity.ok(assetDepreciationDTO);
     }
 
@@ -75,7 +75,7 @@ public class AppAssetDepreciationResource implements IAssetDepreciationResource 
         if (assetDepreciationDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        assetDepreciationMutationResource.updateAssetAcquisition(assetDepreciationDTO);
+        assetDepreciationMutationResource.updateEntity(assetDepreciationDTO);
         return ResponseEntity.ok(assetDepreciationDTO);
     }
 

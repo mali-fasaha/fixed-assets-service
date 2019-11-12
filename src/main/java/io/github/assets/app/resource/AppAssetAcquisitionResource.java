@@ -60,7 +60,7 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
         if (assetAcquisitionDTO.getId() != null) {
             throw new BadRequestAlertException("A new assetAcquisition cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        assetAcquisitionMutationResource.createAssetAcquisition(assetAcquisitionDTO);
+        assetAcquisitionMutationResource.createEntity(assetAcquisitionDTO);
 
         return ResponseEntity.ok(assetAcquisitionDTO);
     }
@@ -80,7 +80,7 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        assetAcquisitionMutationResource.updateAssetAcquisition(assetAcquisitionDTO);
+        assetAcquisitionMutationResource.updateEntity(assetAcquisitionDTO);
 
         return ResponseEntity.ok(assetAcquisitionDTO);
     }
