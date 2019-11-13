@@ -10,7 +10,7 @@ import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.net.URISyntaxException;
 
 import static io.github.assets.app.messaging.assetDepreciation.AssetDepreciationResourceStreams.CREATE_RESOURCE_IN;

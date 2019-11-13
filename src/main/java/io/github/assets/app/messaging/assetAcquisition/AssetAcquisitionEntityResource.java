@@ -9,8 +9,8 @@ import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.dto.MessageTokenDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.net.URISyntaxException;
 
 @Transactional
