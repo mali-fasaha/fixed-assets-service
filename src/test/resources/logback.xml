@@ -4,7 +4,7 @@
 <configuration scan="true">
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <logger name="io.github.assets" level="INFO"/>
+    <logger name="io.github.assets" level="DEBUG"/>
 
     <logger name="io.github.jhipster" level="WARN"/>
 
@@ -44,7 +44,7 @@
     <logger name="sun.net.www" level="INFO"/>
     <logger name="sun.rmi.transport" level="WARN"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
 
