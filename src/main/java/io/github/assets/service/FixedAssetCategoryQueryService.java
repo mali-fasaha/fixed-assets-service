@@ -93,7 +93,7 @@ public class FixedAssetCategoryQueryService extends QueryService<FixedAssetCateg
         Specification<FixedAssetCategory> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), FixedAssetCategory_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), FixedAssetCategory_.id));
             }
             if (criteria.getCategoryName() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getCategoryName(), FixedAssetCategory_.categoryName));

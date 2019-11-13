@@ -103,78 +103,6 @@ management:
         auto-time-requests: true
 
 spring:
-  cloud:
-      stream:
-        kafka:
-          binder:
-            brokers: localhost:9092
-        bindings:
-          greetings-in:
-            destination: greetings
-            contentType: application/json
-          greetings-out:
-            destination: greetings
-            contentType: application/json
-          file-notifications-in:
-            destination: fileNotications
-            contentType: application/json
-          file-notifications-out:
-            destination: fileNotications
-            contentType: application/json
-          asset-acquisition-resource-create-in:
-            destination: assetAcquisitionsCreate
-            contentType: application/json
-          asset-acquisition-resource-create-out:
-            destination: assetAcquisitionsCreate
-            contentType: application/json
-          asset-acquisition-resource-update-in:
-            destination: assetAcquisitionsUpdate
-            contentType: application/json
-          asset-acquisition-resource-update-out:
-            destination: assetAcquisitionsUpdate
-            contentType: application/json
-          asset-acquisition-resource-delete-in:
-            destination: assetAcquisitionsDelete
-            contentType: application/json
-          asset-acquisition-resource-delete-out:
-            destination: assetAcquisitionsDelete
-            contentType: application/json
-          asset-depreciation-resource-create-in:
-            destination: assetDepreciationsCreate
-            contentType: application/json
-          asset-depreciation-resource-create-out:
-            destination: assetDepreciationsCreate
-            contentType: application/json
-          asset-depreciation-resource-update-in:
-            destination: assetDepreciationsUpdate
-            contentType: application/json
-          asset-depreciation-resource-update-out:
-            destination: assetDepreciationsUpdate
-            contentType: application/json
-          asset-depreciation-resource-delete-in:
-            destination: assetDepreciationsDelete
-            contentType: application/json
-          asset-depreciation-resource-delete-out:
-            destination: assetDepreciationsDelete
-            contentType: application/json
-          file-upload-resource-create-in:
-            destination: fileUploadsCreate
-            contentType: application/json
-          file-upload-resource-create-out:
-            destination: fileUploadsCreate
-            contentType: application/json
-          file-upload-resource-update-in:
-            destination: fileUploadsUpdate
-            contentType: application/json
-          file-upload-resource-update-out:
-            destination: fileUploadsUpdate
-            contentType: application/json
-          file-upload-resource-delete-in:
-            destination: fileUploadsDelete
-            contentType: application/json
-          file-upload-resource-delete-out:
-            destination: fileUploadsDelete
-            contentType: application/json
   autoconfigure:
     exclude: org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
   application:
@@ -260,16 +188,27 @@ jhipster:
   mail:
     from: fixedAssetService@localhost
   swagger:
-      default-include-pattern: /api/.*
-      title: Fixed Asset Service API
-      description: API for main fixed assets service
-      version: 0.0.5
-      terms-of-service-url: https://www.gnu.org/licenses/gpl-3.0.txt
-      contact-name: Edwin Njeru
-      contact-url: https://github.com/ghacupha
-      contact-email: mailnjeru@gmail.com
-      license: GPL version 3
-      license-url: https://github.com/ghacupha
+    default-include-pattern: /api/.*
+    title: fixedAssetService API
+    description: fixedAssetService API documentation
+    version: 0.0.1
+    terms-of-service-url:
+    contact-name:
+    contact-url:
+    contact-email:
+    license:
+    license-url:
+kafka:
+  consumer:
+    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    bootstrap.servers: localhost:9092
+    group.id: fixed-asset-service
+    auto.offset.reset: earliest
+  producer:
+    key.serializer: org.apache.kafka.common.serialization.StringSerializer
+    value.serializer: org.apache.kafka.common.serialization.StringSerializer
+    bootstrap.servers: localhost:9092
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

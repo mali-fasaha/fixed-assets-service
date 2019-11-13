@@ -93,7 +93,7 @@ public class FixedAssetAssessmentQueryService extends QueryService<FixedAssetAss
         Specification<FixedAssetAssessment> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), FixedAssetAssessment_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), FixedAssetAssessment_.id));
             }
             if (criteria.getDescription() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getDescription(), FixedAssetAssessment_.description));

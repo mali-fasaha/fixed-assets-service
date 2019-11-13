@@ -51,7 +51,7 @@ public class FixedAssetInvoice implements Serializable {
     @Column(name = "attachments_content_type")
     private String attachmentsContentType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties("fixedAssetInvoices")
     private Dealer dealer;
 

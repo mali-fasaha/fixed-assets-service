@@ -335,6 +335,26 @@ public class FileUploadResourceIT {
             .andExpect(jsonPath("$.uploadToken").value(DEFAULT_UPLOAD_TOKEN));
     }
 
+
+    @Test
+    @Transactional
+    public void getFileUploadsByIdFiltering() throws Exception {
+        // Initialize the database
+        fileUploadRepository.saveAndFlush(fileUpload);
+
+        Long id = fileUpload.getId();
+
+        defaultFileUploadShouldBeFound("id.equals=" + id);
+        defaultFileUploadShouldNotBeFound("id.notEquals=" + id);
+
+        defaultFileUploadShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultFileUploadShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultFileUploadShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultFileUploadShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllFileUploadsByDescriptionIsEqualToSomething() throws Exception {
@@ -1153,43 +1173,5 @@ public class FileUploadResourceIT {
             .andExpect(jsonPath("$.[*].uploadSuccessful").value(hasItem(DEFAULT_UPLOAD_SUCCESSFUL.booleanValue())))
             .andExpect(jsonPath("$.[*].uploadProcessed").value(hasItem(DEFAULT_UPLOAD_PROCESSED.booleanValue())))
             .andExpect(jsonPath("$.[*].uploadToken").value(hasItem(DEFAULT_UPLOAD_TOKEN)));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FileUpload.class);
-        FileUpload fileUpload1 = new FileUpload();
-        fileUpload1.setId(1L);
-        FileUpload fileUpload2 = new FileUpload();
-        fileUpload2.setId(fileUpload1.getId());
-        assertThat(fileUpload1).isEqualTo(fileUpload2);
-        fileUpload2.setId(2L);
-        assertThat(fileUpload1).isNotEqualTo(fileUpload2);
-        fileUpload1.setId(null);
-        assertThat(fileUpload1).isNotEqualTo(fileUpload2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FileUploadDTO.class);
-        FileUploadDTO fileUploadDTO1 = new FileUploadDTO();
-        fileUploadDTO1.setId(1L);
-        FileUploadDTO fileUploadDTO2 = new FileUploadDTO();
-        assertThat(fileUploadDTO1).isNotEqualTo(fileUploadDTO2);
-        fileUploadDTO2.setId(fileUploadDTO1.getId());
-        assertThat(fileUploadDTO1).isEqualTo(fileUploadDTO2);
-        fileUploadDTO2.setId(2L);
-        assertThat(fileUploadDTO1).isNotEqualTo(fileUploadDTO2);
-        fileUploadDTO1.setId(null);
-        assertThat(fileUploadDTO1).isNotEqualTo(fileUploadDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(fileUploadMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(fileUploadMapper.fromId(null)).isNull();
     }
 }

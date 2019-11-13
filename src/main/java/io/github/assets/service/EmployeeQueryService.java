@@ -93,7 +93,7 @@ public class EmployeeQueryService extends QueryService<Employee> {
         Specification<Employee> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), Employee_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), Employee_.id));
             }
             if (criteria.getEmployeeName() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getEmployeeName(), Employee_.employeeName));

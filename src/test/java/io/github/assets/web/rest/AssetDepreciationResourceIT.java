@@ -278,6 +278,26 @@ public class AssetDepreciationResourceIT {
             .andExpect(jsonPath("$.assetItemId").value(DEFAULT_ASSET_ITEM_ID.intValue()));
     }
 
+
+    @Test
+    @Transactional
+    public void getAssetDepreciationsByIdFiltering() throws Exception {
+        // Initialize the database
+        assetDepreciationRepository.saveAndFlush(assetDepreciation);
+
+        Long id = assetDepreciation.getId();
+
+        defaultAssetDepreciationShouldBeFound("id.equals=" + id);
+        defaultAssetDepreciationShouldNotBeFound("id.notEquals=" + id);
+
+        defaultAssetDepreciationShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultAssetDepreciationShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultAssetDepreciationShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultAssetDepreciationShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllAssetDepreciationsByDescriptionIsEqualToSomething() throws Exception {
@@ -921,43 +941,5 @@ public class AssetDepreciationResourceIT {
             .andExpect(jsonPath("$.[*].depreciationDate").value(hasItem(DEFAULT_DEPRECIATION_DATE.toString())))
             .andExpect(jsonPath("$.[*].categoryId").value(hasItem(DEFAULT_CATEGORY_ID.intValue())))
             .andExpect(jsonPath("$.[*].assetItemId").value(hasItem(DEFAULT_ASSET_ITEM_ID.intValue())));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AssetDepreciation.class);
-        AssetDepreciation assetDepreciation1 = new AssetDepreciation();
-        assetDepreciation1.setId(1L);
-        AssetDepreciation assetDepreciation2 = new AssetDepreciation();
-        assetDepreciation2.setId(assetDepreciation1.getId());
-        assertThat(assetDepreciation1).isEqualTo(assetDepreciation2);
-        assetDepreciation2.setId(2L);
-        assertThat(assetDepreciation1).isNotEqualTo(assetDepreciation2);
-        assetDepreciation1.setId(null);
-        assertThat(assetDepreciation1).isNotEqualTo(assetDepreciation2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AssetDepreciationDTO.class);
-        AssetDepreciationDTO assetDepreciationDTO1 = new AssetDepreciationDTO();
-        assetDepreciationDTO1.setId(1L);
-        AssetDepreciationDTO assetDepreciationDTO2 = new AssetDepreciationDTO();
-        assertThat(assetDepreciationDTO1).isNotEqualTo(assetDepreciationDTO2);
-        assetDepreciationDTO2.setId(assetDepreciationDTO1.getId());
-        assertThat(assetDepreciationDTO1).isEqualTo(assetDepreciationDTO2);
-        assetDepreciationDTO2.setId(2L);
-        assertThat(assetDepreciationDTO1).isNotEqualTo(assetDepreciationDTO2);
-        assetDepreciationDTO1.setId(null);
-        assertThat(assetDepreciationDTO1).isNotEqualTo(assetDepreciationDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(assetDepreciationMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(assetDepreciationMapper.fromId(null)).isNull();
     }
 }

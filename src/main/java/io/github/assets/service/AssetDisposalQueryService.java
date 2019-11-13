@@ -93,7 +93,7 @@ public class AssetDisposalQueryService extends QueryService<AssetDisposal> {
         Specification<AssetDisposal> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), AssetDisposal_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), AssetDisposal_.id));
             }
             if (criteria.getDescription() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getDescription(), AssetDisposal_.description));

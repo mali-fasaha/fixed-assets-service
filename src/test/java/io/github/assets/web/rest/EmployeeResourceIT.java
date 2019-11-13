@@ -268,6 +268,26 @@ public class EmployeeResourceIT {
             .andExpect(jsonPath("$.employeeEmail").value(DEFAULT_EMPLOYEE_EMAIL));
     }
 
+
+    @Test
+    @Transactional
+    public void getEmployeesByIdFiltering() throws Exception {
+        // Initialize the database
+        employeeRepository.saveAndFlush(employee);
+
+        Long id = employee.getId();
+
+        defaultEmployeeShouldBeFound("id.equals=" + id);
+        defaultEmployeeShouldNotBeFound("id.notEquals=" + id);
+
+        defaultEmployeeShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultEmployeeShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultEmployeeShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultEmployeeShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllEmployeesByEmployeeNameIsEqualToSomething() throws Exception {
@@ -811,43 +831,5 @@ public class EmployeeResourceIT {
             .andExpect(jsonPath("$.[*].employeeSignatureContentType").value(hasItem(DEFAULT_EMPLOYEE_SIGNATURE_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].employeeSignature").value(hasItem(Base64Utils.encodeToString(DEFAULT_EMPLOYEE_SIGNATURE))))
             .andExpect(jsonPath("$.[*].employeeEmail").value(hasItem(DEFAULT_EMPLOYEE_EMAIL)));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Employee.class);
-        Employee employee1 = new Employee();
-        employee1.setId(1L);
-        Employee employee2 = new Employee();
-        employee2.setId(employee1.getId());
-        assertThat(employee1).isEqualTo(employee2);
-        employee2.setId(2L);
-        assertThat(employee1).isNotEqualTo(employee2);
-        employee1.setId(null);
-        assertThat(employee1).isNotEqualTo(employee2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(EmployeeDTO.class);
-        EmployeeDTO employeeDTO1 = new EmployeeDTO();
-        employeeDTO1.setId(1L);
-        EmployeeDTO employeeDTO2 = new EmployeeDTO();
-        assertThat(employeeDTO1).isNotEqualTo(employeeDTO2);
-        employeeDTO2.setId(employeeDTO1.getId());
-        assertThat(employeeDTO1).isEqualTo(employeeDTO2);
-        employeeDTO2.setId(2L);
-        assertThat(employeeDTO1).isNotEqualTo(employeeDTO2);
-        employeeDTO1.setId(null);
-        assertThat(employeeDTO1).isNotEqualTo(employeeDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(employeeMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(employeeMapper.fromId(null)).isNull();
     }
 }

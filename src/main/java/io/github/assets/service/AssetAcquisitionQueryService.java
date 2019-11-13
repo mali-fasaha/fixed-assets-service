@@ -93,7 +93,7 @@ public class AssetAcquisitionQueryService extends QueryService<AssetAcquisition>
         Specification<AssetAcquisition> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), AssetAcquisition_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), AssetAcquisition_.id));
             }
             if (criteria.getDescription() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getDescription(), AssetAcquisition_.description));

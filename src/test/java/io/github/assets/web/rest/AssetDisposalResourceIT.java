@@ -387,6 +387,26 @@ public class AssetDisposalResourceIT {
             .andExpect(jsonPath("$.assetPicture").value(Base64Utils.encodeToString(DEFAULT_ASSET_PICTURE)));
     }
 
+
+    @Test
+    @Transactional
+    public void getAssetDisposalsByIdFiltering() throws Exception {
+        // Initialize the database
+        assetDisposalRepository.saveAndFlush(assetDisposal);
+
+        Long id = assetDisposal.getId();
+
+        defaultAssetDisposalShouldBeFound("id.equals=" + id);
+        defaultAssetDisposalShouldNotBeFound("id.notEquals=" + id);
+
+        defaultAssetDisposalShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultAssetDisposalShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultAssetDisposalShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultAssetDisposalShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllAssetDisposalsByDescriptionIsEqualToSomething() throws Exception {
@@ -1474,43 +1494,5 @@ public class AssetDisposalResourceIT {
             .andExpect(jsonPath("$.[*].assetDealerId").value(hasItem(DEFAULT_ASSET_DEALER_ID.intValue())))
             .andExpect(jsonPath("$.[*].assetPictureContentType").value(hasItem(DEFAULT_ASSET_PICTURE_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].assetPicture").value(hasItem(Base64Utils.encodeToString(DEFAULT_ASSET_PICTURE))));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AssetDisposal.class);
-        AssetDisposal assetDisposal1 = new AssetDisposal();
-        assetDisposal1.setId(1L);
-        AssetDisposal assetDisposal2 = new AssetDisposal();
-        assetDisposal2.setId(assetDisposal1.getId());
-        assertThat(assetDisposal1).isEqualTo(assetDisposal2);
-        assetDisposal2.setId(2L);
-        assertThat(assetDisposal1).isNotEqualTo(assetDisposal2);
-        assetDisposal1.setId(null);
-        assertThat(assetDisposal1).isNotEqualTo(assetDisposal2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AssetDisposalDTO.class);
-        AssetDisposalDTO assetDisposalDTO1 = new AssetDisposalDTO();
-        assetDisposalDTO1.setId(1L);
-        AssetDisposalDTO assetDisposalDTO2 = new AssetDisposalDTO();
-        assertThat(assetDisposalDTO1).isNotEqualTo(assetDisposalDTO2);
-        assetDisposalDTO2.setId(assetDisposalDTO1.getId());
-        assertThat(assetDisposalDTO1).isEqualTo(assetDisposalDTO2);
-        assetDisposalDTO2.setId(2L);
-        assertThat(assetDisposalDTO1).isNotEqualTo(assetDisposalDTO2);
-        assetDisposalDTO1.setId(null);
-        assertThat(assetDisposalDTO1).isNotEqualTo(assetDisposalDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(assetDisposalMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(assetDisposalMapper.fromId(null)).isNull();
     }
 }

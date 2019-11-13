@@ -277,6 +277,26 @@ public class ScannedDocumentResourceIT {
             .andExpect(jsonPath("$.otherDocuments").value(Base64Utils.encodeToString(DEFAULT_OTHER_DOCUMENTS)));
     }
 
+
+    @Test
+    @Transactional
+    public void getScannedDocumentsByIdFiltering() throws Exception {
+        // Initialize the database
+        scannedDocumentRepository.saveAndFlush(scannedDocument);
+
+        Long id = scannedDocument.getId();
+
+        defaultScannedDocumentShouldBeFound("id.equals=" + id);
+        defaultScannedDocumentShouldNotBeFound("id.notEquals=" + id);
+
+        defaultScannedDocumentShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultScannedDocumentShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultScannedDocumentShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultScannedDocumentShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllScannedDocumentsByDescriptionIsEqualToSomething() throws Exception {
@@ -524,43 +544,5 @@ public class ScannedDocumentResourceIT {
             .andExpect(jsonPath("$.[*].requisitionDocument").value(hasItem(Base64Utils.encodeToString(DEFAULT_REQUISITION_DOCUMENT))))
             .andExpect(jsonPath("$.[*].otherDocumentsContentType").value(hasItem(DEFAULT_OTHER_DOCUMENTS_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].otherDocuments").value(hasItem(Base64Utils.encodeToString(DEFAULT_OTHER_DOCUMENTS))));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(ScannedDocument.class);
-        ScannedDocument scannedDocument1 = new ScannedDocument();
-        scannedDocument1.setId(1L);
-        ScannedDocument scannedDocument2 = new ScannedDocument();
-        scannedDocument2.setId(scannedDocument1.getId());
-        assertThat(scannedDocument1).isEqualTo(scannedDocument2);
-        scannedDocument2.setId(2L);
-        assertThat(scannedDocument1).isNotEqualTo(scannedDocument2);
-        scannedDocument1.setId(null);
-        assertThat(scannedDocument1).isNotEqualTo(scannedDocument2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(ScannedDocumentDTO.class);
-        ScannedDocumentDTO scannedDocumentDTO1 = new ScannedDocumentDTO();
-        scannedDocumentDTO1.setId(1L);
-        ScannedDocumentDTO scannedDocumentDTO2 = new ScannedDocumentDTO();
-        assertThat(scannedDocumentDTO1).isNotEqualTo(scannedDocumentDTO2);
-        scannedDocumentDTO2.setId(scannedDocumentDTO1.getId());
-        assertThat(scannedDocumentDTO1).isEqualTo(scannedDocumentDTO2);
-        scannedDocumentDTO2.setId(2L);
-        assertThat(scannedDocumentDTO1).isNotEqualTo(scannedDocumentDTO2);
-        scannedDocumentDTO1.setId(null);
-        assertThat(scannedDocumentDTO1).isNotEqualTo(scannedDocumentDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(scannedDocumentMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(scannedDocumentMapper.fromId(null)).isNull();
     }
 }

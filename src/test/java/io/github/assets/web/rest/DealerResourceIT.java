@@ -329,6 +329,26 @@ public class DealerResourceIT {
             .andExpect(jsonPath("$.taxAuthorityRef").value(DEFAULT_TAX_AUTHORITY_REF));
     }
 
+
+    @Test
+    @Transactional
+    public void getDealersByIdFiltering() throws Exception {
+        // Initialize the database
+        dealerRepository.saveAndFlush(dealer);
+
+        Long id = dealer.getId();
+
+        defaultDealerShouldBeFound("id.equals=" + id);
+        defaultDealerShouldNotBeFound("id.notEquals=" + id);
+
+        defaultDealerShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultDealerShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultDealerShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultDealerShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllDealersByTitleIsEqualToSomething() throws Exception {
@@ -1432,43 +1452,5 @@ public class DealerResourceIT {
             .andExpect(jsonPath("$.[*].bankPhysicalAddress").value(hasItem(DEFAULT_BANK_PHYSICAL_ADDRESS)))
             .andExpect(jsonPath("$.[*].domicile").value(hasItem(DEFAULT_DOMICILE)))
             .andExpect(jsonPath("$.[*].taxAuthorityRef").value(hasItem(DEFAULT_TAX_AUTHORITY_REF)));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Dealer.class);
-        Dealer dealer1 = new Dealer();
-        dealer1.setId(1L);
-        Dealer dealer2 = new Dealer();
-        dealer2.setId(dealer1.getId());
-        assertThat(dealer1).isEqualTo(dealer2);
-        dealer2.setId(2L);
-        assertThat(dealer1).isNotEqualTo(dealer2);
-        dealer1.setId(null);
-        assertThat(dealer1).isNotEqualTo(dealer2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(DealerDTO.class);
-        DealerDTO dealerDTO1 = new DealerDTO();
-        dealerDTO1.setId(1L);
-        DealerDTO dealerDTO2 = new DealerDTO();
-        assertThat(dealerDTO1).isNotEqualTo(dealerDTO2);
-        dealerDTO2.setId(dealerDTO1.getId());
-        assertThat(dealerDTO1).isEqualTo(dealerDTO2);
-        dealerDTO2.setId(2L);
-        assertThat(dealerDTO1).isNotEqualTo(dealerDTO2);
-        dealerDTO1.setId(null);
-        assertThat(dealerDTO1).isNotEqualTo(dealerDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(dealerMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(dealerMapper.fromId(null)).isNull();
     }
 }

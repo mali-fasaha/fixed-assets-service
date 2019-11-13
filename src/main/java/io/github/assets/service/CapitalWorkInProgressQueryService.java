@@ -93,7 +93,7 @@ public class CapitalWorkInProgressQueryService extends QueryService<CapitalWorkI
         Specification<CapitalWorkInProgress> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), CapitalWorkInProgress_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), CapitalWorkInProgress_.id));
             }
             if (criteria.getTransactionMonth() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getTransactionMonth(), CapitalWorkInProgress_.transactionMonth));

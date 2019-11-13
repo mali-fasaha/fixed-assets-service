@@ -341,6 +341,26 @@ public class FixedAssetAssessmentResourceIT {
             .andExpect(jsonPath("$.estimatedUsefulMonths").value(DEFAULT_ESTIMATED_USEFUL_MONTHS.doubleValue()));
     }
 
+
+    @Test
+    @Transactional
+    public void getFixedAssetAssessmentsByIdFiltering() throws Exception {
+        // Initialize the database
+        fixedAssetAssessmentRepository.saveAndFlush(fixedAssetAssessment);
+
+        Long id = fixedAssetAssessment.getId();
+
+        defaultFixedAssetAssessmentShouldBeFound("id.equals=" + id);
+        defaultFixedAssetAssessmentShouldNotBeFound("id.notEquals=" + id);
+
+        defaultFixedAssetAssessmentShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultFixedAssetAssessmentShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultFixedAssetAssessmentShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultFixedAssetAssessmentShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllFixedAssetAssessmentsByDescriptionIsEqualToSomething() throws Exception {
@@ -1649,43 +1669,5 @@ public class FixedAssetAssessmentResourceIT {
             .andExpect(jsonPath("$.[*].fixedAssetItemId").value(hasItem(DEFAULT_FIXED_ASSET_ITEM_ID.intValue())))
             .andExpect(jsonPath("$.[*].estimatedValue").value(hasItem(DEFAULT_ESTIMATED_VALUE.intValue())))
             .andExpect(jsonPath("$.[*].estimatedUsefulMonths").value(hasItem(DEFAULT_ESTIMATED_USEFUL_MONTHS.doubleValue())));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FixedAssetAssessment.class);
-        FixedAssetAssessment fixedAssetAssessment1 = new FixedAssetAssessment();
-        fixedAssetAssessment1.setId(1L);
-        FixedAssetAssessment fixedAssetAssessment2 = new FixedAssetAssessment();
-        fixedAssetAssessment2.setId(fixedAssetAssessment1.getId());
-        assertThat(fixedAssetAssessment1).isEqualTo(fixedAssetAssessment2);
-        fixedAssetAssessment2.setId(2L);
-        assertThat(fixedAssetAssessment1).isNotEqualTo(fixedAssetAssessment2);
-        fixedAssetAssessment1.setId(null);
-        assertThat(fixedAssetAssessment1).isNotEqualTo(fixedAssetAssessment2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FixedAssetAssessmentDTO.class);
-        FixedAssetAssessmentDTO fixedAssetAssessmentDTO1 = new FixedAssetAssessmentDTO();
-        fixedAssetAssessmentDTO1.setId(1L);
-        FixedAssetAssessmentDTO fixedAssetAssessmentDTO2 = new FixedAssetAssessmentDTO();
-        assertThat(fixedAssetAssessmentDTO1).isNotEqualTo(fixedAssetAssessmentDTO2);
-        fixedAssetAssessmentDTO2.setId(fixedAssetAssessmentDTO1.getId());
-        assertThat(fixedAssetAssessmentDTO1).isEqualTo(fixedAssetAssessmentDTO2);
-        fixedAssetAssessmentDTO2.setId(2L);
-        assertThat(fixedAssetAssessmentDTO1).isNotEqualTo(fixedAssetAssessmentDTO2);
-        fixedAssetAssessmentDTO1.setId(null);
-        assertThat(fixedAssetAssessmentDTO1).isNotEqualTo(fixedAssetAssessmentDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(fixedAssetAssessmentMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(fixedAssetAssessmentMapper.fromId(null)).isNull();
     }
 }

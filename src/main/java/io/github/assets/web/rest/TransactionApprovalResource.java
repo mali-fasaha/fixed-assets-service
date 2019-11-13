@@ -96,7 +96,9 @@ public class TransactionApprovalResource {
     /**
      * {@code GET  /transaction-approvals} : get all the transactionApprovals.
      *
+
      * @param pageable the pagination information.
+
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of transactionApprovals in body.
      */

@@ -93,7 +93,7 @@ public class FixedAssetInvoiceQueryService extends QueryService<FixedAssetInvoic
         Specification<FixedAssetInvoice> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), FixedAssetInvoice_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), FixedAssetInvoice_.id));
             }
             if (criteria.getInvoiceReference() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getInvoiceReference(), FixedAssetInvoice_.invoiceReference));

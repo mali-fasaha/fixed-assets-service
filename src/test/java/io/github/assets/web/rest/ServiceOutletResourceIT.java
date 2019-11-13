@@ -263,6 +263,26 @@ public class ServiceOutletResourceIT {
             .andExpect(jsonPath("$.location").value(DEFAULT_LOCATION));
     }
 
+
+    @Test
+    @Transactional
+    public void getServiceOutletsByIdFiltering() throws Exception {
+        // Initialize the database
+        serviceOutletRepository.saveAndFlush(serviceOutlet);
+
+        Long id = serviceOutlet.getId();
+
+        defaultServiceOutletShouldBeFound("id.equals=" + id);
+        defaultServiceOutletShouldNotBeFound("id.notEquals=" + id);
+
+        defaultServiceOutletShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultServiceOutletShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultServiceOutletShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultServiceOutletShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllServiceOutletsByServiceOutletCodeIsEqualToSomething() throws Exception {
@@ -716,43 +736,5 @@ public class ServiceOutletResourceIT {
             .andExpect(jsonPath("$.[*].serviceOutletDesignation").value(hasItem(DEFAULT_SERVICE_OUTLET_DESIGNATION)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].location").value(hasItem(DEFAULT_LOCATION)));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(ServiceOutlet.class);
-        ServiceOutlet serviceOutlet1 = new ServiceOutlet();
-        serviceOutlet1.setId(1L);
-        ServiceOutlet serviceOutlet2 = new ServiceOutlet();
-        serviceOutlet2.setId(serviceOutlet1.getId());
-        assertThat(serviceOutlet1).isEqualTo(serviceOutlet2);
-        serviceOutlet2.setId(2L);
-        assertThat(serviceOutlet1).isNotEqualTo(serviceOutlet2);
-        serviceOutlet1.setId(null);
-        assertThat(serviceOutlet1).isNotEqualTo(serviceOutlet2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(ServiceOutletDTO.class);
-        ServiceOutletDTO serviceOutletDTO1 = new ServiceOutletDTO();
-        serviceOutletDTO1.setId(1L);
-        ServiceOutletDTO serviceOutletDTO2 = new ServiceOutletDTO();
-        assertThat(serviceOutletDTO1).isNotEqualTo(serviceOutletDTO2);
-        serviceOutletDTO2.setId(serviceOutletDTO1.getId());
-        assertThat(serviceOutletDTO1).isEqualTo(serviceOutletDTO2);
-        serviceOutletDTO2.setId(2L);
-        assertThat(serviceOutletDTO1).isNotEqualTo(serviceOutletDTO2);
-        serviceOutletDTO1.setId(null);
-        assertThat(serviceOutletDTO1).isNotEqualTo(serviceOutletDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(serviceOutletMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(serviceOutletMapper.fromId(null)).isNull();
     }
 }

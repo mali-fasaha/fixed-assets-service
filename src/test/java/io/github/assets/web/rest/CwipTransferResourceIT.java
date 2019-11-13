@@ -435,6 +435,26 @@ public class CwipTransferResourceIT {
             .andExpect(jsonPath("$.transactionInvoiceId").value(DEFAULT_TRANSACTION_INVOICE_ID.intValue()));
     }
 
+
+    @Test
+    @Transactional
+    public void getCwipTransfersByIdFiltering() throws Exception {
+        // Initialize the database
+        cwipTransferRepository.saveAndFlush(cwipTransfer);
+
+        Long id = cwipTransfer.getId();
+
+        defaultCwipTransferShouldBeFound("id.equals=" + id);
+        defaultCwipTransferShouldNotBeFound("id.notEquals=" + id);
+
+        defaultCwipTransferShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultCwipTransferShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultCwipTransferShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultCwipTransferShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllCwipTransfersByTransferMonthIsEqualToSomething() throws Exception {
@@ -1569,43 +1589,5 @@ public class CwipTransferResourceIT {
             .andExpect(jsonPath("$.[*].transferAmount").value(hasItem(DEFAULT_TRANSFER_AMOUNT.intValue())))
             .andExpect(jsonPath("$.[*].dealerId").value(hasItem(DEFAULT_DEALER_ID.intValue())))
             .andExpect(jsonPath("$.[*].transactionInvoiceId").value(hasItem(DEFAULT_TRANSACTION_INVOICE_ID.intValue())));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CwipTransfer.class);
-        CwipTransfer cwipTransfer1 = new CwipTransfer();
-        cwipTransfer1.setId(1L);
-        CwipTransfer cwipTransfer2 = new CwipTransfer();
-        cwipTransfer2.setId(cwipTransfer1.getId());
-        assertThat(cwipTransfer1).isEqualTo(cwipTransfer2);
-        cwipTransfer2.setId(2L);
-        assertThat(cwipTransfer1).isNotEqualTo(cwipTransfer2);
-        cwipTransfer1.setId(null);
-        assertThat(cwipTransfer1).isNotEqualTo(cwipTransfer2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CwipTransferDTO.class);
-        CwipTransferDTO cwipTransferDTO1 = new CwipTransferDTO();
-        cwipTransferDTO1.setId(1L);
-        CwipTransferDTO cwipTransferDTO2 = new CwipTransferDTO();
-        assertThat(cwipTransferDTO1).isNotEqualTo(cwipTransferDTO2);
-        cwipTransferDTO2.setId(cwipTransferDTO1.getId());
-        assertThat(cwipTransferDTO1).isEqualTo(cwipTransferDTO2);
-        cwipTransferDTO2.setId(2L);
-        assertThat(cwipTransferDTO1).isNotEqualTo(cwipTransferDTO2);
-        cwipTransferDTO1.setId(null);
-        assertThat(cwipTransferDTO1).isNotEqualTo(cwipTransferDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(cwipTransferMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(cwipTransferMapper.fromId(null)).isNull();
     }
 }

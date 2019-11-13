@@ -93,7 +93,7 @@ public class AssetTransactionQueryService extends QueryService<AssetTransaction>
         Specification<AssetTransaction> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), AssetTransaction_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), AssetTransaction_.id));
             }
             if (criteria.getTransactionReference() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getTransactionReference(), AssetTransaction_.transactionReference));

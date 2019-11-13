@@ -280,6 +280,26 @@ public class MessageTokenResourceIT {
             .andExpect(jsonPath("$.contentFullyEnqueued").value(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue()));
     }
 
+
+    @Test
+    @Transactional
+    public void getMessageTokensByIdFiltering() throws Exception {
+        // Initialize the database
+        messageTokenRepository.saveAndFlush(messageToken);
+
+        Long id = messageToken.getId();
+
+        defaultMessageTokenShouldBeFound("id.equals=" + id);
+        defaultMessageTokenShouldNotBeFound("id.notEquals=" + id);
+
+        defaultMessageTokenShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultMessageTokenShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultMessageTokenShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultMessageTokenShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllMessageTokensByDescriptionIsEqualToSomething() throws Exception {
@@ -846,43 +866,5 @@ public class MessageTokenResourceIT {
             .andExpect(jsonPath("$.[*].received").value(hasItem(DEFAULT_RECEIVED.booleanValue())))
             .andExpect(jsonPath("$.[*].actioned").value(hasItem(DEFAULT_ACTIONED.booleanValue())))
             .andExpect(jsonPath("$.[*].contentFullyEnqueued").value(hasItem(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue())));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(MessageToken.class);
-        MessageToken messageToken1 = new MessageToken();
-        messageToken1.setId(1L);
-        MessageToken messageToken2 = new MessageToken();
-        messageToken2.setId(messageToken1.getId());
-        assertThat(messageToken1).isEqualTo(messageToken2);
-        messageToken2.setId(2L);
-        assertThat(messageToken1).isNotEqualTo(messageToken2);
-        messageToken1.setId(null);
-        assertThat(messageToken1).isNotEqualTo(messageToken2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(MessageTokenDTO.class);
-        MessageTokenDTO messageTokenDTO1 = new MessageTokenDTO();
-        messageTokenDTO1.setId(1L);
-        MessageTokenDTO messageTokenDTO2 = new MessageTokenDTO();
-        assertThat(messageTokenDTO1).isNotEqualTo(messageTokenDTO2);
-        messageTokenDTO2.setId(messageTokenDTO1.getId());
-        assertThat(messageTokenDTO1).isEqualTo(messageTokenDTO2);
-        messageTokenDTO2.setId(2L);
-        assertThat(messageTokenDTO1).isNotEqualTo(messageTokenDTO2);
-        messageTokenDTO1.setId(null);
-        assertThat(messageTokenDTO1).isNotEqualTo(messageTokenDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(messageTokenMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(messageTokenMapper.fromId(null)).isNull();
     }
 }

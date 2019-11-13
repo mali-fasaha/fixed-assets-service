@@ -93,7 +93,7 @@ public class MessageTokenQueryService extends QueryService<MessageToken> {
         Specification<MessageToken> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), MessageToken_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), MessageToken_.id));
             }
             if (criteria.getDescription() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getDescription(), MessageToken_.description));

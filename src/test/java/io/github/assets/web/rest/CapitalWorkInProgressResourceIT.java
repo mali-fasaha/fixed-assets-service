@@ -361,6 +361,26 @@ public class CapitalWorkInProgressResourceIT {
             .andExpect(jsonPath("$.transactionAmount").value(DEFAULT_TRANSACTION_AMOUNT.intValue()));
     }
 
+
+    @Test
+    @Transactional
+    public void getCapitalWorkInProgressesByIdFiltering() throws Exception {
+        // Initialize the database
+        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
+
+        Long id = capitalWorkInProgress.getId();
+
+        defaultCapitalWorkInProgressShouldBeFound("id.equals=" + id);
+        defaultCapitalWorkInProgressShouldNotBeFound("id.notEquals=" + id);
+
+        defaultCapitalWorkInProgressShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultCapitalWorkInProgressShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultCapitalWorkInProgressShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultCapitalWorkInProgressShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllCapitalWorkInProgressesByTransactionMonthIsEqualToSomething() throws Exception {
@@ -1059,43 +1079,5 @@ public class CapitalWorkInProgressResourceIT {
             .andExpect(jsonPath("$.[*].transactionId").value(hasItem(DEFAULT_TRANSACTION_ID.intValue())))
             .andExpect(jsonPath("$.[*].transactionDetails").value(hasItem(DEFAULT_TRANSACTION_DETAILS)))
             .andExpect(jsonPath("$.[*].transactionAmount").value(hasItem(DEFAULT_TRANSACTION_AMOUNT.intValue())));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CapitalWorkInProgress.class);
-        CapitalWorkInProgress capitalWorkInProgress1 = new CapitalWorkInProgress();
-        capitalWorkInProgress1.setId(1L);
-        CapitalWorkInProgress capitalWorkInProgress2 = new CapitalWorkInProgress();
-        capitalWorkInProgress2.setId(capitalWorkInProgress1.getId());
-        assertThat(capitalWorkInProgress1).isEqualTo(capitalWorkInProgress2);
-        capitalWorkInProgress2.setId(2L);
-        assertThat(capitalWorkInProgress1).isNotEqualTo(capitalWorkInProgress2);
-        capitalWorkInProgress1.setId(null);
-        assertThat(capitalWorkInProgress1).isNotEqualTo(capitalWorkInProgress2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CapitalWorkInProgressDTO.class);
-        CapitalWorkInProgressDTO capitalWorkInProgressDTO1 = new CapitalWorkInProgressDTO();
-        capitalWorkInProgressDTO1.setId(1L);
-        CapitalWorkInProgressDTO capitalWorkInProgressDTO2 = new CapitalWorkInProgressDTO();
-        assertThat(capitalWorkInProgressDTO1).isNotEqualTo(capitalWorkInProgressDTO2);
-        capitalWorkInProgressDTO2.setId(capitalWorkInProgressDTO1.getId());
-        assertThat(capitalWorkInProgressDTO1).isEqualTo(capitalWorkInProgressDTO2);
-        capitalWorkInProgressDTO2.setId(2L);
-        assertThat(capitalWorkInProgressDTO1).isNotEqualTo(capitalWorkInProgressDTO2);
-        capitalWorkInProgressDTO1.setId(null);
-        assertThat(capitalWorkInProgressDTO1).isNotEqualTo(capitalWorkInProgressDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(capitalWorkInProgressMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(capitalWorkInProgressMapper.fromId(null)).isNull();
     }
 }

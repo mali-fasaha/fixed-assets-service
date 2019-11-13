@@ -3,7 +3,7 @@
     "promptValues": {
       "packageName": "io.github.assets"
     },
-    "jhipsterVersion": "6.4.1",
+    "jhipsterVersion": "6.5.0",
     "applicationType": "microservice",
     "baseName": "fixedAssetService",
     "packageName": "io.github.assets",

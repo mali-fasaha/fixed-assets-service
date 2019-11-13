@@ -258,6 +258,26 @@ public class TransactionApprovalResourceIT {
             .andExpect(jsonPath("$.fourthApprover").value(DEFAULT_FOURTH_APPROVER));
     }
 
+
+    @Test
+    @Transactional
+    public void getTransactionApprovalsByIdFiltering() throws Exception {
+        // Initialize the database
+        transactionApprovalRepository.saveAndFlush(transactionApproval);
+
+        Long id = transactionApproval.getId();
+
+        defaultTransactionApprovalShouldBeFound("id.equals=" + id);
+        defaultTransactionApprovalShouldNotBeFound("id.notEquals=" + id);
+
+        defaultTransactionApprovalShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultTransactionApprovalShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultTransactionApprovalShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultTransactionApprovalShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllTransactionApprovalsByDescriptionIsEqualToSomething() throws Exception {
@@ -1066,43 +1086,5 @@ public class TransactionApprovalResourceIT {
             .andExpect(jsonPath("$.[*].secondApprover").value(hasItem(DEFAULT_SECOND_APPROVER)))
             .andExpect(jsonPath("$.[*].thirdApprover").value(hasItem(DEFAULT_THIRD_APPROVER)))
             .andExpect(jsonPath("$.[*].fourthApprover").value(hasItem(DEFAULT_FOURTH_APPROVER)));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(TransactionApproval.class);
-        TransactionApproval transactionApproval1 = new TransactionApproval();
-        transactionApproval1.setId(1L);
-        TransactionApproval transactionApproval2 = new TransactionApproval();
-        transactionApproval2.setId(transactionApproval1.getId());
-        assertThat(transactionApproval1).isEqualTo(transactionApproval2);
-        transactionApproval2.setId(2L);
-        assertThat(transactionApproval1).isNotEqualTo(transactionApproval2);
-        transactionApproval1.setId(null);
-        assertThat(transactionApproval1).isNotEqualTo(transactionApproval2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(TransactionApprovalDTO.class);
-        TransactionApprovalDTO transactionApprovalDTO1 = new TransactionApprovalDTO();
-        transactionApprovalDTO1.setId(1L);
-        TransactionApprovalDTO transactionApprovalDTO2 = new TransactionApprovalDTO();
-        assertThat(transactionApprovalDTO1).isNotEqualTo(transactionApprovalDTO2);
-        transactionApprovalDTO2.setId(transactionApprovalDTO1.getId());
-        assertThat(transactionApprovalDTO1).isEqualTo(transactionApprovalDTO2);
-        transactionApprovalDTO2.setId(2L);
-        assertThat(transactionApprovalDTO1).isNotEqualTo(transactionApprovalDTO2);
-        transactionApprovalDTO1.setId(null);
-        assertThat(transactionApprovalDTO1).isNotEqualTo(transactionApprovalDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(transactionApprovalMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(transactionApprovalMapper.fromId(null)).isNull();
     }
 }

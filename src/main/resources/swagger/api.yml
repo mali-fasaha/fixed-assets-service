@@ -2,8 +2,8 @@
 # This file will be used at compile time to generate Spring-MVC endpoint stubs using openapi-generator
 openapi: '3.0.1'
 info:
-  title: 'Fixed Asset Service'
-  version: 0.0.5
+  title: 'fixedAssetService'
+  version: 0.0.1
 servers:
   - url: http://localhost:58214
     description: Development server

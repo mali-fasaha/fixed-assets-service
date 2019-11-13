@@ -291,6 +291,26 @@ public class FixedAssetCategoryResourceIT {
             .andExpect(jsonPath("$.depreciationRegimeId").value(DEFAULT_DEPRECIATION_REGIME_ID.intValue()));
     }
 
+
+    @Test
+    @Transactional
+    public void getFixedAssetCategoriesByIdFiltering() throws Exception {
+        // Initialize the database
+        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
+
+        Long id = fixedAssetCategory.getId();
+
+        defaultFixedAssetCategoryShouldBeFound("id.equals=" + id);
+        defaultFixedAssetCategoryShouldNotBeFound("id.notEquals=" + id);
+
+        defaultFixedAssetCategoryShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultFixedAssetCategoryShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultFixedAssetCategoryShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultFixedAssetCategoryShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllFixedAssetCategoriesByCategoryNameIsEqualToSomething() throws Exception {
@@ -853,43 +873,5 @@ public class FixedAssetCategoryResourceIT {
             .andExpect(jsonPath("$.[*].categoryAssetCode").value(hasItem(DEFAULT_CATEGORY_ASSET_CODE)))
             .andExpect(jsonPath("$.[*].categoryDepreciationCode").value(hasItem(DEFAULT_CATEGORY_DEPRECIATION_CODE)))
             .andExpect(jsonPath("$.[*].depreciationRegimeId").value(hasItem(DEFAULT_DEPRECIATION_REGIME_ID.intValue())));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FixedAssetCategory.class);
-        FixedAssetCategory fixedAssetCategory1 = new FixedAssetCategory();
-        fixedAssetCategory1.setId(1L);
-        FixedAssetCategory fixedAssetCategory2 = new FixedAssetCategory();
-        fixedAssetCategory2.setId(fixedAssetCategory1.getId());
-        assertThat(fixedAssetCategory1).isEqualTo(fixedAssetCategory2);
-        fixedAssetCategory2.setId(2L);
-        assertThat(fixedAssetCategory1).isNotEqualTo(fixedAssetCategory2);
-        fixedAssetCategory1.setId(null);
-        assertThat(fixedAssetCategory1).isNotEqualTo(fixedAssetCategory2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FixedAssetCategoryDTO.class);
-        FixedAssetCategoryDTO fixedAssetCategoryDTO1 = new FixedAssetCategoryDTO();
-        fixedAssetCategoryDTO1.setId(1L);
-        FixedAssetCategoryDTO fixedAssetCategoryDTO2 = new FixedAssetCategoryDTO();
-        assertThat(fixedAssetCategoryDTO1).isNotEqualTo(fixedAssetCategoryDTO2);
-        fixedAssetCategoryDTO2.setId(fixedAssetCategoryDTO1.getId());
-        assertThat(fixedAssetCategoryDTO1).isEqualTo(fixedAssetCategoryDTO2);
-        fixedAssetCategoryDTO2.setId(2L);
-        assertThat(fixedAssetCategoryDTO1).isNotEqualTo(fixedAssetCategoryDTO2);
-        fixedAssetCategoryDTO1.setId(null);
-        assertThat(fixedAssetCategoryDTO1).isNotEqualTo(fixedAssetCategoryDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(fixedAssetCategoryMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(fixedAssetCategoryMapper.fromId(null)).isNull();
     }
 }

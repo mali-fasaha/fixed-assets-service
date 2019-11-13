@@ -93,7 +93,7 @@ public class FixedAssetItemQueryService extends QueryService<FixedAssetItem> {
         Specification<FixedAssetItem> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), FixedAssetItem_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), FixedAssetItem_.id));
             }
             if (criteria.getServiceOutletCode() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getServiceOutletCode(), FixedAssetItem_.serviceOutletCode));

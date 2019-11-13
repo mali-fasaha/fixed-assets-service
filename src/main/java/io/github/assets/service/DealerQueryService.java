@@ -93,7 +93,7 @@ public class DealerQueryService extends QueryService<Dealer> {
         Specification<Dealer> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), Dealer_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), Dealer_.id));
             }
             if (criteria.getTitle() != null) {
                 specification = specification.and(buildSpecification(criteria.getTitle(), Dealer_.title));

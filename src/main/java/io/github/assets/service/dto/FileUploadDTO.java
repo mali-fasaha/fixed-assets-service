@@ -25,7 +25,7 @@ public class FileUploadDTO implements Serializable {
     @NotNull
     private Long fileTypeId;
 
-
+    
     @Lob
     private byte[] dataFile;
 
@@ -34,7 +34,7 @@ public class FileUploadDTO implements Serializable {
 
     private Boolean uploadProcessed;
 
-
+    
     private String uploadToken;
 
 

@@ -274,6 +274,26 @@ public class FixedAssetInvoiceResourceIT {
             .andExpect(jsonPath("$.attachments").value(Base64Utils.encodeToString(DEFAULT_ATTACHMENTS)));
     }
 
+
+    @Test
+    @Transactional
+    public void getFixedAssetInvoicesByIdFiltering() throws Exception {
+        // Initialize the database
+        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
+
+        Long id = fixedAssetInvoice.getId();
+
+        defaultFixedAssetInvoiceShouldBeFound("id.equals=" + id);
+        defaultFixedAssetInvoiceShouldNotBeFound("id.notEquals=" + id);
+
+        defaultFixedAssetInvoiceShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultFixedAssetInvoiceShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultFixedAssetInvoiceShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultFixedAssetInvoiceShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllFixedAssetInvoicesByInvoiceReferenceIsEqualToSomething() throws Exception {
@@ -839,43 +859,5 @@ public class FixedAssetInvoiceResourceIT {
             .andExpect(jsonPath("$.[*].isCreditNote").value(hasItem(DEFAULT_IS_CREDIT_NOTE.booleanValue())))
             .andExpect(jsonPath("$.[*].attachmentsContentType").value(hasItem(DEFAULT_ATTACHMENTS_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].attachments").value(hasItem(Base64Utils.encodeToString(DEFAULT_ATTACHMENTS))));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FixedAssetInvoice.class);
-        FixedAssetInvoice fixedAssetInvoice1 = new FixedAssetInvoice();
-        fixedAssetInvoice1.setId(1L);
-        FixedAssetInvoice fixedAssetInvoice2 = new FixedAssetInvoice();
-        fixedAssetInvoice2.setId(fixedAssetInvoice1.getId());
-        assertThat(fixedAssetInvoice1).isEqualTo(fixedAssetInvoice2);
-        fixedAssetInvoice2.setId(2L);
-        assertThat(fixedAssetInvoice1).isNotEqualTo(fixedAssetInvoice2);
-        fixedAssetInvoice1.setId(null);
-        assertThat(fixedAssetInvoice1).isNotEqualTo(fixedAssetInvoice2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FixedAssetInvoiceDTO.class);
-        FixedAssetInvoiceDTO fixedAssetInvoiceDTO1 = new FixedAssetInvoiceDTO();
-        fixedAssetInvoiceDTO1.setId(1L);
-        FixedAssetInvoiceDTO fixedAssetInvoiceDTO2 = new FixedAssetInvoiceDTO();
-        assertThat(fixedAssetInvoiceDTO1).isNotEqualTo(fixedAssetInvoiceDTO2);
-        fixedAssetInvoiceDTO2.setId(fixedAssetInvoiceDTO1.getId());
-        assertThat(fixedAssetInvoiceDTO1).isEqualTo(fixedAssetInvoiceDTO2);
-        fixedAssetInvoiceDTO2.setId(2L);
-        assertThat(fixedAssetInvoiceDTO1).isNotEqualTo(fixedAssetInvoiceDTO2);
-        fixedAssetInvoiceDTO1.setId(null);
-        assertThat(fixedAssetInvoiceDTO1).isNotEqualTo(fixedAssetInvoiceDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(fixedAssetInvoiceMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(fixedAssetInvoiceMapper.fromId(null)).isNull();
     }
 }

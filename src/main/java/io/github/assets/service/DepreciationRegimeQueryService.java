@@ -93,7 +93,7 @@ public class DepreciationRegimeQueryService extends QueryService<DepreciationReg
         Specification<DepreciationRegime> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), DepreciationRegime_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), DepreciationRegime_.id));
             }
             if (criteria.getAssetDecayType() != null) {
                 specification = specification.and(buildSpecification(criteria.getAssetDecayType(), DepreciationRegime_.assetDecayType));

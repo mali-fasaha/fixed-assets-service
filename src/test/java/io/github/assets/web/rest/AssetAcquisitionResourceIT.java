@@ -407,6 +407,26 @@ public class AssetAcquisitionResourceIT {
             .andExpect(jsonPath("$.assetInvoiceId").value(DEFAULT_ASSET_INVOICE_ID.intValue()));
     }
 
+
+    @Test
+    @Transactional
+    public void getAssetAcquisitionsByIdFiltering() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        Long id = assetAcquisition.getId();
+
+        defaultAssetAcquisitionShouldBeFound("id.equals=" + id);
+        defaultAssetAcquisitionShouldNotBeFound("id.notEquals=" + id);
+
+        defaultAssetAcquisitionShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultAssetAcquisitionShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultAssetAcquisitionShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultAssetAcquisitionShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllAssetAcquisitionsByDescriptionIsEqualToSomething() throws Exception {
@@ -1432,43 +1452,5 @@ public class AssetAcquisitionResourceIT {
             .andExpect(jsonPath("$.[*].purchaseAmount").value(hasItem(DEFAULT_PURCHASE_AMOUNT.intValue())))
             .andExpect(jsonPath("$.[*].assetDealerId").value(hasItem(DEFAULT_ASSET_DEALER_ID.intValue())))
             .andExpect(jsonPath("$.[*].assetInvoiceId").value(hasItem(DEFAULT_ASSET_INVOICE_ID.intValue())));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AssetAcquisition.class);
-        AssetAcquisition assetAcquisition1 = new AssetAcquisition();
-        assetAcquisition1.setId(1L);
-        AssetAcquisition assetAcquisition2 = new AssetAcquisition();
-        assetAcquisition2.setId(assetAcquisition1.getId());
-        assertThat(assetAcquisition1).isEqualTo(assetAcquisition2);
-        assetAcquisition2.setId(2L);
-        assertThat(assetAcquisition1).isNotEqualTo(assetAcquisition2);
-        assetAcquisition1.setId(null);
-        assertThat(assetAcquisition1).isNotEqualTo(assetAcquisition2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AssetAcquisitionDTO.class);
-        AssetAcquisitionDTO assetAcquisitionDTO1 = new AssetAcquisitionDTO();
-        assetAcquisitionDTO1.setId(1L);
-        AssetAcquisitionDTO assetAcquisitionDTO2 = new AssetAcquisitionDTO();
-        assertThat(assetAcquisitionDTO1).isNotEqualTo(assetAcquisitionDTO2);
-        assetAcquisitionDTO2.setId(assetAcquisitionDTO1.getId());
-        assertThat(assetAcquisitionDTO1).isEqualTo(assetAcquisitionDTO2);
-        assetAcquisitionDTO2.setId(2L);
-        assertThat(assetAcquisitionDTO1).isNotEqualTo(assetAcquisitionDTO2);
-        assetAcquisitionDTO1.setId(null);
-        assertThat(assetAcquisitionDTO1).isNotEqualTo(assetAcquisitionDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(assetAcquisitionMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(assetAcquisitionMapper.fromId(null)).isNull();
     }
 }

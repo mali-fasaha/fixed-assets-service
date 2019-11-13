@@ -414,6 +414,26 @@ public class FixedAssetItemResourceIT {
             .andExpect(jsonPath("$.assetPicture").value(Base64Utils.encodeToString(DEFAULT_ASSET_PICTURE)));
     }
 
+
+    @Test
+    @Transactional
+    public void getFixedAssetItemsByIdFiltering() throws Exception {
+        // Initialize the database
+        fixedAssetItemRepository.saveAndFlush(fixedAssetItem);
+
+        Long id = fixedAssetItem.getId();
+
+        defaultFixedAssetItemShouldBeFound("id.equals=" + id);
+        defaultFixedAssetItemShouldNotBeFound("id.notEquals=" + id);
+
+        defaultFixedAssetItemShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultFixedAssetItemShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultFixedAssetItemShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultFixedAssetItemShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllFixedAssetItemsByServiceOutletCodeIsEqualToSomething() throws Exception {
@@ -1338,43 +1358,5 @@ public class FixedAssetItemResourceIT {
             .andExpect(jsonPath("$.[*].ownershipDocumentId").value(hasItem(DEFAULT_OWNERSHIP_DOCUMENT_ID.intValue())))
             .andExpect(jsonPath("$.[*].assetPictureContentType").value(hasItem(DEFAULT_ASSET_PICTURE_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].assetPicture").value(hasItem(Base64Utils.encodeToString(DEFAULT_ASSET_PICTURE))));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FixedAssetItem.class);
-        FixedAssetItem fixedAssetItem1 = new FixedAssetItem();
-        fixedAssetItem1.setId(1L);
-        FixedAssetItem fixedAssetItem2 = new FixedAssetItem();
-        fixedAssetItem2.setId(fixedAssetItem1.getId());
-        assertThat(fixedAssetItem1).isEqualTo(fixedAssetItem2);
-        fixedAssetItem2.setId(2L);
-        assertThat(fixedAssetItem1).isNotEqualTo(fixedAssetItem2);
-        fixedAssetItem1.setId(null);
-        assertThat(fixedAssetItem1).isNotEqualTo(fixedAssetItem2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(FixedAssetItemDTO.class);
-        FixedAssetItemDTO fixedAssetItemDTO1 = new FixedAssetItemDTO();
-        fixedAssetItemDTO1.setId(1L);
-        FixedAssetItemDTO fixedAssetItemDTO2 = new FixedAssetItemDTO();
-        assertThat(fixedAssetItemDTO1).isNotEqualTo(fixedAssetItemDTO2);
-        fixedAssetItemDTO2.setId(fixedAssetItemDTO1.getId());
-        assertThat(fixedAssetItemDTO1).isEqualTo(fixedAssetItemDTO2);
-        fixedAssetItemDTO2.setId(2L);
-        assertThat(fixedAssetItemDTO1).isNotEqualTo(fixedAssetItemDTO2);
-        fixedAssetItemDTO1.setId(null);
-        assertThat(fixedAssetItemDTO1).isNotEqualTo(fixedAssetItemDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(fixedAssetItemMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(fixedAssetItemMapper.fromId(null)).isNull();
     }
 }

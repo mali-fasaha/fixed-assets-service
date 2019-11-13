@@ -257,6 +257,26 @@ public class DepreciationRegimeResourceIT {
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION));
     }
 
+
+    @Test
+    @Transactional
+    public void getDepreciationRegimesByIdFiltering() throws Exception {
+        // Initialize the database
+        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
+
+        Long id = depreciationRegime.getId();
+
+        defaultDepreciationRegimeShouldBeFound("id.equals=" + id);
+        defaultDepreciationRegimeShouldNotBeFound("id.notEquals=" + id);
+
+        defaultDepreciationRegimeShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultDepreciationRegimeShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultDepreciationRegimeShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultDepreciationRegimeShouldNotBeFound("id.lessThan=" + id);
+    }
+
+
     @Test
     @Transactional
     public void getAllDepreciationRegimesByAssetDecayTypeIsEqualToSomething() throws Exception {
@@ -629,43 +649,5 @@ public class DepreciationRegimeResourceIT {
             .andExpect(jsonPath("$.[*].assetDecayType").value(hasItem(DEFAULT_ASSET_DECAY_TYPE.toString())))
             .andExpect(jsonPath("$.[*].depreciationRate").value(hasItem(DEFAULT_DEPRECIATION_RATE.doubleValue())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(DepreciationRegime.class);
-        DepreciationRegime depreciationRegime1 = new DepreciationRegime();
-        depreciationRegime1.setId(1L);
-        DepreciationRegime depreciationRegime2 = new DepreciationRegime();
-        depreciationRegime2.setId(depreciationRegime1.getId());
-        assertThat(depreciationRegime1).isEqualTo(depreciationRegime2);
-        depreciationRegime2.setId(2L);
-        assertThat(depreciationRegime1).isNotEqualTo(depreciationRegime2);
-        depreciationRegime1.setId(null);
-        assertThat(depreciationRegime1).isNotEqualTo(depreciationRegime2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(DepreciationRegimeDTO.class);
-        DepreciationRegimeDTO depreciationRegimeDTO1 = new DepreciationRegimeDTO();
-        depreciationRegimeDTO1.setId(1L);
-        DepreciationRegimeDTO depreciationRegimeDTO2 = new DepreciationRegimeDTO();
-        assertThat(depreciationRegimeDTO1).isNotEqualTo(depreciationRegimeDTO2);
-        depreciationRegimeDTO2.setId(depreciationRegimeDTO1.getId());
-        assertThat(depreciationRegimeDTO1).isEqualTo(depreciationRegimeDTO2);
-        depreciationRegimeDTO2.setId(2L);
-        assertThat(depreciationRegimeDTO1).isNotEqualTo(depreciationRegimeDTO2);
-        depreciationRegimeDTO1.setId(null);
-        assertThat(depreciationRegimeDTO1).isNotEqualTo(depreciationRegimeDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(depreciationRegimeMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(depreciationRegimeMapper.fromId(null)).isNull();
     }
 }

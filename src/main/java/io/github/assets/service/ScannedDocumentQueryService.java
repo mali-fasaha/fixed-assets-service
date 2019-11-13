@@ -93,7 +93,7 @@ public class ScannedDocumentQueryService extends QueryService<ScannedDocument> {
         Specification<ScannedDocument> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), ScannedDocument_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), ScannedDocument_.id));
             }
             if (criteria.getDescription() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getDescription(), ScannedDocument_.description));

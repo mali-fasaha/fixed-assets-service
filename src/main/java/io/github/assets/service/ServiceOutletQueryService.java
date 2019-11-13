@@ -93,7 +93,7 @@ public class ServiceOutletQueryService extends QueryService<ServiceOutlet> {
         Specification<ServiceOutlet> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), ServiceOutlet_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), ServiceOutlet_.id));
             }
             if (criteria.getServiceOutletCode() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getServiceOutletCode(), ServiceOutlet_.serviceOutletCode));

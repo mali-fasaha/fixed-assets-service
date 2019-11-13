@@ -93,7 +93,7 @@ public class CwipTransferQueryService extends QueryService<CwipTransfer> {
         Specification<CwipTransfer> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), CwipTransfer_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), CwipTransfer_.id));
             }
             if (criteria.getTransferMonth() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getTransferMonth(), CwipTransfer_.transferMonth));

@@ -93,7 +93,7 @@ public class AssetDepreciationQueryService extends QueryService<AssetDepreciatio
         Specification<AssetDepreciation> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), AssetDepreciation_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), AssetDepreciation_.id));
             }
             if (criteria.getDescription() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getDescription(), AssetDepreciation_.description));
