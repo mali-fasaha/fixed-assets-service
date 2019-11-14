@@ -16,7 +16,7 @@ public class DefaultExcelFileDeserializer<T> {
     private final Class<T> deserializationClass;
     private final PoijiOptions poijiOptions;
 
-    DefaultExcelFileDeserializer(final Class<T> deserializationClass, final PoijiOptions poijiOptions) {
+    public DefaultExcelFileDeserializer(final Class<T> deserializationClass, final PoijiOptions poijiOptions) {
         this.deserializationClass = deserializationClass;
         this.poijiOptions = poijiOptions;
     }

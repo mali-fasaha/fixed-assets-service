@@ -1,5 +1,6 @@
 package io.github.assets.app.excel;
 
+import io.github.assets.app.excel.deserializer.AssetAcquisitionExcelFileDeserializer;
 import io.github.assets.app.excel.deserializer.AssetTransactionExcelFileDeserializer;
 import io.github.assets.app.excel.deserializer.DealerExcelFileDeserializer;
 import io.github.assets.app.excel.deserializer.DepreciationRegimeExcelFileDeserializer;
@@ -8,6 +9,7 @@ import io.github.assets.app.excel.deserializer.FixedAssetCategoryExcelFileDeseri
 import io.github.assets.app.excel.deserializer.FixedAssetInvoiceExcelFileDeserializer;
 import io.github.assets.app.excel.deserializer.FixedAssetItemExcelFileDeserializer;
 import io.github.assets.app.excel.deserializer.ServiceOutletExcelFileDeserializer;
+import io.github.assets.app.model.AssetAcquisitionEVM;
 import io.github.assets.app.model.AssetTransactionEVM;
 import io.github.assets.app.model.DealerEVM;
 import io.github.assets.app.model.DepreciationRegimeEVM;
@@ -36,6 +38,7 @@ public class ExcelFileUtils {
     private static final ExcelFileDeserializer<FixedAssetCategoryEVM> fixedAssetCategoryExcelFileDeserializer = new FixedAssetCategoryExcelFileDeserializer(getDefaultPoijiOptions());
     private static final ExcelFileDeserializer<FixedAssetInvoiceEVM> fixedAssetInvoiceExcelFileDeserializer = new FixedAssetInvoiceExcelFileDeserializer(getDefaultPoijiOptions());
     private static final ExcelFileDeserializer<FixedAssetItemEVM> fixedAssetItemExcelFileDeserializer = new FixedAssetItemExcelFileDeserializer(getDefaultPoijiOptions());
+    private static final ExcelFileDeserializer<AssetAcquisitionEVM> assetAcquisitionEVMExcelFileDeserializer = new AssetAcquisitionExcelFileDeserializer(getDefaultPoijiOptions());
 
     public static List<ServiceOutletEVM> deserializeServiceOutletFile(byte[] dataEntryFile) {
         return serviceOutletxcelFileDeserializer.deserialize(dataEntryFile);
@@ -67,5 +70,9 @@ public class ExcelFileUtils {
 
     public static List<FixedAssetItemEVM> deserializeFixedAssetItemFile(byte[] dataEntry) {
         return fixedAssetItemExcelFileDeserializer.deserialize(dataEntry);
+    }
+
+    public static List<AssetAcquisitionEVM> deserializeAssetAcquisitionItemFile(byte[] dataEntry) {
+        return assetAcquisitionEVMExcelFileDeserializer.deserialize(dataEntry);
     }
 }

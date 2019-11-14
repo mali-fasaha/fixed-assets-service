@@ -121,6 +121,9 @@ spring:
         file-notifications-out:
           destination: fileNotications
           contentType: application/json
+        filed-asset-acquisition-resource-create-in:
+          destination: fileNotications
+          contentType: application/json
         asset-acquisition-resource-create-in:
           destination: assetAcquisitionsCreate
           contentType: application/json
