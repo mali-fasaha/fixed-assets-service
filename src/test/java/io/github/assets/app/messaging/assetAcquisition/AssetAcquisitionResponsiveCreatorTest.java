@@ -17,7 +17,6 @@ import java.util.Optional;
 
 import static io.github.assets.app.excel.ExcelTestUtil.readFile;
 import static io.github.assets.app.excel.ExcelTestUtil.toBytes;
-import static io.github.assets.app.messaging.GsonUtils.toJsonString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -40,9 +39,7 @@ class AssetAcquisitionResponsiveCreatorTest {
 
         MockitoAnnotations.initMocks(this);
 
-        fileNotification = FileNotification.builder()
-                                           .fileId("1001")
-                                           .build();
+        fileNotification = FileNotification.builder().fileId("1001").build();
         fileUploadDTO = new FileUploadDTO();
         fileUploadDTO.setId(Long.parseLong("1001"));
         fileUploadDTO.setDataFile(toBytes(readFile("asset_acquisition.xlsx")));
