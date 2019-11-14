@@ -25,10 +25,6 @@ public class FileNotificationMessageService implements MessageService<FileNotifi
     public MessageTokenDTO sendMessage(final FileNotification fileNotification) {
 
         MessageTokenDTO messageToken = fileUploadNotificationMessageService.sendMessage(fileNotification);
-
-        //        // Add file model type info to the message token
-        //        messageToken.fileModelType(fileTypeService.findOne(Long.parseLong(fileNotification.getFileId())).get().getFileType());
-
         messageToken.setReceived(true);
         messageToken.setActioned(true);
 
