@@ -23,7 +23,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -163,47 +162,45 @@ class AppFileUploadResourceIT {
                                                     .setControllerAdvice(exceptionTranslator)
                                                     .setConversionService(createFormattingConversionService())
                                                     .setMessageConverters(jacksonMessageConverter)
-                                                    .setValidator(validator).build();
+                                                    .setValidator(validator)
+                                                    .build();
     }
 
     /**
      * Create an entity for this test.
-     *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * <p>
+     * This is a static method, as tests for other entities might also need it, if they test an entity which requires the current entity.
      */
     public static FileUpload createEntity(EntityManager em) {
-        FileUpload fileUpload = new FileUpload()
-            .description(DEFAULT_DESCRIPTION)
-            .fileName(DEFAULT_FILE_NAME)
-            .periodFrom(DEFAULT_PERIOD_FROM)
-            .periodTo(DEFAULT_PERIOD_TO)
-            .fileTypeId(DEFAULT_FILE_TYPE_ID)
-            .dataFile(DEFAULT_DATA_FILE)
-            .dataFileContentType(DEFAULT_DATA_FILE_CONTENT_TYPE)
-            .uploadSuccessful(DEFAULT_UPLOAD_SUCCESSFUL)
-            .uploadProcessed(DEFAULT_UPLOAD_PROCESSED)
-            .uploadToken(DEFAULT_UPLOAD_TOKEN);
+        FileUpload fileUpload = new FileUpload().description(DEFAULT_DESCRIPTION)
+                                                .fileName(DEFAULT_FILE_NAME)
+                                                .periodFrom(DEFAULT_PERIOD_FROM)
+                                                .periodTo(DEFAULT_PERIOD_TO)
+                                                .fileTypeId(DEFAULT_FILE_TYPE_ID)
+                                                .dataFile(DEFAULT_DATA_FILE)
+                                                .dataFileContentType(DEFAULT_DATA_FILE_CONTENT_TYPE)
+                                                .uploadSuccessful(DEFAULT_UPLOAD_SUCCESSFUL)
+                                                .uploadProcessed(DEFAULT_UPLOAD_PROCESSED)
+                                                .uploadToken(DEFAULT_UPLOAD_TOKEN);
         return fileUpload;
     }
+
     /**
      * Create an updated entity for this test.
-     *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * <p>
+     * This is a static method, as tests for other entities might also need it, if they test an entity which requires the current entity.
      */
     public static FileUpload createUpdatedEntity(EntityManager em) {
-        FileUpload fileUpload = new FileUpload()
-            .description(UPDATED_DESCRIPTION)
-            .fileName(UPDATED_FILE_NAME)
-            .periodFrom(UPDATED_PERIOD_FROM)
-            .periodTo(UPDATED_PERIOD_TO)
-            .fileTypeId(UPDATED_FILE_TYPE_ID)
-            .dataFile(UPDATED_DATA_FILE)
-            .dataFileContentType(UPDATED_DATA_FILE_CONTENT_TYPE)
-            .uploadSuccessful(UPDATED_UPLOAD_SUCCESSFUL)
-            .uploadProcessed(UPDATED_UPLOAD_PROCESSED)
-            .uploadToken(UPDATED_UPLOAD_TOKEN);
+        FileUpload fileUpload = new FileUpload().description(UPDATED_DESCRIPTION)
+                                                .fileName(UPDATED_FILE_NAME)
+                                                .periodFrom(UPDATED_PERIOD_FROM)
+                                                .periodTo(UPDATED_PERIOD_TO)
+                                                .fileTypeId(UPDATED_FILE_TYPE_ID)
+                                                .dataFile(UPDATED_DATA_FILE)
+                                                .dataFileContentType(UPDATED_DATA_FILE_CONTENT_TYPE)
+                                                .uploadSuccessful(UPDATED_UPLOAD_SUCCESSFUL)
+                                                .uploadProcessed(UPDATED_UPLOAD_PROCESSED)
+                                                .uploadToken(UPDATED_UPLOAD_TOKEN);
         return fileUpload;
     }
 
@@ -220,9 +217,7 @@ class AppFileUploadResourceIT {
 
         // Create the FileUpload
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
-        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
-                                          .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                          .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
+        restFileUploadMockMvc.perform(post("/api/app/file-uploads").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isCreated());
 
         // * Message tokens created as side effect
@@ -270,9 +265,7 @@ class AppFileUploadResourceIT {
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
-                                          .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                          .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
+        restFileUploadMockMvc.perform(post("/api/app/file-uploads").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
 
         // Validate the FileUpload in the database
@@ -294,9 +287,7 @@ class AppFileUploadResourceIT {
         // Create the FileUpload, which fails.
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
-        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
-                                          .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                          .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
+        restFileUploadMockMvc.perform(post("/api/app/file-uploads").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
 
         List<FileUpload> fileUploadList = fileUploadRepository.findAll();
@@ -313,9 +304,7 @@ class AppFileUploadResourceIT {
         // Create the FileUpload, which fails.
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
-        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
-                                          .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                          .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
+        restFileUploadMockMvc.perform(post("/api/app/file-uploads").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
 
         List<FileUpload> fileUploadList = fileUploadRepository.findAll();
@@ -332,9 +321,7 @@ class AppFileUploadResourceIT {
         // Create the FileUpload, which fails.
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
-        restFileUploadMockMvc.perform(post("/api/app/file-uploads")
-                                          .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                          .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
+        restFileUploadMockMvc.perform(post("/api/app/file-uploads").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
 
         List<FileUpload> fileUploadList = fileUploadRepository.findAll();
@@ -514,7 +501,7 @@ class AppFileUploadResourceIT {
         defaultFileUploadShouldBeFound("periodFrom.greaterThanOrEqual=" + DEFAULT_PERIOD_FROM);
 
         // Get all the fileUploadList where periodFrom is greater than or equal to UPDATED_PERIOD_FROM
-//        defaultFileUploadShouldNotBeFound("periodFrom.greaterThanOrEqual=" + UPDATED_PERIOD_FROM);
+        //        defaultFileUploadShouldNotBeFound("periodFrom.greaterThanOrEqual=" + UPDATED_PERIOD_FROM);
     }
 
     @Test
@@ -527,7 +514,7 @@ class AppFileUploadResourceIT {
         defaultFileUploadShouldBeFound("periodFrom.lessThanOrEqual=" + DEFAULT_PERIOD_FROM);
 
         // Get all the fileUploadList where periodFrom is less than or equal to SMALLER_PERIOD_FROM
-//        defaultFileUploadShouldNotBeFound("periodFrom.lessThanOrEqual=" + SMALLER_PERIOD_FROM);
+        //        defaultFileUploadShouldNotBeFound("periodFrom.lessThanOrEqual=" + SMALLER_PERIOD_FROM);
     }
 
     @Test
@@ -805,6 +792,7 @@ class AppFileUploadResourceIT {
         // Get all the fileUploadList where uploadToken is null
         defaultFileUploadShouldNotBeFound("uploadToken.specified=false");
     }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -853,8 +841,7 @@ class AppFileUploadResourceIT {
     @Transactional
     public void getNonExistingFileUpload() throws Exception {
         // Get the fileUpload
-        restFileUploadMockMvc.perform(get("/api/app/file-uploads/{id}", Long.MAX_VALUE))
-                             .andExpect(status().isNotFound());
+        restFileUploadMockMvc.perform(get("/api/app/file-uploads/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
     }
 
     @Test
@@ -870,23 +857,19 @@ class AppFileUploadResourceIT {
         FileUpload updatedFileUpload = fileUploadRepository.findById(fileUpload.getId()).get();
         // Disconnect from session so that the updates on updatedFileUpload are not directly saved in db
         em.detach(updatedFileUpload);
-        updatedFileUpload
-            .description(UPDATED_DESCRIPTION)
-            .fileName(UPDATED_FILE_NAME)
-            .periodFrom(UPDATED_PERIOD_FROM)
-            .periodTo(UPDATED_PERIOD_TO)
-            .fileTypeId(UPDATED_FILE_TYPE_ID)
-            .dataFile(UPDATED_DATA_FILE)
-            .dataFileContentType(UPDATED_DATA_FILE_CONTENT_TYPE)
-            .uploadSuccessful(UPDATED_UPLOAD_SUCCESSFUL)
-            .uploadProcessed(UPDATED_UPLOAD_PROCESSED)
-            .uploadToken(UPDATED_UPLOAD_TOKEN);
+        updatedFileUpload.description(UPDATED_DESCRIPTION)
+                         .fileName(UPDATED_FILE_NAME)
+                         .periodFrom(UPDATED_PERIOD_FROM)
+                         .periodTo(UPDATED_PERIOD_TO)
+                         .fileTypeId(UPDATED_FILE_TYPE_ID)
+                         .dataFile(UPDATED_DATA_FILE)
+                         .dataFileContentType(UPDATED_DATA_FILE_CONTENT_TYPE)
+                         .uploadSuccessful(UPDATED_UPLOAD_SUCCESSFUL)
+                         .uploadProcessed(UPDATED_UPLOAD_PROCESSED)
+                         .uploadToken(UPDATED_UPLOAD_TOKEN);
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(updatedFileUpload);
 
-        restFileUploadMockMvc.perform(put("/api/app/file-uploads")
-                                          .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                          .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
-                             .andExpect(status().isOk());
+        restFileUploadMockMvc.perform(put("/api/app/file-uploads").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(fileUploadDTO))).andExpect(status().isOk());
 
         // * Message tokens created as side effect
         List<MessageToken> messageTokenList = messageTokenRepository.findAll();
@@ -907,24 +890,24 @@ class AppFileUploadResourceIT {
         assertThat(payload.toString()).containsSequence(UPDATED_DATA_FILE_CONTENT_TYPE);
         assertThat(payload.toString()).containsSequence(UPDATED_UPLOAD_TOKEN);
         assertThat(payload.toString()).containsSequence("AQ==");
-//
-//        // Validate the FileUpload in the database
-//        List<FileUpload> fileUploadList = fileUploadRepository.findAll();
-//        assertThat(fileUploadList).hasSize(databaseSizeBeforeUpdate);
-//        FileUpload testFileUpload = fileUploadList.get(fileUploadList.size() - 1);
-//        assertThat(testFileUpload.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-//        assertThat(testFileUpload.getFileName()).isEqualTo(UPDATED_FILE_NAME);
-//        assertThat(testFileUpload.getPeriodFrom()).isEqualTo(UPDATED_PERIOD_FROM);
-//        assertThat(testFileUpload.getPeriodTo()).isEqualTo(UPDATED_PERIOD_TO);
-//        assertThat(testFileUpload.getFileTypeId()).isEqualTo(UPDATED_FILE_TYPE_ID);
-//        assertThat(testFileUpload.getDataFile()).isEqualTo(UPDATED_DATA_FILE);
-//        assertThat(testFileUpload.getDataFileContentType()).isEqualTo(UPDATED_DATA_FILE_CONTENT_TYPE);
-//        assertThat(testFileUpload.isUploadSuccessful()).isEqualTo(UPDATED_UPLOAD_SUCCESSFUL);
-//        assertThat(testFileUpload.isUploadProcessed()).isEqualTo(UPDATED_UPLOAD_PROCESSED);
-//        assertThat(testFileUpload.getUploadToken()).isEqualTo(UPDATED_UPLOAD_TOKEN);
-//
-//        // Validate the FileUpload in Elasticsearch
-//        verify(mockFileUploadSearchRepository, times(1)).save(testFileUpload);
+        //
+        //        // Validate the FileUpload in the database
+        //        List<FileUpload> fileUploadList = fileUploadRepository.findAll();
+        //        assertThat(fileUploadList).hasSize(databaseSizeBeforeUpdate);
+        //        FileUpload testFileUpload = fileUploadList.get(fileUploadList.size() - 1);
+        //        assertThat(testFileUpload.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        //        assertThat(testFileUpload.getFileName()).isEqualTo(UPDATED_FILE_NAME);
+        //        assertThat(testFileUpload.getPeriodFrom()).isEqualTo(UPDATED_PERIOD_FROM);
+        //        assertThat(testFileUpload.getPeriodTo()).isEqualTo(UPDATED_PERIOD_TO);
+        //        assertThat(testFileUpload.getFileTypeId()).isEqualTo(UPDATED_FILE_TYPE_ID);
+        //        assertThat(testFileUpload.getDataFile()).isEqualTo(UPDATED_DATA_FILE);
+        //        assertThat(testFileUpload.getDataFileContentType()).isEqualTo(UPDATED_DATA_FILE_CONTENT_TYPE);
+        //        assertThat(testFileUpload.isUploadSuccessful()).isEqualTo(UPDATED_UPLOAD_SUCCESSFUL);
+        //        assertThat(testFileUpload.isUploadProcessed()).isEqualTo(UPDATED_UPLOAD_PROCESSED);
+        //        assertThat(testFileUpload.getUploadToken()).isEqualTo(UPDATED_UPLOAD_TOKEN);
+        //
+        //        // Validate the FileUpload in Elasticsearch
+        //        verify(mockFileUploadSearchRepository, times(1)).save(testFileUpload);
     }
 
     @Test
@@ -936,9 +919,7 @@ class AppFileUploadResourceIT {
         FileUploadDTO fileUploadDTO = fileUploadMapper.toDto(fileUpload);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restFileUploadMockMvc.perform(put("/api/app/file-uploads")
-                                          .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                                          .content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
+        restFileUploadMockMvc.perform(put("/api/app/file-uploads").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(fileUploadDTO)))
                              .andExpect(status().isBadRequest());
 
         // Validate the FileUpload in the database
@@ -958,9 +939,7 @@ class AppFileUploadResourceIT {
         int databaseSizeBeforeDelete = fileUploadRepository.findAll().size();
 
         // Delete the fileUpload
-        restFileUploadMockMvc.perform(delete("/api/app/file-uploads/{id}", fileUpload.getId())
-                                          .accept(TestUtil.APPLICATION_JSON_UTF8))
-                             .andExpect(status().isNoContent());
+        restFileUploadMockMvc.perform(delete("/api/app/file-uploads/{id}", fileUpload.getId()).accept(TestUtil.APPLICATION_JSON_UTF8)).andExpect(status().isNoContent());
 
         int tokenDatabaseBeforeCreate = messageTokenRepository.findAll().size();
         // * Message tokens created as side effect
@@ -976,12 +955,12 @@ class AppFileUploadResourceIT {
         assertThat(payload).isNotNull();
         assertThat(payload.toString()).containsSequence(String.valueOf(fileUpload.getId()));
 
-//        // Validate the database contains one less item
-//        List<FileUpload> fileUploadList = fileUploadRepository.findAll();
-//        assertThat(fileUploadList).hasSize(databaseSizeBeforeDelete - 1);
-//
-//        // Validate the FileUpload in Elasticsearch
-//        verify(mockFileUploadSearchRepository, times(1)).deleteById(fileUpload.getId());
+        //        // Validate the database contains one less item
+        //        List<FileUpload> fileUploadList = fileUploadRepository.findAll();
+        //        assertThat(fileUploadList).hasSize(databaseSizeBeforeDelete - 1);
+        //
+        //        // Validate the FileUpload in Elasticsearch
+        //        verify(mockFileUploadSearchRepository, times(1)).deleteById(fileUpload.getId());
     }
 
     @Test
@@ -989,8 +968,8 @@ class AppFileUploadResourceIT {
     public void searchFileUpload() throws Exception {
         // Initialize the database
         fileUploadRepository.saveAndFlush(fileUpload);
-        when(mockFileUploadSearchRepository.search(queryStringQuery("id:" + fileUpload.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(fileUpload), PageRequest.of(0, 1), 1));
+        when(mockFileUploadSearchRepository.search(queryStringQuery("id:" + fileUpload.getId()), PageRequest.of(0, 20))).thenReturn(
+            new PageImpl<>(Collections.singletonList(fileUpload), PageRequest.of(0, 1), 1));
         // Search the fileUpload
         restFileUploadMockMvc.perform(get("/api/app/_search/file-uploads?query=id:" + fileUpload.getId()))
                              .andExpect(status().isOk())

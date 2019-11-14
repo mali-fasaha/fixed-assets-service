@@ -3,10 +3,13 @@ package io.github.assets.app.messaging.fileUpload;
 import io.github.assets.app.messaging.DeleteMessageDTO;
 import io.github.assets.app.messaging.EntityResource;
 import io.github.assets.app.messaging.MuteResourceListener;
+import io.github.assets.app.messaging.ResponsiveEntityResource;
 import io.github.assets.app.messaging.TokenValueSearch;
+import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +28,13 @@ public class FileUploadMuteResourceListener implements MuteResourceListener<File
     private final TokenValueSearch<String> stringTokenValueSearch;
     private final EntityResource<FileUploadMTO, DeleteMessageDTO> assetEntityResource;
 
-    public FileUploadMuteResourceListener(final TokenValueSearch<String> stringTokenValueSearch, final EntityResource<FileUploadMTO, DeleteMessageDTO> fileUploadEntityResource) {
+    private final ResponsiveEntityResource<FileUploadMTO, DeleteMessageDTO, FileUploadDTO> fileUploadResponsiveEntityResource;
+
+    public FileUploadMuteResourceListener(final TokenValueSearch<String> stringTokenValueSearch, final EntityResource<FileUploadMTO, DeleteMessageDTO> fileUploadEntityResource,
+                                          final ResponsiveEntityResource<FileUploadMTO, DeleteMessageDTO, FileUploadDTO> fileUploadResponsiveEntityResource) {
         this.stringTokenValueSearch = stringTokenValueSearch;
         this.assetEntityResource = fileUploadEntityResource;
+        this.fileUploadResponsiveEntityResource = fileUploadResponsiveEntityResource;
     }
 
     @Override
@@ -40,7 +47,15 @@ public class FileUploadMuteResourceListener implements MuteResourceListener<File
 
         messageToken.setReceived(true);
 
-        assetEntityResource.createEntity(mto, messageToken);
+        ResponseEntity<FileUploadDTO> fileUploadReponseEntity = fileUploadResponsiveEntityResource.createEntityAndRespond(mto, messageToken);
+
+        // TODO trigger file upload notifications
+//        fileNotificationMessageService.notifyCreators(FileNotification.builder()
+//                                                                      .messageToken(messageToken.getTokenValue())
+//                                                                      .timestamp(messageToken.getTimeSent())
+//                                                                      .fileId(String.valueOf(Objects.requireNonNull(fileUploadReponseEntity.getBody()).getId()))
+//                                                                      .filename(String.valueOf(Objects.requireNonNull(fileUploadReponseEntity.getBody()).getFileName()))
+//                                                                      .build());
     }
 
     @Override
@@ -54,6 +69,8 @@ public class FileUploadMuteResourceListener implements MuteResourceListener<File
         messageToken.setReceived(true);
 
         assetEntityResource.updateEntity(mto, messageToken);
+
+        // TODO trigger file upload notifications
     }
 
     @Override
@@ -67,5 +84,7 @@ public class FileUploadMuteResourceListener implements MuteResourceListener<File
         messageToken.setReceived(true);
 
         assetEntityResource.deleteEntity(deleteMessageDTO, messageToken);
+
+        // TODO trigger file upload data deletions
     }
 }
