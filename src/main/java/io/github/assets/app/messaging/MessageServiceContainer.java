@@ -3,6 +3,7 @@ package io.github.assets.app.messaging;
 import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionMTO;
 import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionResourceStreams;
 import io.github.assets.app.messaging.assetDepreciation.AssetDepreciationResourceStreams;
+import io.github.assets.app.messaging.fileNotification.FileNotificationStreams;
 import io.github.assets.app.messaging.fileUpload.FileUploadResourceStreams;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.service.MessageTokenService;
@@ -13,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class MessageServiceConfigurations {
+public class MessageServiceContainer {
 
     @Autowired
     private TokenGenerator tokenGenerator;
@@ -27,6 +28,8 @@ public class MessageServiceConfigurations {
     private AssetDepreciationResourceStreams assetDepreciationResourceStreams;
     @Autowired
     private FileUploadResourceStreams fileUploadResourceStreams;
+    @Autowired
+    private FileNotificationStreams fileNotificationStreams;
     @Autowired
     private Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper;
 
@@ -84,5 +87,9 @@ public class MessageServiceConfigurations {
         return new StringedTokenMessageService(tokenGenerator, messageTokenService, fileUploadResourceStreams.outboundDeleteResource(), messageTokenMapper);
     }
 
+    @Bean("fileUploadNotificationMessageService")
+    public MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService() {
 
+        return new StringedTokenMessageService(tokenGenerator, messageTokenService, fileNotificationStreams.outbound(), messageTokenMapper);
+    }
 }

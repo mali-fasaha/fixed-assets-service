@@ -1,24 +1,19 @@
 package io.github.assets.app.messaging.fileNotification;
 
 import io.github.assets.app.messaging.MessageService;
-import io.github.assets.app.messaging.StringedTokenMessageService;
 import io.github.assets.app.messaging.TokenizableMessage;
-import io.github.assets.app.util.TokenGenerator;
-import io.github.assets.service.FileTypeService;
-import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.MessageTokenDTO;
-import io.github.assets.service.mapper.MessageTokenMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @Service("fileNotificationMessageService")
-public class FileNotificationMessageService extends StringedTokenMessageService implements MessageService<TokenizableMessage<String>> {
+public class FileNotificationMessageService implements MessageService<FileNotification> {
 
-    private final FileTypeService fileTypeService;
+    private final MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService;
 
-    public FileNotificationMessageService(final TokenGenerator tokenGenerator, final MessageTokenService messageTokenService, final FileNotificationStreams fileNotificationStreams,
-                                          final FileTypeService fileTypeService, final MessageTokenMapper messageTokenMapper) {
-        super(tokenGenerator, messageTokenService, fileNotificationStreams.outbound(), messageTokenMapper);
-        this.fileTypeService = fileTypeService;
+    public FileNotificationMessageService(final MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService) {
+        this.fileUploadNotificationMessageService = fileUploadNotificationMessageService;
     }
 
     /**
@@ -29,10 +24,10 @@ public class FileNotificationMessageService extends StringedTokenMessageService 
      */
     public MessageTokenDTO sendMessage(final FileNotification fileNotification) {
 
-        MessageTokenDTO messageToken = super.sendMessage(fileNotification);
+        MessageTokenDTO messageToken = fileUploadNotificationMessageService.sendMessage(fileNotification);
 
-//        // Add file model type info to the message token
-//        messageToken.fileModelType(fileTypeService.findOne(Long.parseLong(fileNotification.getFileId())).get().getFileType());
+        //        // Add file model type info to the message token
+        //        messageToken.fileModelType(fileTypeService.findOne(Long.parseLong(fileNotification.getFileId())).get().getFileType());
 
         messageToken.setReceived(true);
         messageToken.setActioned(true);
