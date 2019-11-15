@@ -1,6 +1,6 @@
 package io.github.assets.app.messaging.assetDepreciation;
 
-import io.github.assets.app.messaging.Mapping;
+import io.github.assets.app.Mapping;
 import io.github.assets.service.dto.AssetDepreciationDTO;
 import org.springframework.stereotype.Component;
 

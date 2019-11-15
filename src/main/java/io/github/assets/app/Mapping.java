@@ -1,4 +1,4 @@
-package io.github.assets.app.messaging;
+package io.github.assets.app;
 
 public interface Mapping<V1, V2> {
 

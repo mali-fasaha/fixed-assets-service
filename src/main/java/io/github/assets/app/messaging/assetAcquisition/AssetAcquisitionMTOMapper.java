@@ -1,6 +1,6 @@
 package io.github.assets.app.messaging.assetAcquisition;
 
-import io.github.assets.app.messaging.Mapping;
+import io.github.assets.app.Mapping;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import org.springframework.stereotype.Component;
 

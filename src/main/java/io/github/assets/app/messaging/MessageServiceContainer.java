@@ -1,5 +1,6 @@
 package io.github.assets.app.messaging;
 
+import io.github.assets.app.Mapping;
 import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionMTO;
 import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionResourceStreams;
 import io.github.assets.app.messaging.assetDepreciation.AssetDepreciationResourceStreams;

@@ -1,6 +1,6 @@
 package io.github.assets.app.messaging.fileUpload;
 
-import io.github.assets.app.messaging.Mapping;
+import io.github.assets.app.Mapping;
 import io.github.assets.app.messaging.MessageService;
 import io.github.assets.app.messaging.TokenizableMessage;
 import io.github.assets.service.dto.FileUploadDTO;

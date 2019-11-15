@@ -1,11 +1,9 @@
 package io.github.assets.app.messaging.fileUpload;
 
-import io.github.assets.app.messaging.Mapping;
+import io.github.assets.app.Mapping;
 import io.github.assets.service.dto.FileUploadDTO;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.Lob;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 import static io.github.assets.app.AppConstants.DATETIME_FORMATTER;

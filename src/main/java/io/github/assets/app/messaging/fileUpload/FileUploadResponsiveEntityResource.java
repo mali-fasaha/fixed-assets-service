@@ -2,7 +2,7 @@ package io.github.assets.app.messaging.fileUpload;
 
 import io.github.assets.app.messaging.DeleteMessageDTO;
 import io.github.assets.app.messaging.EntityResource;
-import io.github.assets.app.messaging.Mapping;
+import io.github.assets.app.Mapping;
 import io.github.assets.app.messaging.ResponsiveEntityResource;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
 import io.github.assets.service.MessageTokenService;
