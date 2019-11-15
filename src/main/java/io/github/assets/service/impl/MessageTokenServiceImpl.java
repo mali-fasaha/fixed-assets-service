@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.MessageTokenService;
 import io.github.assets.domain.MessageToken;
 import io.github.assets.repository.MessageTokenRepository;
-import io.github.assets.repository.search.MessageTokenSearchRepository;
 import io.github.assets.service.dto.MessageTokenDTO;
 import io.github.assets.service.mapper.MessageTokenMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link MessageToken}.
@@ -31,12 +28,9 @@ public class MessageTokenServiceImpl implements MessageTokenService {
 
     private final MessageTokenMapper messageTokenMapper;
 
-    private final MessageTokenSearchRepository messageTokenSearchRepository;
-
-    public MessageTokenServiceImpl(MessageTokenRepository messageTokenRepository, MessageTokenMapper messageTokenMapper, MessageTokenSearchRepository messageTokenSearchRepository) {
+    public MessageTokenServiceImpl(MessageTokenRepository messageTokenRepository, MessageTokenMapper messageTokenMapper) {
         this.messageTokenRepository = messageTokenRepository;
         this.messageTokenMapper = messageTokenMapper;
-        this.messageTokenSearchRepository = messageTokenSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class MessageTokenServiceImpl implements MessageTokenService {
         log.debug("Request to save MessageToken : {}", messageTokenDTO);
         MessageToken messageToken = messageTokenMapper.toEntity(messageTokenDTO);
         messageToken = messageTokenRepository.save(messageToken);
-        MessageTokenDTO result = messageTokenMapper.toDto(messageToken);
-        messageTokenSearchRepository.save(messageToken);
-        return result;
+        return messageTokenMapper.toDto(messageToken);
     }
 
     /**
@@ -93,21 +85,5 @@ public class MessageTokenServiceImpl implements MessageTokenService {
     public void delete(Long id) {
         log.debug("Request to delete MessageToken : {}", id);
         messageTokenRepository.deleteById(id);
-        messageTokenSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the messageToken corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<MessageTokenDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of MessageTokens for query {}", query);
-        return messageTokenSearchRepository.search(queryStringQuery(query), pageable)
-            .map(messageTokenMapper::toDto);
     }
 }

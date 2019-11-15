@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.Dealer;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.DealerRepository;
-import io.github.assets.repository.search.DealerSearchRepository;
 import io.github.assets.service.dto.DealerCriteria;
 import io.github.assets.service.dto.DealerDTO;
 import io.github.assets.service.mapper.DealerMapper;
@@ -38,12 +37,9 @@ public class DealerQueryService extends QueryService<Dealer> {
 
     private final DealerMapper dealerMapper;
 
-    private final DealerSearchRepository dealerSearchRepository;
-
-    public DealerQueryService(DealerRepository dealerRepository, DealerMapper dealerMapper, DealerSearchRepository dealerSearchRepository) {
+    public DealerQueryService(DealerRepository dealerRepository, DealerMapper dealerMapper) {
         this.dealerRepository = dealerRepository;
         this.dealerMapper = dealerMapper;
-        this.dealerSearchRepository = dealerSearchRepository;
     }
 
     /**

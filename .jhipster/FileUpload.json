@@ -59,7 +59,7 @@
     ],
     "changelogDate": "20190726071459",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "file_upload",
     "databaseType": "sql",

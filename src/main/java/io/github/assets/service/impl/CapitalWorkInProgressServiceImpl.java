@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.CapitalWorkInProgressService;
 import io.github.assets.domain.CapitalWorkInProgress;
 import io.github.assets.repository.CapitalWorkInProgressRepository;
-import io.github.assets.repository.search.CapitalWorkInProgressSearchRepository;
 import io.github.assets.service.dto.CapitalWorkInProgressDTO;
 import io.github.assets.service.mapper.CapitalWorkInProgressMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link CapitalWorkInProgress}.
@@ -31,12 +28,9 @@ public class CapitalWorkInProgressServiceImpl implements CapitalWorkInProgressSe
 
     private final CapitalWorkInProgressMapper capitalWorkInProgressMapper;
 
-    private final CapitalWorkInProgressSearchRepository capitalWorkInProgressSearchRepository;
-
-    public CapitalWorkInProgressServiceImpl(CapitalWorkInProgressRepository capitalWorkInProgressRepository, CapitalWorkInProgressMapper capitalWorkInProgressMapper, CapitalWorkInProgressSearchRepository capitalWorkInProgressSearchRepository) {
+    public CapitalWorkInProgressServiceImpl(CapitalWorkInProgressRepository capitalWorkInProgressRepository, CapitalWorkInProgressMapper capitalWorkInProgressMapper) {
         this.capitalWorkInProgressRepository = capitalWorkInProgressRepository;
         this.capitalWorkInProgressMapper = capitalWorkInProgressMapper;
-        this.capitalWorkInProgressSearchRepository = capitalWorkInProgressSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class CapitalWorkInProgressServiceImpl implements CapitalWorkInProgressSe
         log.debug("Request to save CapitalWorkInProgress : {}", capitalWorkInProgressDTO);
         CapitalWorkInProgress capitalWorkInProgress = capitalWorkInProgressMapper.toEntity(capitalWorkInProgressDTO);
         capitalWorkInProgress = capitalWorkInProgressRepository.save(capitalWorkInProgress);
-        CapitalWorkInProgressDTO result = capitalWorkInProgressMapper.toDto(capitalWorkInProgress);
-        capitalWorkInProgressSearchRepository.save(capitalWorkInProgress);
-        return result;
+        return capitalWorkInProgressMapper.toDto(capitalWorkInProgress);
     }
 
     /**
@@ -93,21 +85,5 @@ public class CapitalWorkInProgressServiceImpl implements CapitalWorkInProgressSe
     public void delete(Long id) {
         log.debug("Request to delete CapitalWorkInProgress : {}", id);
         capitalWorkInProgressRepository.deleteById(id);
-        capitalWorkInProgressSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the capitalWorkInProgress corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<CapitalWorkInProgressDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of CapitalWorkInProgresses for query {}", query);
-        return capitalWorkInProgressSearchRepository.search(queryStringQuery(query), pageable)
-            .map(capitalWorkInProgressMapper::toDto);
     }
 }

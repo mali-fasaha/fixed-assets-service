@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.CwipTransfer;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.CwipTransferRepository;
-import io.github.assets.repository.search.CwipTransferSearchRepository;
 import io.github.assets.service.dto.CwipTransferCriteria;
 import io.github.assets.service.dto.CwipTransferDTO;
 import io.github.assets.service.mapper.CwipTransferMapper;
@@ -38,12 +37,9 @@ public class CwipTransferQueryService extends QueryService<CwipTransfer> {
 
     private final CwipTransferMapper cwipTransferMapper;
 
-    private final CwipTransferSearchRepository cwipTransferSearchRepository;
-
-    public CwipTransferQueryService(CwipTransferRepository cwipTransferRepository, CwipTransferMapper cwipTransferMapper, CwipTransferSearchRepository cwipTransferSearchRepository) {
+    public CwipTransferQueryService(CwipTransferRepository cwipTransferRepository, CwipTransferMapper cwipTransferMapper) {
         this.cwipTransferRepository = cwipTransferRepository;
         this.cwipTransferMapper = cwipTransferMapper;
-        this.cwipTransferSearchRepository = cwipTransferSearchRepository;
     }
 
     /**

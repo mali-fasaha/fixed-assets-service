@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.FixedAssetCategory;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.FixedAssetCategoryRepository;
-import io.github.assets.repository.search.FixedAssetCategorySearchRepository;
 import io.github.assets.service.dto.FixedAssetCategoryCriteria;
 import io.github.assets.service.dto.FixedAssetCategoryDTO;
 import io.github.assets.service.mapper.FixedAssetCategoryMapper;
@@ -38,12 +37,9 @@ public class FixedAssetCategoryQueryService extends QueryService<FixedAssetCateg
 
     private final FixedAssetCategoryMapper fixedAssetCategoryMapper;
 
-    private final FixedAssetCategorySearchRepository fixedAssetCategorySearchRepository;
-
-    public FixedAssetCategoryQueryService(FixedAssetCategoryRepository fixedAssetCategoryRepository, FixedAssetCategoryMapper fixedAssetCategoryMapper, FixedAssetCategorySearchRepository fixedAssetCategorySearchRepository) {
+    public FixedAssetCategoryQueryService(FixedAssetCategoryRepository fixedAssetCategoryRepository, FixedAssetCategoryMapper fixedAssetCategoryMapper) {
         this.fixedAssetCategoryRepository = fixedAssetCategoryRepository;
         this.fixedAssetCategoryMapper = fixedAssetCategoryMapper;
-        this.fixedAssetCategorySearchRepository = fixedAssetCategorySearchRepository;
     }
 
     /**

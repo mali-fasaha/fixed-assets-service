@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.CapitalWorkInProgress;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.CapitalWorkInProgressRepository;
-import io.github.assets.repository.search.CapitalWorkInProgressSearchRepository;
 import io.github.assets.service.dto.CapitalWorkInProgressCriteria;
 import io.github.assets.service.dto.CapitalWorkInProgressDTO;
 import io.github.assets.service.mapper.CapitalWorkInProgressMapper;
@@ -38,12 +37,9 @@ public class CapitalWorkInProgressQueryService extends QueryService<CapitalWorkI
 
     private final CapitalWorkInProgressMapper capitalWorkInProgressMapper;
 
-    private final CapitalWorkInProgressSearchRepository capitalWorkInProgressSearchRepository;
-
-    public CapitalWorkInProgressQueryService(CapitalWorkInProgressRepository capitalWorkInProgressRepository, CapitalWorkInProgressMapper capitalWorkInProgressMapper, CapitalWorkInProgressSearchRepository capitalWorkInProgressSearchRepository) {
+    public CapitalWorkInProgressQueryService(CapitalWorkInProgressRepository capitalWorkInProgressRepository, CapitalWorkInProgressMapper capitalWorkInProgressMapper) {
         this.capitalWorkInProgressRepository = capitalWorkInProgressRepository;
         this.capitalWorkInProgressMapper = capitalWorkInProgressMapper;
-        this.capitalWorkInProgressSearchRepository = capitalWorkInProgressSearchRepository;
     }
 
     /**

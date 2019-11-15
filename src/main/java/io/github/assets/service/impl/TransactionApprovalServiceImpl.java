@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.TransactionApprovalService;
 import io.github.assets.domain.TransactionApproval;
 import io.github.assets.repository.TransactionApprovalRepository;
-import io.github.assets.repository.search.TransactionApprovalSearchRepository;
 import io.github.assets.service.dto.TransactionApprovalDTO;
 import io.github.assets.service.mapper.TransactionApprovalMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link TransactionApproval}.
@@ -31,12 +28,9 @@ public class TransactionApprovalServiceImpl implements TransactionApprovalServic
 
     private final TransactionApprovalMapper transactionApprovalMapper;
 
-    private final TransactionApprovalSearchRepository transactionApprovalSearchRepository;
-
-    public TransactionApprovalServiceImpl(TransactionApprovalRepository transactionApprovalRepository, TransactionApprovalMapper transactionApprovalMapper, TransactionApprovalSearchRepository transactionApprovalSearchRepository) {
+    public TransactionApprovalServiceImpl(TransactionApprovalRepository transactionApprovalRepository, TransactionApprovalMapper transactionApprovalMapper) {
         this.transactionApprovalRepository = transactionApprovalRepository;
         this.transactionApprovalMapper = transactionApprovalMapper;
-        this.transactionApprovalSearchRepository = transactionApprovalSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class TransactionApprovalServiceImpl implements TransactionApprovalServic
         log.debug("Request to save TransactionApproval : {}", transactionApprovalDTO);
         TransactionApproval transactionApproval = transactionApprovalMapper.toEntity(transactionApprovalDTO);
         transactionApproval = transactionApprovalRepository.save(transactionApproval);
-        TransactionApprovalDTO result = transactionApprovalMapper.toDto(transactionApproval);
-        transactionApprovalSearchRepository.save(transactionApproval);
-        return result;
+        return transactionApprovalMapper.toDto(transactionApproval);
     }
 
     /**
@@ -93,21 +85,5 @@ public class TransactionApprovalServiceImpl implements TransactionApprovalServic
     public void delete(Long id) {
         log.debug("Request to delete TransactionApproval : {}", id);
         transactionApprovalRepository.deleteById(id);
-        transactionApprovalSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the transactionApproval corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<TransactionApprovalDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of TransactionApprovals for query {}", query);
-        return transactionApprovalSearchRepository.search(queryStringQuery(query), pageable)
-            .map(transactionApprovalMapper::toDto);
     }
 }

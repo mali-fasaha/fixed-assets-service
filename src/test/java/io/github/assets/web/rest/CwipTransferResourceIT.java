@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.CwipTransfer;
 import io.github.assets.repository.CwipTransferRepository;
-import io.github.assets.repository.search.CwipTransferSearchRepository;
 import io.github.assets.service.CwipTransferService;
 import io.github.assets.service.dto.CwipTransferDTO;
 import io.github.assets.service.mapper.CwipTransferMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -31,14 +28,11 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -93,14 +87,6 @@ public class CwipTransferResourceIT {
 
     @Autowired
     private CwipTransferService cwipTransferService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.CwipTransferSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private CwipTransferSearchRepository mockCwipTransferSearchRepository;
 
     @Autowired
     private CwipTransferQueryService cwipTransferQueryService;
@@ -208,9 +194,6 @@ public class CwipTransferResourceIT {
         assertThat(testCwipTransfer.getTransferAmount()).isEqualTo(DEFAULT_TRANSFER_AMOUNT);
         assertThat(testCwipTransfer.getDealerId()).isEqualTo(DEFAULT_DEALER_ID);
         assertThat(testCwipTransfer.getTransactionInvoiceId()).isEqualTo(DEFAULT_TRANSACTION_INVOICE_ID);
-
-        // Validate the CwipTransfer in Elasticsearch
-        verify(mockCwipTransferSearchRepository, times(1)).save(testCwipTransfer);
     }
 
     @Test
@@ -231,9 +214,6 @@ public class CwipTransferResourceIT {
         // Validate the CwipTransfer in the database
         List<CwipTransfer> cwipTransferList = cwipTransferRepository.findAll();
         assertThat(cwipTransferList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the CwipTransfer in Elasticsearch
-        verify(mockCwipTransferSearchRepository, times(0)).save(cwipTransfer);
     }
 
 
@@ -1519,9 +1499,6 @@ public class CwipTransferResourceIT {
         assertThat(testCwipTransfer.getTransferAmount()).isEqualTo(UPDATED_TRANSFER_AMOUNT);
         assertThat(testCwipTransfer.getDealerId()).isEqualTo(UPDATED_DEALER_ID);
         assertThat(testCwipTransfer.getTransactionInvoiceId()).isEqualTo(UPDATED_TRANSACTION_INVOICE_ID);
-
-        // Validate the CwipTransfer in Elasticsearch
-        verify(mockCwipTransferSearchRepository, times(1)).save(testCwipTransfer);
     }
 
     @Test
@@ -1541,9 +1518,6 @@ public class CwipTransferResourceIT {
         // Validate the CwipTransfer in the database
         List<CwipTransfer> cwipTransferList = cwipTransferRepository.findAll();
         assertThat(cwipTransferList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the CwipTransfer in Elasticsearch
-        verify(mockCwipTransferSearchRepository, times(0)).save(cwipTransfer);
     }
 
     @Test
@@ -1562,32 +1536,5 @@ public class CwipTransferResourceIT {
         // Validate the database contains one less item
         List<CwipTransfer> cwipTransferList = cwipTransferRepository.findAll();
         assertThat(cwipTransferList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the CwipTransfer in Elasticsearch
-        verify(mockCwipTransferSearchRepository, times(1)).deleteById(cwipTransfer.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchCwipTransfer() throws Exception {
-        // Initialize the database
-        cwipTransferRepository.saveAndFlush(cwipTransfer);
-        when(mockCwipTransferSearchRepository.search(queryStringQuery("id:" + cwipTransfer.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(cwipTransfer), PageRequest.of(0, 1), 1));
-        // Search the cwipTransfer
-        restCwipTransferMockMvc.perform(get("/api/_search/cwip-transfers?query=id:" + cwipTransfer.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(cwipTransfer.getId().intValue())))
-            .andExpect(jsonPath("$.[*].transferMonth").value(hasItem(DEFAULT_TRANSFER_MONTH.toString())))
-            .andExpect(jsonPath("$.[*].assetSerialTag").value(hasItem(DEFAULT_ASSET_SERIAL_TAG)))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
-            .andExpect(jsonPath("$.[*].transferTransactionId").value(hasItem(DEFAULT_TRANSFER_TRANSACTION_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
-            .andExpect(jsonPath("$.[*].cwipTransactionId").value(hasItem(DEFAULT_CWIP_TRANSACTION_ID.intValue())))
-            .andExpect(jsonPath("$.[*].transferDetails").value(hasItem(DEFAULT_TRANSFER_DETAILS)))
-            .andExpect(jsonPath("$.[*].transferAmount").value(hasItem(DEFAULT_TRANSFER_AMOUNT.intValue())))
-            .andExpect(jsonPath("$.[*].dealerId").value(hasItem(DEFAULT_DEALER_ID.intValue())))
-            .andExpect(jsonPath("$.[*].transactionInvoiceId").value(hasItem(DEFAULT_TRANSACTION_INVOICE_ID.intValue())));
     }
 }

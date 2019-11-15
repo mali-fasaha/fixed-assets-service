@@ -24,7 +24,7 @@ import org.springframework.util.MimeTypeUtils;
  * and to deserialize that data and send it back to stream.
  */
 @Slf4j
-@Component("assetAcquisitionResponsiveCreator")
+//@Component("assetAcquisitionResponsiveCreator")
 public class AssetAcquisitionResponsiveCreator implements ResponsiveListener<FileNotification, Message<String>> {
 
     private final FileUploadService fileUploadService;
@@ -37,7 +37,7 @@ public class AssetAcquisitionResponsiveCreator implements ResponsiveListener<Fil
 
     @Override
     @StreamListener(FileNotificationStreams.INPUT)
-    @SendTo(AssetAcquisitionResourceStreams.FILED_CREATE_RESOURCE_IN)
+    @SendTo(AssetAcquisitionResourceStreams.FILED_CREATE_RESOURCE_OUT)
     public Message<String> attendMessage(@Payload FileNotification fileNotification) {
         FileUploadDTO fileUpload = fileUploadService.findOne(Long.parseLong(fileNotification.getFileId())).orElseThrow(() -> new IllegalArgumentException("Id # : " + fileNotification.getFileId() +
                                                                                                                                                               " does not exist"));

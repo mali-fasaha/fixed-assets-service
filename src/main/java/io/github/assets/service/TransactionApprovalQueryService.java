@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.TransactionApproval;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.TransactionApprovalRepository;
-import io.github.assets.repository.search.TransactionApprovalSearchRepository;
 import io.github.assets.service.dto.TransactionApprovalCriteria;
 import io.github.assets.service.dto.TransactionApprovalDTO;
 import io.github.assets.service.mapper.TransactionApprovalMapper;
@@ -38,12 +37,9 @@ public class TransactionApprovalQueryService extends QueryService<TransactionApp
 
     private final TransactionApprovalMapper transactionApprovalMapper;
 
-    private final TransactionApprovalSearchRepository transactionApprovalSearchRepository;
-
-    public TransactionApprovalQueryService(TransactionApprovalRepository transactionApprovalRepository, TransactionApprovalMapper transactionApprovalMapper, TransactionApprovalSearchRepository transactionApprovalSearchRepository) {
+    public TransactionApprovalQueryService(TransactionApprovalRepository transactionApprovalRepository, TransactionApprovalMapper transactionApprovalMapper) {
         this.transactionApprovalRepository = transactionApprovalRepository;
         this.transactionApprovalMapper = transactionApprovalMapper;
-        this.transactionApprovalSearchRepository = transactionApprovalSearchRepository;
     }
 
     /**

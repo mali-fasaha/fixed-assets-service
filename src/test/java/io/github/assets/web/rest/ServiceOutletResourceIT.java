@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.ServiceOutlet;
 import io.github.assets.repository.ServiceOutletRepository;
-import io.github.assets.repository.search.ServiceOutletSearchRepository;
 import io.github.assets.service.ServiceOutletService;
 import io.github.assets.service.dto.ServiceOutletDTO;
 import io.github.assets.service.mapper.ServiceOutletMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -28,14 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -65,14 +59,6 @@ public class ServiceOutletResourceIT {
 
     @Autowired
     private ServiceOutletService serviceOutletService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.ServiceOutletSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private ServiceOutletSearchRepository mockServiceOutletSearchRepository;
 
     @Autowired
     private ServiceOutletQueryService serviceOutletQueryService;
@@ -162,9 +148,6 @@ public class ServiceOutletResourceIT {
         assertThat(testServiceOutlet.getServiceOutletDesignation()).isEqualTo(DEFAULT_SERVICE_OUTLET_DESIGNATION);
         assertThat(testServiceOutlet.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testServiceOutlet.getLocation()).isEqualTo(DEFAULT_LOCATION);
-
-        // Validate the ServiceOutlet in Elasticsearch
-        verify(mockServiceOutletSearchRepository, times(1)).save(testServiceOutlet);
     }
 
     @Test
@@ -185,9 +168,6 @@ public class ServiceOutletResourceIT {
         // Validate the ServiceOutlet in the database
         List<ServiceOutlet> serviceOutletList = serviceOutletRepository.findAll();
         assertThat(serviceOutletList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the ServiceOutlet in Elasticsearch
-        verify(mockServiceOutletSearchRepository, times(0)).save(serviceOutlet);
     }
 
 
@@ -672,9 +652,6 @@ public class ServiceOutletResourceIT {
         assertThat(testServiceOutlet.getServiceOutletDesignation()).isEqualTo(UPDATED_SERVICE_OUTLET_DESIGNATION);
         assertThat(testServiceOutlet.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testServiceOutlet.getLocation()).isEqualTo(UPDATED_LOCATION);
-
-        // Validate the ServiceOutlet in Elasticsearch
-        verify(mockServiceOutletSearchRepository, times(1)).save(testServiceOutlet);
     }
 
     @Test
@@ -694,9 +671,6 @@ public class ServiceOutletResourceIT {
         // Validate the ServiceOutlet in the database
         List<ServiceOutlet> serviceOutletList = serviceOutletRepository.findAll();
         assertThat(serviceOutletList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the ServiceOutlet in Elasticsearch
-        verify(mockServiceOutletSearchRepository, times(0)).save(serviceOutlet);
     }
 
     @Test
@@ -715,26 +689,5 @@ public class ServiceOutletResourceIT {
         // Validate the database contains one less item
         List<ServiceOutlet> serviceOutletList = serviceOutletRepository.findAll();
         assertThat(serviceOutletList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the ServiceOutlet in Elasticsearch
-        verify(mockServiceOutletSearchRepository, times(1)).deleteById(serviceOutlet.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchServiceOutlet() throws Exception {
-        // Initialize the database
-        serviceOutletRepository.saveAndFlush(serviceOutlet);
-        when(mockServiceOutletSearchRepository.search(queryStringQuery("id:" + serviceOutlet.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(serviceOutlet), PageRequest.of(0, 1), 1));
-        // Search the serviceOutlet
-        restServiceOutletMockMvc.perform(get("/api/_search/service-outlets?query=id:" + serviceOutlet.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(serviceOutlet.getId().intValue())))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
-            .andExpect(jsonPath("$.[*].serviceOutletDesignation").value(hasItem(DEFAULT_SERVICE_OUTLET_DESIGNATION)))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].location").value(hasItem(DEFAULT_LOCATION)));
     }
 }

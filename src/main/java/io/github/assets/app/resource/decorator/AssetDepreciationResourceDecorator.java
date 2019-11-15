@@ -90,16 +90,4 @@ public class AssetDepreciationResourceDecorator implements IAssetDepreciationRes
     public ResponseEntity<Void> deleteAssetDepreciation(final Long id) {
         return assetDepreciationResource.deleteAssetDepreciation(id);
     }
-
-    /**
-     * {@code SEARCH  /_search/asset-depreciations?query=:query} : search for the assetDepreciation corresponding to the query.
-     *
-     * @param query    the query of the assetDepreciation search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @Override
-    public ResponseEntity<List<AssetDepreciationDTO>> searchAssetDepreciations(final String query, final Pageable pageable) {
-        return assetDepreciationResource.searchAssetDepreciations(query, pageable);
-    }
 }

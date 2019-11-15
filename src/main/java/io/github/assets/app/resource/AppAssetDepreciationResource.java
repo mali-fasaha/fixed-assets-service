@@ -128,17 +128,4 @@ public class AppAssetDepreciationResource implements IAssetDepreciationResource 
         assetDepreciationMutationResource.deleteEntity(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
     }
-
-    /**
-     * {@code SEARCH  /_search/asset-depreciations?query=:query} : search for the assetDepreciation corresponding to the query.
-     *
-     * @param query    the query of the assetDepreciation search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/asset-depreciations")
-    public ResponseEntity<List<AssetDepreciationDTO>> searchAssetDepreciations(@RequestParam String query, Pageable pageable) {
-        log.debug("REST request to search for a page of AssetDepreciations for query {}", query);
-        return assetDepreciationResourceDecorator.searchAssetDepreciations(query, pageable);
-    }
 }

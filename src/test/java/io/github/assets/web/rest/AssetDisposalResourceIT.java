@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetDisposal;
 import io.github.assets.repository.AssetDisposalRepository;
-import io.github.assets.repository.search.AssetDisposalSearchRepository;
 import io.github.assets.service.AssetDisposalService;
 import io.github.assets.service.dto.AssetDisposalDTO;
 import io.github.assets.service.mapper.AssetDisposalMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -32,14 +29,11 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -97,14 +91,6 @@ public class AssetDisposalResourceIT {
 
     @Autowired
     private AssetDisposalService assetDisposalService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.AssetDisposalSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private AssetDisposalSearchRepository mockAssetDisposalSearchRepository;
 
     @Autowired
     private AssetDisposalQueryService assetDisposalQueryService;
@@ -215,9 +201,6 @@ public class AssetDisposalResourceIT {
         assertThat(testAssetDisposal.getAssetDealerId()).isEqualTo(DEFAULT_ASSET_DEALER_ID);
         assertThat(testAssetDisposal.getAssetPicture()).isEqualTo(DEFAULT_ASSET_PICTURE);
         assertThat(testAssetDisposal.getAssetPictureContentType()).isEqualTo(DEFAULT_ASSET_PICTURE_CONTENT_TYPE);
-
-        // Validate the AssetDisposal in Elasticsearch
-        verify(mockAssetDisposalSearchRepository, times(1)).save(testAssetDisposal);
     }
 
     @Test
@@ -238,9 +221,6 @@ public class AssetDisposalResourceIT {
         // Validate the AssetDisposal in the database
         List<AssetDisposal> assetDisposalList = assetDisposalRepository.findAll();
         assertThat(assetDisposalList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the AssetDisposal in Elasticsearch
-        verify(mockAssetDisposalSearchRepository, times(0)).save(assetDisposal);
     }
 
 
@@ -1423,9 +1403,6 @@ public class AssetDisposalResourceIT {
         assertThat(testAssetDisposal.getAssetDealerId()).isEqualTo(UPDATED_ASSET_DEALER_ID);
         assertThat(testAssetDisposal.getAssetPicture()).isEqualTo(UPDATED_ASSET_PICTURE);
         assertThat(testAssetDisposal.getAssetPictureContentType()).isEqualTo(UPDATED_ASSET_PICTURE_CONTENT_TYPE);
-
-        // Validate the AssetDisposal in Elasticsearch
-        verify(mockAssetDisposalSearchRepository, times(1)).save(testAssetDisposal);
     }
 
     @Test
@@ -1445,9 +1422,6 @@ public class AssetDisposalResourceIT {
         // Validate the AssetDisposal in the database
         List<AssetDisposal> assetDisposalList = assetDisposalRepository.findAll();
         assertThat(assetDisposalList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the AssetDisposal in Elasticsearch
-        verify(mockAssetDisposalSearchRepository, times(0)).save(assetDisposal);
     }
 
     @Test
@@ -1466,33 +1440,5 @@ public class AssetDisposalResourceIT {
         // Validate the database contains one less item
         List<AssetDisposal> assetDisposalList = assetDisposalRepository.findAll();
         assertThat(assetDisposalList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the AssetDisposal in Elasticsearch
-        verify(mockAssetDisposalSearchRepository, times(1)).deleteById(assetDisposal.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchAssetDisposal() throws Exception {
-        // Initialize the database
-        assetDisposalRepository.saveAndFlush(assetDisposal);
-        when(mockAssetDisposalSearchRepository.search(queryStringQuery("id:" + assetDisposal.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(assetDisposal), PageRequest.of(0, 1), 1));
-        // Search the assetDisposal
-        restAssetDisposalMockMvc.perform(get("/api/_search/asset-disposals?query=id:" + assetDisposal.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(assetDisposal.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].disposalMonth").value(hasItem(DEFAULT_DISPOSAL_MONTH.toString())))
-            .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetItemId").value(hasItem(DEFAULT_ASSET_ITEM_ID.intValue())))
-            .andExpect(jsonPath("$.[*].disposalProceeds").value(hasItem(DEFAULT_DISPOSAL_PROCEEDS.intValue())))
-            .andExpect(jsonPath("$.[*].netBookValue").value(hasItem(DEFAULT_NET_BOOK_VALUE.intValue())))
-            .andExpect(jsonPath("$.[*].profitOnDisposal").value(hasItem(DEFAULT_PROFIT_ON_DISPOSAL.intValue())))
-            .andExpect(jsonPath("$.[*].scannedDocumentId").value(hasItem(DEFAULT_SCANNED_DOCUMENT_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetDealerId").value(hasItem(DEFAULT_ASSET_DEALER_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetPictureContentType").value(hasItem(DEFAULT_ASSET_PICTURE_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].assetPicture").value(hasItem(Base64Utils.encodeToString(DEFAULT_ASSET_PICTURE))));
     }
 }

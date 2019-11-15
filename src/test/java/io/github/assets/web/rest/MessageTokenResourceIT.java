@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.MessageToken;
 import io.github.assets.repository.MessageTokenRepository;
-import io.github.assets.repository.search.MessageTokenSearchRepository;
 import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.MessageTokenDTO;
 import io.github.assets.service.mapper.MessageTokenMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -28,14 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -72,14 +66,6 @@ public class MessageTokenResourceIT {
 
     @Autowired
     private MessageTokenService messageTokenService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.MessageTokenSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private MessageTokenSearchRepository mockMessageTokenSearchRepository;
 
     @Autowired
     private MessageTokenQueryService messageTokenQueryService;
@@ -175,9 +161,6 @@ public class MessageTokenResourceIT {
         assertThat(testMessageToken.isReceived()).isEqualTo(DEFAULT_RECEIVED);
         assertThat(testMessageToken.isActioned()).isEqualTo(DEFAULT_ACTIONED);
         assertThat(testMessageToken.isContentFullyEnqueued()).isEqualTo(DEFAULT_CONTENT_FULLY_ENQUEUED);
-
-        // Validate the MessageToken in Elasticsearch
-        verify(mockMessageTokenSearchRepository, times(1)).save(testMessageToken);
     }
 
     @Test
@@ -198,9 +181,6 @@ public class MessageTokenResourceIT {
         // Validate the MessageToken in the database
         List<MessageToken> messageTokenList = messageTokenRepository.findAll();
         assertThat(messageTokenList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the MessageToken in Elasticsearch
-        verify(mockMessageTokenSearchRepository, times(0)).save(messageToken);
     }
 
 
@@ -800,9 +780,6 @@ public class MessageTokenResourceIT {
         assertThat(testMessageToken.isReceived()).isEqualTo(UPDATED_RECEIVED);
         assertThat(testMessageToken.isActioned()).isEqualTo(UPDATED_ACTIONED);
         assertThat(testMessageToken.isContentFullyEnqueued()).isEqualTo(UPDATED_CONTENT_FULLY_ENQUEUED);
-
-        // Validate the MessageToken in Elasticsearch
-        verify(mockMessageTokenSearchRepository, times(1)).save(testMessageToken);
     }
 
     @Test
@@ -822,9 +799,6 @@ public class MessageTokenResourceIT {
         // Validate the MessageToken in the database
         List<MessageToken> messageTokenList = messageTokenRepository.findAll();
         assertThat(messageTokenList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the MessageToken in Elasticsearch
-        verify(mockMessageTokenSearchRepository, times(0)).save(messageToken);
     }
 
     @Test
@@ -843,28 +817,5 @@ public class MessageTokenResourceIT {
         // Validate the database contains one less item
         List<MessageToken> messageTokenList = messageTokenRepository.findAll();
         assertThat(messageTokenList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the MessageToken in Elasticsearch
-        verify(mockMessageTokenSearchRepository, times(1)).deleteById(messageToken.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchMessageToken() throws Exception {
-        // Initialize the database
-        messageTokenRepository.saveAndFlush(messageToken);
-        when(mockMessageTokenSearchRepository.search(queryStringQuery("id:" + messageToken.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(messageToken), PageRequest.of(0, 1), 1));
-        // Search the messageToken
-        restMessageTokenMockMvc.perform(get("/api/_search/message-tokens?query=id:" + messageToken.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(messageToken.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].timeSent").value(hasItem(DEFAULT_TIME_SENT.intValue())))
-            .andExpect(jsonPath("$.[*].tokenValue").value(hasItem(DEFAULT_TOKEN_VALUE)))
-            .andExpect(jsonPath("$.[*].received").value(hasItem(DEFAULT_RECEIVED.booleanValue())))
-            .andExpect(jsonPath("$.[*].actioned").value(hasItem(DEFAULT_ACTIONED.booleanValue())))
-            .andExpect(jsonPath("$.[*].contentFullyEnqueued").value(hasItem(DEFAULT_CONTENT_FULLY_ENQUEUED.booleanValue())));
     }
 }

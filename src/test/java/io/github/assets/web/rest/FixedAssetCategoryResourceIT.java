@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.FixedAssetCategory;
 import io.github.assets.repository.FixedAssetCategoryRepository;
-import io.github.assets.repository.search.FixedAssetCategorySearchRepository;
 import io.github.assets.service.FixedAssetCategoryService;
 import io.github.assets.service.dto.FixedAssetCategoryDTO;
 import io.github.assets.service.mapper.FixedAssetCategoryMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -28,14 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -69,14 +63,6 @@ public class FixedAssetCategoryResourceIT {
 
     @Autowired
     private FixedAssetCategoryService fixedAssetCategoryService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.FixedAssetCategorySearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private FixedAssetCategorySearchRepository mockFixedAssetCategorySearchRepository;
 
     @Autowired
     private FixedAssetCategoryQueryService fixedAssetCategoryQueryService;
@@ -169,9 +155,6 @@ public class FixedAssetCategoryResourceIT {
         assertThat(testFixedAssetCategory.getCategoryAssetCode()).isEqualTo(DEFAULT_CATEGORY_ASSET_CODE);
         assertThat(testFixedAssetCategory.getCategoryDepreciationCode()).isEqualTo(DEFAULT_CATEGORY_DEPRECIATION_CODE);
         assertThat(testFixedAssetCategory.getDepreciationRegimeId()).isEqualTo(DEFAULT_DEPRECIATION_REGIME_ID);
-
-        // Validate the FixedAssetCategory in Elasticsearch
-        verify(mockFixedAssetCategorySearchRepository, times(1)).save(testFixedAssetCategory);
     }
 
     @Test
@@ -192,9 +175,6 @@ public class FixedAssetCategoryResourceIT {
         // Validate the FixedAssetCategory in the database
         List<FixedAssetCategory> fixedAssetCategoryList = fixedAssetCategoryRepository.findAll();
         assertThat(fixedAssetCategoryList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the FixedAssetCategory in Elasticsearch
-        verify(mockFixedAssetCategorySearchRepository, times(0)).save(fixedAssetCategory);
     }
 
 
@@ -808,9 +788,6 @@ public class FixedAssetCategoryResourceIT {
         assertThat(testFixedAssetCategory.getCategoryAssetCode()).isEqualTo(UPDATED_CATEGORY_ASSET_CODE);
         assertThat(testFixedAssetCategory.getCategoryDepreciationCode()).isEqualTo(UPDATED_CATEGORY_DEPRECIATION_CODE);
         assertThat(testFixedAssetCategory.getDepreciationRegimeId()).isEqualTo(UPDATED_DEPRECIATION_REGIME_ID);
-
-        // Validate the FixedAssetCategory in Elasticsearch
-        verify(mockFixedAssetCategorySearchRepository, times(1)).save(testFixedAssetCategory);
     }
 
     @Test
@@ -830,9 +807,6 @@ public class FixedAssetCategoryResourceIT {
         // Validate the FixedAssetCategory in the database
         List<FixedAssetCategory> fixedAssetCategoryList = fixedAssetCategoryRepository.findAll();
         assertThat(fixedAssetCategoryList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the FixedAssetCategory in Elasticsearch
-        verify(mockFixedAssetCategorySearchRepository, times(0)).save(fixedAssetCategory);
     }
 
     @Test
@@ -851,27 +825,5 @@ public class FixedAssetCategoryResourceIT {
         // Validate the database contains one less item
         List<FixedAssetCategory> fixedAssetCategoryList = fixedAssetCategoryRepository.findAll();
         assertThat(fixedAssetCategoryList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the FixedAssetCategory in Elasticsearch
-        verify(mockFixedAssetCategorySearchRepository, times(1)).deleteById(fixedAssetCategory.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchFixedAssetCategory() throws Exception {
-        // Initialize the database
-        fixedAssetCategoryRepository.saveAndFlush(fixedAssetCategory);
-        when(mockFixedAssetCategorySearchRepository.search(queryStringQuery("id:" + fixedAssetCategory.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(fixedAssetCategory), PageRequest.of(0, 1), 1));
-        // Search the fixedAssetCategory
-        restFixedAssetCategoryMockMvc.perform(get("/api/_search/fixed-asset-categories?query=id:" + fixedAssetCategory.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(fixedAssetCategory.getId().intValue())))
-            .andExpect(jsonPath("$.[*].categoryName").value(hasItem(DEFAULT_CATEGORY_NAME)))
-            .andExpect(jsonPath("$.[*].categoryDescription").value(hasItem(DEFAULT_CATEGORY_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].categoryAssetCode").value(hasItem(DEFAULT_CATEGORY_ASSET_CODE)))
-            .andExpect(jsonPath("$.[*].categoryDepreciationCode").value(hasItem(DEFAULT_CATEGORY_DEPRECIATION_CODE)))
-            .andExpect(jsonPath("$.[*].depreciationRegimeId").value(hasItem(DEFAULT_DEPRECIATION_REGIME_ID.intValue())));
     }
 }

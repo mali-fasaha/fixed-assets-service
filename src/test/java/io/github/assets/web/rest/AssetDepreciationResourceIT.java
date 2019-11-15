@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetDepreciation;
 import io.github.assets.repository.AssetDepreciationRepository;
-import io.github.assets.repository.search.AssetDepreciationSearchRepository;
 import io.github.assets.service.AssetDepreciationService;
 import io.github.assets.service.dto.AssetDepreciationDTO;
 import io.github.assets.service.mapper.AssetDepreciationMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -31,14 +28,11 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -75,14 +69,6 @@ public class AssetDepreciationResourceIT {
 
     @Autowired
     private AssetDepreciationService assetDepreciationService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.AssetDepreciationSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private AssetDepreciationSearchRepository mockAssetDepreciationSearchRepository;
 
     @Autowired
     private AssetDepreciationQueryService assetDepreciationQueryService;
@@ -175,9 +161,6 @@ public class AssetDepreciationResourceIT {
         assertThat(testAssetDepreciation.getDepreciationDate()).isEqualTo(DEFAULT_DEPRECIATION_DATE);
         assertThat(testAssetDepreciation.getCategoryId()).isEqualTo(DEFAULT_CATEGORY_ID);
         assertThat(testAssetDepreciation.getAssetItemId()).isEqualTo(DEFAULT_ASSET_ITEM_ID);
-
-        // Validate the AssetDepreciation in Elasticsearch
-        verify(mockAssetDepreciationSearchRepository, times(1)).save(testAssetDepreciation);
     }
 
     @Test
@@ -198,9 +181,6 @@ public class AssetDepreciationResourceIT {
         // Validate the AssetDepreciation in the database
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the AssetDepreciation in Elasticsearch
-        verify(mockAssetDepreciationSearchRepository, times(0)).save(assetDepreciation);
     }
 
 
@@ -876,9 +856,6 @@ public class AssetDepreciationResourceIT {
         assertThat(testAssetDepreciation.getDepreciationDate()).isEqualTo(UPDATED_DEPRECIATION_DATE);
         assertThat(testAssetDepreciation.getCategoryId()).isEqualTo(UPDATED_CATEGORY_ID);
         assertThat(testAssetDepreciation.getAssetItemId()).isEqualTo(UPDATED_ASSET_ITEM_ID);
-
-        // Validate the AssetDepreciation in Elasticsearch
-        verify(mockAssetDepreciationSearchRepository, times(1)).save(testAssetDepreciation);
     }
 
     @Test
@@ -898,9 +875,6 @@ public class AssetDepreciationResourceIT {
         // Validate the AssetDepreciation in the database
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the AssetDepreciation in Elasticsearch
-        verify(mockAssetDepreciationSearchRepository, times(0)).save(assetDepreciation);
     }
 
     @Test
@@ -919,27 +893,5 @@ public class AssetDepreciationResourceIT {
         // Validate the database contains one less item
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the AssetDepreciation in Elasticsearch
-        verify(mockAssetDepreciationSearchRepository, times(1)).deleteById(assetDepreciation.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchAssetDepreciation() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-        when(mockAssetDepreciationSearchRepository.search(queryStringQuery("id:" + assetDepreciation.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(assetDepreciation), PageRequest.of(0, 1), 1));
-        // Search the assetDepreciation
-        restAssetDepreciationMockMvc.perform(get("/api/_search/asset-depreciations?query=id:" + assetDepreciation.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(assetDepreciation.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].depreciationAmount").value(hasItem(DEFAULT_DEPRECIATION_AMOUNT.intValue())))
-            .andExpect(jsonPath("$.[*].depreciationDate").value(hasItem(DEFAULT_DEPRECIATION_DATE.toString())))
-            .andExpect(jsonPath("$.[*].categoryId").value(hasItem(DEFAULT_CATEGORY_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetItemId").value(hasItem(DEFAULT_ASSET_ITEM_ID.intValue())));
     }
 }

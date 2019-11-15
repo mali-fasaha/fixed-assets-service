@@ -56,7 +56,7 @@
     ],
     "changelogDate": "20190725183036",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "transaction_approval",
     "databaseType": "sql",

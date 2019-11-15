@@ -67,13 +67,4 @@ public interface IFileUploadResource {
      */
     ResponseEntity<Void> deleteFileUpload(Long id);
 
-    /**
-     * {@code SEARCH  /_search/file-uploads?query=:query} : search for the fileUpload corresponding
-     * to the query.
-     *
-     * @param query the query of the fileUpload search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    ResponseEntity<List<FileUploadDTO>> searchFileUploads(String query, Pageable pageable, MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder);
 }

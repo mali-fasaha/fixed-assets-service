@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.AssetDepreciation;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.AssetDepreciationRepository;
-import io.github.assets.repository.search.AssetDepreciationSearchRepository;
 import io.github.assets.service.dto.AssetDepreciationCriteria;
 import io.github.assets.service.dto.AssetDepreciationDTO;
 import io.github.assets.service.mapper.AssetDepreciationMapper;
@@ -38,12 +37,9 @@ public class AssetDepreciationQueryService extends QueryService<AssetDepreciatio
 
     private final AssetDepreciationMapper assetDepreciationMapper;
 
-    private final AssetDepreciationSearchRepository assetDepreciationSearchRepository;
-
-    public AssetDepreciationQueryService(AssetDepreciationRepository assetDepreciationRepository, AssetDepreciationMapper assetDepreciationMapper, AssetDepreciationSearchRepository assetDepreciationSearchRepository) {
+    public AssetDepreciationQueryService(AssetDepreciationRepository assetDepreciationRepository, AssetDepreciationMapper assetDepreciationMapper) {
         this.assetDepreciationRepository = assetDepreciationRepository;
         this.assetDepreciationMapper = assetDepreciationMapper;
-        this.assetDepreciationSearchRepository = assetDepreciationSearchRepository;
     }
 
     /**

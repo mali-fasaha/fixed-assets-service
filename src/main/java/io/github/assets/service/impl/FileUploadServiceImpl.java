@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.FileUploadService;
 import io.github.assets.domain.FileUpload;
 import io.github.assets.repository.FileUploadRepository;
-import io.github.assets.repository.search.FileUploadSearchRepository;
 import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.service.mapper.FileUploadMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link FileUpload}.
@@ -31,12 +28,9 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     private final FileUploadMapper fileUploadMapper;
 
-    private final FileUploadSearchRepository fileUploadSearchRepository;
-
-    public FileUploadServiceImpl(FileUploadRepository fileUploadRepository, FileUploadMapper fileUploadMapper, FileUploadSearchRepository fileUploadSearchRepository) {
+    public FileUploadServiceImpl(FileUploadRepository fileUploadRepository, FileUploadMapper fileUploadMapper) {
         this.fileUploadRepository = fileUploadRepository;
         this.fileUploadMapper = fileUploadMapper;
-        this.fileUploadSearchRepository = fileUploadSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         log.debug("Request to save FileUpload : {}", fileUploadDTO);
         FileUpload fileUpload = fileUploadMapper.toEntity(fileUploadDTO);
         fileUpload = fileUploadRepository.save(fileUpload);
-        FileUploadDTO result = fileUploadMapper.toDto(fileUpload);
-        fileUploadSearchRepository.save(fileUpload);
-        return result;
+        return fileUploadMapper.toDto(fileUpload);
     }
 
     /**
@@ -93,21 +85,5 @@ public class FileUploadServiceImpl implements FileUploadService {
     public void delete(Long id) {
         log.debug("Request to delete FileUpload : {}", id);
         fileUploadRepository.deleteById(id);
-        fileUploadSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the fileUpload corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<FileUploadDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of FileUploads for query {}", query);
-        return fileUploadSearchRepository.search(queryStringQuery(query), pageable)
-            .map(fileUploadMapper::toDto);
     }
 }

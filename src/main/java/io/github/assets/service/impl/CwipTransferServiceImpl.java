@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.CwipTransferService;
 import io.github.assets.domain.CwipTransfer;
 import io.github.assets.repository.CwipTransferRepository;
-import io.github.assets.repository.search.CwipTransferSearchRepository;
 import io.github.assets.service.dto.CwipTransferDTO;
 import io.github.assets.service.mapper.CwipTransferMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link CwipTransfer}.
@@ -31,12 +28,9 @@ public class CwipTransferServiceImpl implements CwipTransferService {
 
     private final CwipTransferMapper cwipTransferMapper;
 
-    private final CwipTransferSearchRepository cwipTransferSearchRepository;
-
-    public CwipTransferServiceImpl(CwipTransferRepository cwipTransferRepository, CwipTransferMapper cwipTransferMapper, CwipTransferSearchRepository cwipTransferSearchRepository) {
+    public CwipTransferServiceImpl(CwipTransferRepository cwipTransferRepository, CwipTransferMapper cwipTransferMapper) {
         this.cwipTransferRepository = cwipTransferRepository;
         this.cwipTransferMapper = cwipTransferMapper;
-        this.cwipTransferSearchRepository = cwipTransferSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class CwipTransferServiceImpl implements CwipTransferService {
         log.debug("Request to save CwipTransfer : {}", cwipTransferDTO);
         CwipTransfer cwipTransfer = cwipTransferMapper.toEntity(cwipTransferDTO);
         cwipTransfer = cwipTransferRepository.save(cwipTransfer);
-        CwipTransferDTO result = cwipTransferMapper.toDto(cwipTransfer);
-        cwipTransferSearchRepository.save(cwipTransfer);
-        return result;
+        return cwipTransferMapper.toDto(cwipTransfer);
     }
 
     /**
@@ -93,21 +85,5 @@ public class CwipTransferServiceImpl implements CwipTransferService {
     public void delete(Long id) {
         log.debug("Request to delete CwipTransfer : {}", id);
         cwipTransferRepository.deleteById(id);
-        cwipTransferSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the cwipTransfer corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<CwipTransferDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of CwipTransfers for query {}", query);
-        return cwipTransferSearchRepository.search(queryStringQuery(query), pageable)
-            .map(cwipTransferMapper::toDto);
     }
 }

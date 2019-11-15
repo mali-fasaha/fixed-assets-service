@@ -35,7 +35,7 @@
     ],
     "changelogDate": "20190725182420",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "employee",
     "databaseType": "sql",

@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetTransaction;
 import io.github.assets.repository.AssetTransactionRepository;
-import io.github.assets.repository.search.AssetTransactionSearchRepository;
 import io.github.assets.service.AssetTransactionService;
 import io.github.assets.service.dto.AssetTransactionDTO;
 import io.github.assets.service.mapper.AssetTransactionMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -30,14 +27,11 @@ import org.springframework.validation.Validator;
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -70,14 +64,6 @@ public class AssetTransactionResourceIT {
 
     @Autowired
     private AssetTransactionService assetTransactionService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.AssetTransactionSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private AssetTransactionSearchRepository mockAssetTransactionSearchRepository;
 
     @Autowired
     private AssetTransactionQueryService assetTransactionQueryService;
@@ -167,9 +153,6 @@ public class AssetTransactionResourceIT {
         assertThat(testAssetTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
         assertThat(testAssetTransaction.getScannedDocumentId()).isEqualTo(DEFAULT_SCANNED_DOCUMENT_ID);
         assertThat(testAssetTransaction.getTransactionApprovalId()).isEqualTo(DEFAULT_TRANSACTION_APPROVAL_ID);
-
-        // Validate the AssetTransaction in Elasticsearch
-        verify(mockAssetTransactionSearchRepository, times(1)).save(testAssetTransaction);
     }
 
     @Test
@@ -190,9 +173,6 @@ public class AssetTransactionResourceIT {
         // Validate the AssetTransaction in the database
         List<AssetTransaction> assetTransactionList = assetTransactionRepository.findAll();
         assertThat(assetTransactionList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the AssetTransaction in Elasticsearch
-        verify(mockAssetTransactionSearchRepository, times(0)).save(assetTransaction);
     }
 
 
@@ -758,9 +738,6 @@ public class AssetTransactionResourceIT {
         assertThat(testAssetTransaction.getTransactionDate()).isEqualTo(UPDATED_TRANSACTION_DATE);
         assertThat(testAssetTransaction.getScannedDocumentId()).isEqualTo(UPDATED_SCANNED_DOCUMENT_ID);
         assertThat(testAssetTransaction.getTransactionApprovalId()).isEqualTo(UPDATED_TRANSACTION_APPROVAL_ID);
-
-        // Validate the AssetTransaction in Elasticsearch
-        verify(mockAssetTransactionSearchRepository, times(1)).save(testAssetTransaction);
     }
 
     @Test
@@ -780,9 +757,6 @@ public class AssetTransactionResourceIT {
         // Validate the AssetTransaction in the database
         List<AssetTransaction> assetTransactionList = assetTransactionRepository.findAll();
         assertThat(assetTransactionList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the AssetTransaction in Elasticsearch
-        verify(mockAssetTransactionSearchRepository, times(0)).save(assetTransaction);
     }
 
     @Test
@@ -801,26 +775,5 @@ public class AssetTransactionResourceIT {
         // Validate the database contains one less item
         List<AssetTransaction> assetTransactionList = assetTransactionRepository.findAll();
         assertThat(assetTransactionList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the AssetTransaction in Elasticsearch
-        verify(mockAssetTransactionSearchRepository, times(1)).deleteById(assetTransaction.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchAssetTransaction() throws Exception {
-        // Initialize the database
-        assetTransactionRepository.saveAndFlush(assetTransaction);
-        when(mockAssetTransactionSearchRepository.search(queryStringQuery("id:" + assetTransaction.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(assetTransaction), PageRequest.of(0, 1), 1));
-        // Search the assetTransaction
-        restAssetTransactionMockMvc.perform(get("/api/_search/asset-transactions?query=id:" + assetTransaction.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(assetTransaction.getId().intValue())))
-            .andExpect(jsonPath("$.[*].transactionReference").value(hasItem(DEFAULT_TRANSACTION_REFERENCE)))
-            .andExpect(jsonPath("$.[*].transactionDate").value(hasItem(DEFAULT_TRANSACTION_DATE.toString())))
-            .andExpect(jsonPath("$.[*].scannedDocumentId").value(hasItem(DEFAULT_SCANNED_DOCUMENT_ID.intValue())))
-            .andExpect(jsonPath("$.[*].transactionApprovalId").value(hasItem(DEFAULT_TRANSACTION_APPROVAL_ID.intValue())));
     }
 }

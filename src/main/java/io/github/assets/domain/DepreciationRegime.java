@@ -5,7 +5,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
-import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.io.Serializable;
 
 import io.github.assets.domain.enumeration.AssetDecayType;
@@ -16,7 +15,6 @@ import io.github.assets.domain.enumeration.AssetDecayType;
 @Entity
 @Table(name = "depreciation_regime")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@org.springframework.data.elasticsearch.annotations.Document(indexName = "depreciationregime")
 public class DepreciationRegime implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -24,7 +22,6 @@ public class DepreciationRegime implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator")
-    @org.springframework.data.elasticsearch.annotations.Field(type = FieldType.Keyword)
     private Long id;
 
     @NotNull

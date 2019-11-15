@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.TransactionApproval;
 import io.github.assets.repository.TransactionApprovalRepository;
-import io.github.assets.repository.search.TransactionApprovalSearchRepository;
 import io.github.assets.service.TransactionApprovalService;
 import io.github.assets.service.dto.TransactionApprovalDTO;
 import io.github.assets.service.mapper.TransactionApprovalMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -28,14 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -78,14 +72,6 @@ public class TransactionApprovalResourceIT {
 
     @Autowired
     private TransactionApprovalService transactionApprovalService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.TransactionApprovalSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private TransactionApprovalSearchRepository mockTransactionApprovalSearchRepository;
 
     @Autowired
     private TransactionApprovalQueryService transactionApprovalQueryService;
@@ -187,9 +173,6 @@ public class TransactionApprovalResourceIT {
         assertThat(testTransactionApproval.getSecondApprover()).isEqualTo(DEFAULT_SECOND_APPROVER);
         assertThat(testTransactionApproval.getThirdApprover()).isEqualTo(DEFAULT_THIRD_APPROVER);
         assertThat(testTransactionApproval.getFourthApprover()).isEqualTo(DEFAULT_FOURTH_APPROVER);
-
-        // Validate the TransactionApproval in Elasticsearch
-        verify(mockTransactionApprovalSearchRepository, times(1)).save(testTransactionApproval);
     }
 
     @Test
@@ -210,9 +193,6 @@ public class TransactionApprovalResourceIT {
         // Validate the TransactionApproval in the database
         List<TransactionApproval> transactionApprovalList = transactionApprovalRepository.findAll();
         assertThat(transactionApprovalList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the TransactionApproval in Elasticsearch
-        verify(mockTransactionApprovalSearchRepository, times(0)).save(transactionApproval);
     }
 
 
@@ -1018,9 +998,6 @@ public class TransactionApprovalResourceIT {
         assertThat(testTransactionApproval.getSecondApprover()).isEqualTo(UPDATED_SECOND_APPROVER);
         assertThat(testTransactionApproval.getThirdApprover()).isEqualTo(UPDATED_THIRD_APPROVER);
         assertThat(testTransactionApproval.getFourthApprover()).isEqualTo(UPDATED_FOURTH_APPROVER);
-
-        // Validate the TransactionApproval in Elasticsearch
-        verify(mockTransactionApprovalSearchRepository, times(1)).save(testTransactionApproval);
     }
 
     @Test
@@ -1040,9 +1017,6 @@ public class TransactionApprovalResourceIT {
         // Validate the TransactionApproval in the database
         List<TransactionApproval> transactionApprovalList = transactionApprovalRepository.findAll();
         assertThat(transactionApprovalList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the TransactionApproval in Elasticsearch
-        verify(mockTransactionApprovalSearchRepository, times(0)).save(transactionApproval);
     }
 
     @Test
@@ -1061,30 +1035,5 @@ public class TransactionApprovalResourceIT {
         // Validate the database contains one less item
         List<TransactionApproval> transactionApprovalList = transactionApprovalRepository.findAll();
         assertThat(transactionApprovalList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the TransactionApproval in Elasticsearch
-        verify(mockTransactionApprovalSearchRepository, times(1)).deleteById(transactionApproval.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchTransactionApproval() throws Exception {
-        // Initialize the database
-        transactionApprovalRepository.saveAndFlush(transactionApproval);
-        when(mockTransactionApprovalSearchRepository.search(queryStringQuery("id:" + transactionApproval.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(transactionApproval), PageRequest.of(0, 1), 1));
-        // Search the transactionApproval
-        restTransactionApprovalMockMvc.perform(get("/api/_search/transaction-approvals?query=id:" + transactionApproval.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(transactionApproval.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].requestedBy").value(hasItem(DEFAULT_REQUESTED_BY.intValue())))
-            .andExpect(jsonPath("$.[*].recommendedBy").value(hasItem(DEFAULT_RECOMMENDED_BY)))
-            .andExpect(jsonPath("$.[*].reviewedBy").value(hasItem(DEFAULT_REVIEWED_BY)))
-            .andExpect(jsonPath("$.[*].firstApprover").value(hasItem(DEFAULT_FIRST_APPROVER)))
-            .andExpect(jsonPath("$.[*].secondApprover").value(hasItem(DEFAULT_SECOND_APPROVER)))
-            .andExpect(jsonPath("$.[*].thirdApprover").value(hasItem(DEFAULT_THIRD_APPROVER)))
-            .andExpect(jsonPath("$.[*].fourthApprover").value(hasItem(DEFAULT_FOURTH_APPROVER)));
     }
 }

@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.AssetAcquisition;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.AssetAcquisitionRepository;
-import io.github.assets.repository.search.AssetAcquisitionSearchRepository;
 import io.github.assets.service.dto.AssetAcquisitionCriteria;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.mapper.AssetAcquisitionMapper;
@@ -38,12 +37,9 @@ public class AssetAcquisitionQueryService extends QueryService<AssetAcquisition>
 
     private final AssetAcquisitionMapper assetAcquisitionMapper;
 
-    private final AssetAcquisitionSearchRepository assetAcquisitionSearchRepository;
-
-    public AssetAcquisitionQueryService(AssetAcquisitionRepository assetAcquisitionRepository, AssetAcquisitionMapper assetAcquisitionMapper, AssetAcquisitionSearchRepository assetAcquisitionSearchRepository) {
+    public AssetAcquisitionQueryService(AssetAcquisitionRepository assetAcquisitionRepository, AssetAcquisitionMapper assetAcquisitionMapper) {
         this.assetAcquisitionRepository = assetAcquisitionRepository;
         this.assetAcquisitionMapper = assetAcquisitionMapper;
-        this.assetAcquisitionSearchRepository = assetAcquisitionSearchRepository;
     }
 
     /**

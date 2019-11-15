@@ -7,7 +7,6 @@ import io.github.assets.app.resource.decorator.IAssetDepreciationResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetDepreciation;
 import io.github.assets.repository.AssetDepreciationRepository;
-import io.github.assets.repository.search.AssetDepreciationSearchRepository;
 import io.github.assets.service.AssetDepreciationQueryService;
 import io.github.assets.service.AssetDepreciationService;
 import io.github.assets.service.dto.AssetDepreciationDTO;
@@ -40,7 +39,6 @@ import java.util.List;
 import static io.github.assets.app.AppConstants.DATETIME_FORMATTER;
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -83,14 +81,6 @@ public class AppAssetDepreciationResourceIT {
 
     @Autowired
     private AssetDepreciationService assetDepreciationService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.AssetDepreciationSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private AssetDepreciationSearchRepository mockAssetDepreciationSearchRepository;
 
     @Autowired
     private AssetDepreciationQueryService assetDepreciationQueryService;
@@ -211,8 +201,6 @@ public class AppAssetDepreciationResourceIT {
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeCreate);
 
-        // Validate the AssetDepreciation in Elasticsearch
-        verify(mockAssetDepreciationSearchRepository, times(0)).save(assetDepreciation);
     }
 
 
@@ -892,8 +880,8 @@ public class AppAssetDepreciationResourceIT {
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeUpdate);
 
-        // Validate the AssetDepreciation in Elasticsearch
-        verify(mockAssetDepreciationSearchRepository, times(0)).save(assetDepreciation);
+//        // Validate the AssetDepreciation in Elasticsearch
+//        verify(mockAssetDepreciationSearchRepository, times(0)).save(assetDepreciation);
     }
 
     @Test
@@ -918,25 +906,6 @@ public class AppAssetDepreciationResourceIT {
         //
         //        // Validate the AssetDepreciation in Elasticsearch
         //        verify(mockAssetDepreciationSearchRepository, times(1)).deleteById(assetDepreciation.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchAssetDepreciation() throws Exception {
-        // Initialize the database
-        assetDepreciationRepository.saveAndFlush(assetDepreciation);
-        when(mockAssetDepreciationSearchRepository.search(queryStringQuery("id:" + assetDepreciation.getId()), PageRequest.of(0, 20))).thenReturn(
-            new PageImpl<>(Collections.singletonList(assetDepreciation), PageRequest.of(0, 1), 1));
-        // Search the assetDepreciation
-        restAssetDepreciationMockMvc.perform(get("/api/app/_search/asset-depreciations?query=id:" + assetDepreciation.getId()))
-                                    .andExpect(status().isOk())
-                                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                                    .andExpect(jsonPath("$.[*].id").value(hasItem(assetDepreciation.getId().intValue())))
-                                    .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-                                    .andExpect(jsonPath("$.[*].depreciationAmount").value(hasItem(DEFAULT_DEPRECIATION_AMOUNT.intValue())))
-                                    .andExpect(jsonPath("$.[*].depreciationDate").value(hasItem(DEFAULT_DEPRECIATION_DATE.toString())))
-                                    .andExpect(jsonPath("$.[*].categoryId").value(hasItem(DEFAULT_CATEGORY_ID.intValue())))
-                                    .andExpect(jsonPath("$.[*].assetItemId").value(hasItem(DEFAULT_ASSET_ITEM_ID.intValue())));
     }
 
     @Test

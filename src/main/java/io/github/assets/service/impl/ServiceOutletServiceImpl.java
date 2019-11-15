@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.ServiceOutletService;
 import io.github.assets.domain.ServiceOutlet;
 import io.github.assets.repository.ServiceOutletRepository;
-import io.github.assets.repository.search.ServiceOutletSearchRepository;
 import io.github.assets.service.dto.ServiceOutletDTO;
 import io.github.assets.service.mapper.ServiceOutletMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link ServiceOutlet}.
@@ -31,12 +28,9 @@ public class ServiceOutletServiceImpl implements ServiceOutletService {
 
     private final ServiceOutletMapper serviceOutletMapper;
 
-    private final ServiceOutletSearchRepository serviceOutletSearchRepository;
-
-    public ServiceOutletServiceImpl(ServiceOutletRepository serviceOutletRepository, ServiceOutletMapper serviceOutletMapper, ServiceOutletSearchRepository serviceOutletSearchRepository) {
+    public ServiceOutletServiceImpl(ServiceOutletRepository serviceOutletRepository, ServiceOutletMapper serviceOutletMapper) {
         this.serviceOutletRepository = serviceOutletRepository;
         this.serviceOutletMapper = serviceOutletMapper;
-        this.serviceOutletSearchRepository = serviceOutletSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class ServiceOutletServiceImpl implements ServiceOutletService {
         log.debug("Request to save ServiceOutlet : {}", serviceOutletDTO);
         ServiceOutlet serviceOutlet = serviceOutletMapper.toEntity(serviceOutletDTO);
         serviceOutlet = serviceOutletRepository.save(serviceOutlet);
-        ServiceOutletDTO result = serviceOutletMapper.toDto(serviceOutlet);
-        serviceOutletSearchRepository.save(serviceOutlet);
-        return result;
+        return serviceOutletMapper.toDto(serviceOutlet);
     }
 
     /**
@@ -93,21 +85,5 @@ public class ServiceOutletServiceImpl implements ServiceOutletService {
     public void delete(Long id) {
         log.debug("Request to delete ServiceOutlet : {}", id);
         serviceOutletRepository.deleteById(id);
-        serviceOutletSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the serviceOutlet corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<ServiceOutletDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of ServiceOutlets for query {}", query);
-        return serviceOutletSearchRepository.search(queryStringQuery(query), pageable)
-            .map(serviceOutletMapper::toDto);
     }
 }

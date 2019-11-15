@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.FixedAssetCategoryService;
 import io.github.assets.domain.FixedAssetCategory;
 import io.github.assets.repository.FixedAssetCategoryRepository;
-import io.github.assets.repository.search.FixedAssetCategorySearchRepository;
 import io.github.assets.service.dto.FixedAssetCategoryDTO;
 import io.github.assets.service.mapper.FixedAssetCategoryMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link FixedAssetCategory}.
@@ -31,12 +28,9 @@ public class FixedAssetCategoryServiceImpl implements FixedAssetCategoryService 
 
     private final FixedAssetCategoryMapper fixedAssetCategoryMapper;
 
-    private final FixedAssetCategorySearchRepository fixedAssetCategorySearchRepository;
-
-    public FixedAssetCategoryServiceImpl(FixedAssetCategoryRepository fixedAssetCategoryRepository, FixedAssetCategoryMapper fixedAssetCategoryMapper, FixedAssetCategorySearchRepository fixedAssetCategorySearchRepository) {
+    public FixedAssetCategoryServiceImpl(FixedAssetCategoryRepository fixedAssetCategoryRepository, FixedAssetCategoryMapper fixedAssetCategoryMapper) {
         this.fixedAssetCategoryRepository = fixedAssetCategoryRepository;
         this.fixedAssetCategoryMapper = fixedAssetCategoryMapper;
-        this.fixedAssetCategorySearchRepository = fixedAssetCategorySearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class FixedAssetCategoryServiceImpl implements FixedAssetCategoryService 
         log.debug("Request to save FixedAssetCategory : {}", fixedAssetCategoryDTO);
         FixedAssetCategory fixedAssetCategory = fixedAssetCategoryMapper.toEntity(fixedAssetCategoryDTO);
         fixedAssetCategory = fixedAssetCategoryRepository.save(fixedAssetCategory);
-        FixedAssetCategoryDTO result = fixedAssetCategoryMapper.toDto(fixedAssetCategory);
-        fixedAssetCategorySearchRepository.save(fixedAssetCategory);
-        return result;
+        return fixedAssetCategoryMapper.toDto(fixedAssetCategory);
     }
 
     /**
@@ -93,21 +85,5 @@ public class FixedAssetCategoryServiceImpl implements FixedAssetCategoryService 
     public void delete(Long id) {
         log.debug("Request to delete FixedAssetCategory : {}", id);
         fixedAssetCategoryRepository.deleteById(id);
-        fixedAssetCategorySearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the fixedAssetCategory corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<FixedAssetCategoryDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of FixedAssetCategories for query {}", query);
-        return fixedAssetCategorySearchRepository.search(queryStringQuery(query), pageable)
-            .map(fixedAssetCategoryMapper::toDto);
     }
 }

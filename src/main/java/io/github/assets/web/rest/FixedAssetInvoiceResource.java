@@ -26,9 +26,6 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing {@link io.github.assets.domain.FixedAssetInvoice}.
@@ -146,21 +143,5 @@ public class FixedAssetInvoiceResource {
         log.debug("REST request to delete FixedAssetInvoice : {}", id);
         fixedAssetInvoiceService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
-    }
-
-    /**
-     * {@code SEARCH  /_search/fixed-asset-invoices?query=:query} : search for the fixedAssetInvoice corresponding
-     * to the query.
-     *
-     * @param query the query of the fixedAssetInvoice search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/fixed-asset-invoices")
-    public ResponseEntity<List<FixedAssetInvoiceDTO>> searchFixedAssetInvoices(@RequestParam String query, Pageable pageable) {
-        log.debug("REST request to search for a page of FixedAssetInvoices for query {}", query);
-        Page<FixedAssetInvoiceDTO> page = fixedAssetInvoiceService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

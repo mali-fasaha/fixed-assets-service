@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.Employee;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.EmployeeRepository;
-import io.github.assets.repository.search.EmployeeSearchRepository;
 import io.github.assets.service.dto.EmployeeCriteria;
 import io.github.assets.service.dto.EmployeeDTO;
 import io.github.assets.service.mapper.EmployeeMapper;
@@ -38,12 +37,9 @@ public class EmployeeQueryService extends QueryService<Employee> {
 
     private final EmployeeMapper employeeMapper;
 
-    private final EmployeeSearchRepository employeeSearchRepository;
-
-    public EmployeeQueryService(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper, EmployeeSearchRepository employeeSearchRepository) {
+    public EmployeeQueryService(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper) {
         this.employeeRepository = employeeRepository;
         this.employeeMapper = employeeMapper;
-        this.employeeSearchRepository = employeeSearchRepository;
     }
 
     /**

@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.CapitalWorkInProgress;
 import io.github.assets.repository.CapitalWorkInProgressRepository;
-import io.github.assets.repository.search.CapitalWorkInProgressSearchRepository;
 import io.github.assets.service.CapitalWorkInProgressService;
 import io.github.assets.service.dto.CapitalWorkInProgressDTO;
 import io.github.assets.service.mapper.CapitalWorkInProgressMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -31,14 +28,11 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -77,14 +71,6 @@ public class CapitalWorkInProgressResourceIT {
 
     @Autowired
     private CapitalWorkInProgressService capitalWorkInProgressService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.CapitalWorkInProgressSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private CapitalWorkInProgressSearchRepository mockCapitalWorkInProgressSearchRepository;
 
     @Autowired
     private CapitalWorkInProgressQueryService capitalWorkInProgressQueryService;
@@ -180,9 +166,6 @@ public class CapitalWorkInProgressResourceIT {
         assertThat(testCapitalWorkInProgress.getTransactionId()).isEqualTo(DEFAULT_TRANSACTION_ID);
         assertThat(testCapitalWorkInProgress.getTransactionDetails()).isEqualTo(DEFAULT_TRANSACTION_DETAILS);
         assertThat(testCapitalWorkInProgress.getTransactionAmount()).isEqualTo(DEFAULT_TRANSACTION_AMOUNT);
-
-        // Validate the CapitalWorkInProgress in Elasticsearch
-        verify(mockCapitalWorkInProgressSearchRepository, times(1)).save(testCapitalWorkInProgress);
     }
 
     @Test
@@ -203,9 +186,6 @@ public class CapitalWorkInProgressResourceIT {
         // Validate the CapitalWorkInProgress in the database
         List<CapitalWorkInProgress> capitalWorkInProgressList = capitalWorkInProgressRepository.findAll();
         assertThat(capitalWorkInProgressList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the CapitalWorkInProgress in Elasticsearch
-        verify(mockCapitalWorkInProgressSearchRepository, times(0)).save(capitalWorkInProgress);
     }
 
 
@@ -1013,9 +993,6 @@ public class CapitalWorkInProgressResourceIT {
         assertThat(testCapitalWorkInProgress.getTransactionId()).isEqualTo(UPDATED_TRANSACTION_ID);
         assertThat(testCapitalWorkInProgress.getTransactionDetails()).isEqualTo(UPDATED_TRANSACTION_DETAILS);
         assertThat(testCapitalWorkInProgress.getTransactionAmount()).isEqualTo(UPDATED_TRANSACTION_AMOUNT);
-
-        // Validate the CapitalWorkInProgress in Elasticsearch
-        verify(mockCapitalWorkInProgressSearchRepository, times(1)).save(testCapitalWorkInProgress);
     }
 
     @Test
@@ -1035,9 +1012,6 @@ public class CapitalWorkInProgressResourceIT {
         // Validate the CapitalWorkInProgress in the database
         List<CapitalWorkInProgress> capitalWorkInProgressList = capitalWorkInProgressRepository.findAll();
         assertThat(capitalWorkInProgressList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the CapitalWorkInProgress in Elasticsearch
-        verify(mockCapitalWorkInProgressSearchRepository, times(0)).save(capitalWorkInProgress);
     }
 
     @Test
@@ -1056,28 +1030,5 @@ public class CapitalWorkInProgressResourceIT {
         // Validate the database contains one less item
         List<CapitalWorkInProgress> capitalWorkInProgressList = capitalWorkInProgressRepository.findAll();
         assertThat(capitalWorkInProgressList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the CapitalWorkInProgress in Elasticsearch
-        verify(mockCapitalWorkInProgressSearchRepository, times(1)).deleteById(capitalWorkInProgress.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchCapitalWorkInProgress() throws Exception {
-        // Initialize the database
-        capitalWorkInProgressRepository.saveAndFlush(capitalWorkInProgress);
-        when(mockCapitalWorkInProgressSearchRepository.search(queryStringQuery("id:" + capitalWorkInProgress.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(capitalWorkInProgress), PageRequest.of(0, 1), 1));
-        // Search the capitalWorkInProgress
-        restCapitalWorkInProgressMockMvc.perform(get("/api/_search/capital-work-in-progresses?query=id:" + capitalWorkInProgress.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(capitalWorkInProgress.getId().intValue())))
-            .andExpect(jsonPath("$.[*].transactionMonth").value(hasItem(DEFAULT_TRANSACTION_MONTH.toString())))
-            .andExpect(jsonPath("$.[*].assetSerialTag").value(hasItem(DEFAULT_ASSET_SERIAL_TAG)))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
-            .andExpect(jsonPath("$.[*].transactionId").value(hasItem(DEFAULT_TRANSACTION_ID.intValue())))
-            .andExpect(jsonPath("$.[*].transactionDetails").value(hasItem(DEFAULT_TRANSACTION_DETAILS)))
-            .andExpect(jsonPath("$.[*].transactionAmount").value(hasItem(DEFAULT_TRANSACTION_AMOUNT.intValue())));
     }
 }

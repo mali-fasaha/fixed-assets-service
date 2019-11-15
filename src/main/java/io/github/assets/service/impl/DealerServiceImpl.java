@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.DealerService;
 import io.github.assets.domain.Dealer;
 import io.github.assets.repository.DealerRepository;
-import io.github.assets.repository.search.DealerSearchRepository;
 import io.github.assets.service.dto.DealerDTO;
 import io.github.assets.service.mapper.DealerMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link Dealer}.
@@ -31,12 +28,9 @@ public class DealerServiceImpl implements DealerService {
 
     private final DealerMapper dealerMapper;
 
-    private final DealerSearchRepository dealerSearchRepository;
-
-    public DealerServiceImpl(DealerRepository dealerRepository, DealerMapper dealerMapper, DealerSearchRepository dealerSearchRepository) {
+    public DealerServiceImpl(DealerRepository dealerRepository, DealerMapper dealerMapper) {
         this.dealerRepository = dealerRepository;
         this.dealerMapper = dealerMapper;
-        this.dealerSearchRepository = dealerSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class DealerServiceImpl implements DealerService {
         log.debug("Request to save Dealer : {}", dealerDTO);
         Dealer dealer = dealerMapper.toEntity(dealerDTO);
         dealer = dealerRepository.save(dealer);
-        DealerDTO result = dealerMapper.toDto(dealer);
-        dealerSearchRepository.save(dealer);
-        return result;
+        return dealerMapper.toDto(dealer);
     }
 
     /**
@@ -93,21 +85,5 @@ public class DealerServiceImpl implements DealerService {
     public void delete(Long id) {
         log.debug("Request to delete Dealer : {}", id);
         dealerRepository.deleteById(id);
-        dealerSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the dealer corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<DealerDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of Dealers for query {}", query);
-        return dealerSearchRepository.search(queryStringQuery(query), pageable)
-            .map(dealerMapper::toDto);
     }
 }

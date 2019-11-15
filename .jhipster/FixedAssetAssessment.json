@@ -67,7 +67,7 @@
     ],
     "changelogDate": "20190719101103",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "fixed_asset_assessment",
     "databaseType": "sql",

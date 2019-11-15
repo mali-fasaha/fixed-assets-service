@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.FixedAssetAssessmentService;
 import io.github.assets.domain.FixedAssetAssessment;
 import io.github.assets.repository.FixedAssetAssessmentRepository;
-import io.github.assets.repository.search.FixedAssetAssessmentSearchRepository;
 import io.github.assets.service.dto.FixedAssetAssessmentDTO;
 import io.github.assets.service.mapper.FixedAssetAssessmentMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link FixedAssetAssessment}.
@@ -31,12 +28,9 @@ public class FixedAssetAssessmentServiceImpl implements FixedAssetAssessmentServ
 
     private final FixedAssetAssessmentMapper fixedAssetAssessmentMapper;
 
-    private final FixedAssetAssessmentSearchRepository fixedAssetAssessmentSearchRepository;
-
-    public FixedAssetAssessmentServiceImpl(FixedAssetAssessmentRepository fixedAssetAssessmentRepository, FixedAssetAssessmentMapper fixedAssetAssessmentMapper, FixedAssetAssessmentSearchRepository fixedAssetAssessmentSearchRepository) {
+    public FixedAssetAssessmentServiceImpl(FixedAssetAssessmentRepository fixedAssetAssessmentRepository, FixedAssetAssessmentMapper fixedAssetAssessmentMapper) {
         this.fixedAssetAssessmentRepository = fixedAssetAssessmentRepository;
         this.fixedAssetAssessmentMapper = fixedAssetAssessmentMapper;
-        this.fixedAssetAssessmentSearchRepository = fixedAssetAssessmentSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class FixedAssetAssessmentServiceImpl implements FixedAssetAssessmentServ
         log.debug("Request to save FixedAssetAssessment : {}", fixedAssetAssessmentDTO);
         FixedAssetAssessment fixedAssetAssessment = fixedAssetAssessmentMapper.toEntity(fixedAssetAssessmentDTO);
         fixedAssetAssessment = fixedAssetAssessmentRepository.save(fixedAssetAssessment);
-        FixedAssetAssessmentDTO result = fixedAssetAssessmentMapper.toDto(fixedAssetAssessment);
-        fixedAssetAssessmentSearchRepository.save(fixedAssetAssessment);
-        return result;
+        return fixedAssetAssessmentMapper.toDto(fixedAssetAssessment);
     }
 
     /**
@@ -93,21 +85,5 @@ public class FixedAssetAssessmentServiceImpl implements FixedAssetAssessmentServ
     public void delete(Long id) {
         log.debug("Request to delete FixedAssetAssessment : {}", id);
         fixedAssetAssessmentRepository.deleteById(id);
-        fixedAssetAssessmentSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the fixedAssetAssessment corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<FixedAssetAssessmentDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of FixedAssetAssessments for query {}", query);
-        return fixedAssetAssessmentSearchRepository.search(queryStringQuery(query), pageable)
-            .map(fixedAssetAssessmentMapper::toDto);
     }
 }

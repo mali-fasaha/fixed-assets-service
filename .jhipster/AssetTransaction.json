@@ -28,7 +28,7 @@
     ],
     "changelogDate": "20190716120450",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "asset_transaction",
     "databaseType": "sql",

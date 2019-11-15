@@ -25,9 +25,6 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing {@link io.github.assets.domain.ScannedDocument}.
@@ -145,21 +142,5 @@ public class ScannedDocumentResource {
         log.debug("REST request to delete ScannedDocument : {}", id);
         scannedDocumentService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
-    }
-
-    /**
-     * {@code SEARCH  /_search/scanned-documents?query=:query} : search for the scannedDocument corresponding
-     * to the query.
-     *
-     * @param query the query of the scannedDocument search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/scanned-documents")
-    public ResponseEntity<List<ScannedDocumentDTO>> searchScannedDocuments(@RequestParam String query, Pageable pageable) {
-        log.debug("REST request to search for a page of ScannedDocuments for query {}", query);
-        Page<ScannedDocumentDTO> page = scannedDocumentService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

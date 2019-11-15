@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.AssetTransactionService;
 import io.github.assets.domain.AssetTransaction;
 import io.github.assets.repository.AssetTransactionRepository;
-import io.github.assets.repository.search.AssetTransactionSearchRepository;
 import io.github.assets.service.dto.AssetTransactionDTO;
 import io.github.assets.service.mapper.AssetTransactionMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link AssetTransaction}.
@@ -31,12 +28,9 @@ public class AssetTransactionServiceImpl implements AssetTransactionService {
 
     private final AssetTransactionMapper assetTransactionMapper;
 
-    private final AssetTransactionSearchRepository assetTransactionSearchRepository;
-
-    public AssetTransactionServiceImpl(AssetTransactionRepository assetTransactionRepository, AssetTransactionMapper assetTransactionMapper, AssetTransactionSearchRepository assetTransactionSearchRepository) {
+    public AssetTransactionServiceImpl(AssetTransactionRepository assetTransactionRepository, AssetTransactionMapper assetTransactionMapper) {
         this.assetTransactionRepository = assetTransactionRepository;
         this.assetTransactionMapper = assetTransactionMapper;
-        this.assetTransactionSearchRepository = assetTransactionSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class AssetTransactionServiceImpl implements AssetTransactionService {
         log.debug("Request to save AssetTransaction : {}", assetTransactionDTO);
         AssetTransaction assetTransaction = assetTransactionMapper.toEntity(assetTransactionDTO);
         assetTransaction = assetTransactionRepository.save(assetTransaction);
-        AssetTransactionDTO result = assetTransactionMapper.toDto(assetTransaction);
-        assetTransactionSearchRepository.save(assetTransaction);
-        return result;
+        return assetTransactionMapper.toDto(assetTransaction);
     }
 
     /**
@@ -93,21 +85,5 @@ public class AssetTransactionServiceImpl implements AssetTransactionService {
     public void delete(Long id) {
         log.debug("Request to delete AssetTransaction : {}", id);
         assetTransactionRepository.deleteById(id);
-        assetTransactionSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the assetTransaction corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<AssetTransactionDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of AssetTransactions for query {}", query);
-        return assetTransactionSearchRepository.search(queryStringQuery(query), pageable)
-            .map(assetTransactionMapper::toDto);
     }
 }

@@ -35,7 +35,7 @@
     ],
     "changelogDate": "20190716120832",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "scanned_document",
     "databaseType": "sql",

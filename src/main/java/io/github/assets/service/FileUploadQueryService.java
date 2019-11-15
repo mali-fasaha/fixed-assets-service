@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.FileUpload;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.FileUploadRepository;
-import io.github.assets.repository.search.FileUploadSearchRepository;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.service.mapper.FileUploadMapper;
@@ -38,12 +37,9 @@ public class FileUploadQueryService extends QueryService<FileUpload> {
 
     private final FileUploadMapper fileUploadMapper;
 
-    private final FileUploadSearchRepository fileUploadSearchRepository;
-
-    public FileUploadQueryService(FileUploadRepository fileUploadRepository, FileUploadMapper fileUploadMapper, FileUploadSearchRepository fileUploadSearchRepository) {
+    public FileUploadQueryService(FileUploadRepository fileUploadRepository, FileUploadMapper fileUploadMapper) {
         this.fileUploadRepository = fileUploadRepository;
         this.fileUploadMapper = fileUploadMapper;
-        this.fileUploadSearchRepository = fileUploadSearchRepository;
     }
 
     /**

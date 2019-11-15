@@ -26,9 +26,6 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing {@link io.github.assets.domain.CapitalWorkInProgress}.
@@ -146,21 +143,5 @@ public class CapitalWorkInProgressResource {
         log.debug("REST request to delete CapitalWorkInProgress : {}", id);
         capitalWorkInProgressService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
-    }
-
-    /**
-     * {@code SEARCH  /_search/capital-work-in-progresses?query=:query} : search for the capitalWorkInProgress corresponding
-     * to the query.
-     *
-     * @param query the query of the capitalWorkInProgress search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/capital-work-in-progresses")
-    public ResponseEntity<List<CapitalWorkInProgressDTO>> searchCapitalWorkInProgresses(@RequestParam String query, Pageable pageable) {
-        log.debug("REST request to search for a page of CapitalWorkInProgresses for query {}", query);
-        Page<CapitalWorkInProgressDTO> page = capitalWorkInProgressService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

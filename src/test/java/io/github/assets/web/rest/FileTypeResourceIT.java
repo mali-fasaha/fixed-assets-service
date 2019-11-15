@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.FileType;
 import io.github.assets.repository.FileTypeRepository;
-import io.github.assets.repository.search.FileTypeSearchRepository;
 import io.github.assets.service.FileTypeService;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
 
@@ -13,8 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -25,14 +22,11 @@ import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -66,14 +60,6 @@ public class FileTypeResourceIT {
 
     @Autowired
     private FileTypeService fileTypeService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.FileTypeSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private FileTypeSearchRepository mockFileTypeSearchRepository;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -165,9 +151,6 @@ public class FileTypeResourceIT {
         assertThat(testFileType.getFileTemplate()).isEqualTo(DEFAULT_FILE_TEMPLATE);
         assertThat(testFileType.getFileTemplateContentType()).isEqualTo(DEFAULT_FILE_TEMPLATE_CONTENT_TYPE);
         assertThat(testFileType.getFileType()).isEqualTo(DEFAULT_FILE_TYPE);
-
-        // Validate the FileType in Elasticsearch
-        verify(mockFileTypeSearchRepository, times(1)).save(testFileType);
     }
 
     @Test
@@ -187,9 +170,6 @@ public class FileTypeResourceIT {
         // Validate the FileType in the database
         List<FileType> fileTypeList = fileTypeRepository.findAll();
         assertThat(fileTypeList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the FileType in Elasticsearch
-        verify(mockFileTypeSearchRepository, times(0)).save(fileType);
     }
 
 
@@ -280,8 +260,6 @@ public class FileTypeResourceIT {
     public void updateFileType() throws Exception {
         // Initialize the database
         fileTypeService.save(fileType);
-        // As the test used the service layer, reset the Elasticsearch mock repository
-        reset(mockFileTypeSearchRepository);
 
         int databaseSizeBeforeUpdate = fileTypeRepository.findAll().size();
 
@@ -312,9 +290,6 @@ public class FileTypeResourceIT {
         assertThat(testFileType.getFileTemplate()).isEqualTo(UPDATED_FILE_TEMPLATE);
         assertThat(testFileType.getFileTemplateContentType()).isEqualTo(UPDATED_FILE_TEMPLATE_CONTENT_TYPE);
         assertThat(testFileType.getFileType()).isEqualTo(UPDATED_FILE_TYPE);
-
-        // Validate the FileType in Elasticsearch
-        verify(mockFileTypeSearchRepository, times(1)).save(testFileType);
     }
 
     @Test
@@ -333,9 +308,6 @@ public class FileTypeResourceIT {
         // Validate the FileType in the database
         List<FileType> fileTypeList = fileTypeRepository.findAll();
         assertThat(fileTypeList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the FileType in Elasticsearch
-        verify(mockFileTypeSearchRepository, times(0)).save(fileType);
     }
 
     @Test
@@ -354,28 +326,5 @@ public class FileTypeResourceIT {
         // Validate the database contains one less item
         List<FileType> fileTypeList = fileTypeRepository.findAll();
         assertThat(fileTypeList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the FileType in Elasticsearch
-        verify(mockFileTypeSearchRepository, times(1)).deleteById(fileType.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchFileType() throws Exception {
-        // Initialize the database
-        fileTypeService.save(fileType);
-        when(mockFileTypeSearchRepository.search(queryStringQuery("id:" + fileType.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(fileType), PageRequest.of(0, 1), 1));
-        // Search the fileType
-        restFileTypeMockMvc.perform(get("/api/_search/file-types?query=id:" + fileType.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(fileType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].fileTypeName").value(hasItem(DEFAULT_FILE_TYPE_NAME)))
-            .andExpect(jsonPath("$.[*].fileMediumType").value(hasItem(DEFAULT_FILE_MEDIUM_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].fileTemplateContentType").value(hasItem(DEFAULT_FILE_TEMPLATE_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].fileTemplate").value(hasItem(Base64Utils.encodeToString(DEFAULT_FILE_TEMPLATE))))
-            .andExpect(jsonPath("$.[*].fileType").value(hasItem(DEFAULT_FILE_TYPE.toString())));
     }
 }

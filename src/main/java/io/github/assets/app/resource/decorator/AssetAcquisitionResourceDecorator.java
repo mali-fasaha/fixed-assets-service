@@ -116,20 +116,4 @@ public class AssetAcquisitionResourceDecorator implements IAssetAcquisitionResou
         return assetAcquisitionResource.deleteAssetAcquisition(id);
     }
 
-    /**
-     * {@code SEARCH  /_search/asset-acquisitions?query=:query} : search for the assetAcquisition corresponding to the query.
-     *
-     * @param query    the query of the assetAcquisition search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @Override
-    @GetMapping("/_search/asset-acquisitions")
-    public ResponseEntity<List<AssetAcquisitionDTO>> searchAssetAcquisitions(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
-                                                                             UriComponentsBuilder uriBuilder) {
-
-//        return assetAcquisitionResource.searchAssetAcquisitions(query, pageable, queryParams, uriBuilder);
-        return assetAcquisitionResource.searchAssetAcquisitions(query, pageable);
-    }
-
 }

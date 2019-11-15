@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.EmployeeService;
 import io.github.assets.domain.Employee;
 import io.github.assets.repository.EmployeeRepository;
-import io.github.assets.repository.search.EmployeeSearchRepository;
 import io.github.assets.service.dto.EmployeeDTO;
 import io.github.assets.service.mapper.EmployeeMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link Employee}.
@@ -31,12 +28,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeMapper employeeMapper;
 
-    private final EmployeeSearchRepository employeeSearchRepository;
-
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper, EmployeeSearchRepository employeeSearchRepository) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper) {
         this.employeeRepository = employeeRepository;
         this.employeeMapper = employeeMapper;
-        this.employeeSearchRepository = employeeSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         log.debug("Request to save Employee : {}", employeeDTO);
         Employee employee = employeeMapper.toEntity(employeeDTO);
         employee = employeeRepository.save(employee);
-        EmployeeDTO result = employeeMapper.toDto(employee);
-        employeeSearchRepository.save(employee);
-        return result;
+        return employeeMapper.toDto(employee);
     }
 
     /**
@@ -93,21 +85,5 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void delete(Long id) {
         log.debug("Request to delete Employee : {}", id);
         employeeRepository.deleteById(id);
-        employeeSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the employee corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<EmployeeDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of Employees for query {}", query);
-        return employeeSearchRepository.search(queryStringQuery(query), pageable)
-            .map(employeeMapper::toDto);
     }
 }

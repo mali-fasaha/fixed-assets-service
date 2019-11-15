@@ -77,15 +77,4 @@ public interface IAssetDepreciationResource {
      */
     @DeleteMapping("/asset-depreciations/{id}")
     ResponseEntity<Void> deleteAssetDepreciation(@PathVariable Long id);
-
-    /**
-     * {@code SEARCH  /_search/asset-depreciations?query=:query} : search for the assetDepreciation corresponding
-     * to the query.
-     *
-     * @param query the query of the assetDepreciation search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/asset-depreciations")
-    ResponseEntity<List<AssetDepreciationDTO>> searchAssetDepreciations(@RequestParam String query, Pageable pageable);
 }

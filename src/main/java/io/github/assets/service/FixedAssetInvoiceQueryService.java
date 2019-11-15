@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.FixedAssetInvoice;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.FixedAssetInvoiceRepository;
-import io.github.assets.repository.search.FixedAssetInvoiceSearchRepository;
 import io.github.assets.service.dto.FixedAssetInvoiceCriteria;
 import io.github.assets.service.dto.FixedAssetInvoiceDTO;
 import io.github.assets.service.mapper.FixedAssetInvoiceMapper;
@@ -38,12 +37,9 @@ public class FixedAssetInvoiceQueryService extends QueryService<FixedAssetInvoic
 
     private final FixedAssetInvoiceMapper fixedAssetInvoiceMapper;
 
-    private final FixedAssetInvoiceSearchRepository fixedAssetInvoiceSearchRepository;
-
-    public FixedAssetInvoiceQueryService(FixedAssetInvoiceRepository fixedAssetInvoiceRepository, FixedAssetInvoiceMapper fixedAssetInvoiceMapper, FixedAssetInvoiceSearchRepository fixedAssetInvoiceSearchRepository) {
+    public FixedAssetInvoiceQueryService(FixedAssetInvoiceRepository fixedAssetInvoiceRepository, FixedAssetInvoiceMapper fixedAssetInvoiceMapper) {
         this.fixedAssetInvoiceRepository = fixedAssetInvoiceRepository;
         this.fixedAssetInvoiceMapper = fixedAssetInvoiceMapper;
-        this.fixedAssetInvoiceSearchRepository = fixedAssetInvoiceSearchRepository;
     }
 
     /**

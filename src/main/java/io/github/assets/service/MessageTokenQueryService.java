@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.MessageToken;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.MessageTokenRepository;
-import io.github.assets.repository.search.MessageTokenSearchRepository;
 import io.github.assets.service.dto.MessageTokenCriteria;
 import io.github.assets.service.dto.MessageTokenDTO;
 import io.github.assets.service.mapper.MessageTokenMapper;
@@ -38,12 +37,9 @@ public class MessageTokenQueryService extends QueryService<MessageToken> {
 
     private final MessageTokenMapper messageTokenMapper;
 
-    private final MessageTokenSearchRepository messageTokenSearchRepository;
-
-    public MessageTokenQueryService(MessageTokenRepository messageTokenRepository, MessageTokenMapper messageTokenMapper, MessageTokenSearchRepository messageTokenSearchRepository) {
+    public MessageTokenQueryService(MessageTokenRepository messageTokenRepository, MessageTokenMapper messageTokenMapper) {
         this.messageTokenRepository = messageTokenRepository;
         this.messageTokenMapper = messageTokenMapper;
-        this.messageTokenSearchRepository = messageTokenSearchRepository;
     }
 
     /**

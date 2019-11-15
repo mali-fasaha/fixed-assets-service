@@ -62,7 +62,7 @@
     ],
     "changelogDate": "20190725143715",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "asset_disposal",
     "databaseType": "sql",

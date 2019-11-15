@@ -36,7 +36,7 @@
     ],
     "changelogDate": "20190726070646",
     "dto": "no",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceClass",
     "entityTableName": "file_type",
     "databaseType": "sql",

@@ -37,7 +37,7 @@
     ],
     "changelogDate": "20190726061845",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "message_token",
     "databaseType": "sql",

@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.ScannedDocument;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.ScannedDocumentRepository;
-import io.github.assets.repository.search.ScannedDocumentSearchRepository;
 import io.github.assets.service.dto.ScannedDocumentCriteria;
 import io.github.assets.service.dto.ScannedDocumentDTO;
 import io.github.assets.service.mapper.ScannedDocumentMapper;
@@ -38,12 +37,9 @@ public class ScannedDocumentQueryService extends QueryService<ScannedDocument> {
 
     private final ScannedDocumentMapper scannedDocumentMapper;
 
-    private final ScannedDocumentSearchRepository scannedDocumentSearchRepository;
-
-    public ScannedDocumentQueryService(ScannedDocumentRepository scannedDocumentRepository, ScannedDocumentMapper scannedDocumentMapper, ScannedDocumentSearchRepository scannedDocumentSearchRepository) {
+    public ScannedDocumentQueryService(ScannedDocumentRepository scannedDocumentRepository, ScannedDocumentMapper scannedDocumentMapper) {
         this.scannedDocumentRepository = scannedDocumentRepository;
         this.scannedDocumentMapper = scannedDocumentMapper;
-        this.scannedDocumentSearchRepository = scannedDocumentSearchRepository;
     }
 
     /**

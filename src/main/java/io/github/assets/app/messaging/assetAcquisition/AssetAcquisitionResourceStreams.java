@@ -18,6 +18,13 @@ public interface AssetAcquisitionResourceStreams {
     String DELETE_RESOURCES_OUT = "asset-acquisition-resource-delete-out";
 
     String FILED_CREATE_RESOURCE_IN = "filed-asset-acquisition-resource-create-in";
+    String FILED_CREATE_RESOURCE_OUT = "filed-asset-acquisition-resource-create-out";
+
+    @Input(FILED_CREATE_RESOURCE_IN)
+    SubscribableChannel inboundFiledCreateResource();
+
+    @Output(FILED_CREATE_RESOURCE_OUT)
+    MessageChannel outboundFiledCreateResource();
 
     @Input(CREATE_RESOURCE_IN)
     SubscribableChannel inboundCreateResource();

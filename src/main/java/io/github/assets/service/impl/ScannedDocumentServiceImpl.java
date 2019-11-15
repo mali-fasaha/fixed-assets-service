@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.ScannedDocumentService;
 import io.github.assets.domain.ScannedDocument;
 import io.github.assets.repository.ScannedDocumentRepository;
-import io.github.assets.repository.search.ScannedDocumentSearchRepository;
 import io.github.assets.service.dto.ScannedDocumentDTO;
 import io.github.assets.service.mapper.ScannedDocumentMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link ScannedDocument}.
@@ -31,12 +28,9 @@ public class ScannedDocumentServiceImpl implements ScannedDocumentService {
 
     private final ScannedDocumentMapper scannedDocumentMapper;
 
-    private final ScannedDocumentSearchRepository scannedDocumentSearchRepository;
-
-    public ScannedDocumentServiceImpl(ScannedDocumentRepository scannedDocumentRepository, ScannedDocumentMapper scannedDocumentMapper, ScannedDocumentSearchRepository scannedDocumentSearchRepository) {
+    public ScannedDocumentServiceImpl(ScannedDocumentRepository scannedDocumentRepository, ScannedDocumentMapper scannedDocumentMapper) {
         this.scannedDocumentRepository = scannedDocumentRepository;
         this.scannedDocumentMapper = scannedDocumentMapper;
-        this.scannedDocumentSearchRepository = scannedDocumentSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class ScannedDocumentServiceImpl implements ScannedDocumentService {
         log.debug("Request to save ScannedDocument : {}", scannedDocumentDTO);
         ScannedDocument scannedDocument = scannedDocumentMapper.toEntity(scannedDocumentDTO);
         scannedDocument = scannedDocumentRepository.save(scannedDocument);
-        ScannedDocumentDTO result = scannedDocumentMapper.toDto(scannedDocument);
-        scannedDocumentSearchRepository.save(scannedDocument);
-        return result;
+        return scannedDocumentMapper.toDto(scannedDocument);
     }
 
     /**
@@ -93,21 +85,5 @@ public class ScannedDocumentServiceImpl implements ScannedDocumentService {
     public void delete(Long id) {
         log.debug("Request to delete ScannedDocument : {}", id);
         scannedDocumentRepository.deleteById(id);
-        scannedDocumentSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the scannedDocument corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<ScannedDocumentDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of ScannedDocuments for query {}", query);
-        return scannedDocumentSearchRepository.search(queryStringQuery(query), pageable)
-            .map(scannedDocumentMapper::toDto);
     }
 }

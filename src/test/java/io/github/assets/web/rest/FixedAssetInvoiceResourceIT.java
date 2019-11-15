@@ -5,7 +5,6 @@ import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.FixedAssetInvoice;
 import io.github.assets.domain.Dealer;
 import io.github.assets.repository.FixedAssetInvoiceRepository;
-import io.github.assets.repository.search.FixedAssetInvoiceSearchRepository;
 import io.github.assets.service.FixedAssetInvoiceService;
 import io.github.assets.service.dto.FixedAssetInvoiceDTO;
 import io.github.assets.service.mapper.FixedAssetInvoiceMapper;
@@ -18,8 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -33,14 +30,11 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -80,14 +74,6 @@ public class FixedAssetInvoiceResourceIT {
 
     @Autowired
     private FixedAssetInvoiceService fixedAssetInvoiceService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.FixedAssetInvoiceSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private FixedAssetInvoiceSearchRepository mockFixedAssetInvoiceSearchRepository;
 
     @Autowired
     private FixedAssetInvoiceQueryService fixedAssetInvoiceQueryService;
@@ -186,9 +172,6 @@ public class FixedAssetInvoiceResourceIT {
         assertThat(testFixedAssetInvoice.isIsCreditNote()).isEqualTo(DEFAULT_IS_CREDIT_NOTE);
         assertThat(testFixedAssetInvoice.getAttachments()).isEqualTo(DEFAULT_ATTACHMENTS);
         assertThat(testFixedAssetInvoice.getAttachmentsContentType()).isEqualTo(DEFAULT_ATTACHMENTS_CONTENT_TYPE);
-
-        // Validate the FixedAssetInvoice in Elasticsearch
-        verify(mockFixedAssetInvoiceSearchRepository, times(1)).save(testFixedAssetInvoice);
     }
 
     @Test
@@ -209,9 +192,6 @@ public class FixedAssetInvoiceResourceIT {
         // Validate the FixedAssetInvoice in the database
         List<FixedAssetInvoice> fixedAssetInvoiceList = fixedAssetInvoiceRepository.findAll();
         assertThat(fixedAssetInvoiceList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the FixedAssetInvoice in Elasticsearch
-        verify(mockFixedAssetInvoiceSearchRepository, times(0)).save(fixedAssetInvoice);
     }
 
 
@@ -792,9 +772,6 @@ public class FixedAssetInvoiceResourceIT {
         assertThat(testFixedAssetInvoice.isIsCreditNote()).isEqualTo(UPDATED_IS_CREDIT_NOTE);
         assertThat(testFixedAssetInvoice.getAttachments()).isEqualTo(UPDATED_ATTACHMENTS);
         assertThat(testFixedAssetInvoice.getAttachmentsContentType()).isEqualTo(UPDATED_ATTACHMENTS_CONTENT_TYPE);
-
-        // Validate the FixedAssetInvoice in Elasticsearch
-        verify(mockFixedAssetInvoiceSearchRepository, times(1)).save(testFixedAssetInvoice);
     }
 
     @Test
@@ -814,9 +791,6 @@ public class FixedAssetInvoiceResourceIT {
         // Validate the FixedAssetInvoice in the database
         List<FixedAssetInvoice> fixedAssetInvoiceList = fixedAssetInvoiceRepository.findAll();
         assertThat(fixedAssetInvoiceList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the FixedAssetInvoice in Elasticsearch
-        verify(mockFixedAssetInvoiceSearchRepository, times(0)).save(fixedAssetInvoice);
     }
 
     @Test
@@ -835,29 +809,5 @@ public class FixedAssetInvoiceResourceIT {
         // Validate the database contains one less item
         List<FixedAssetInvoice> fixedAssetInvoiceList = fixedAssetInvoiceRepository.findAll();
         assertThat(fixedAssetInvoiceList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the FixedAssetInvoice in Elasticsearch
-        verify(mockFixedAssetInvoiceSearchRepository, times(1)).deleteById(fixedAssetInvoice.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchFixedAssetInvoice() throws Exception {
-        // Initialize the database
-        fixedAssetInvoiceRepository.saveAndFlush(fixedAssetInvoice);
-        when(mockFixedAssetInvoiceSearchRepository.search(queryStringQuery("id:" + fixedAssetInvoice.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(fixedAssetInvoice), PageRequest.of(0, 1), 1));
-        // Search the fixedAssetInvoice
-        restFixedAssetInvoiceMockMvc.perform(get("/api/_search/fixed-asset-invoices?query=id:" + fixedAssetInvoice.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(fixedAssetInvoice.getId().intValue())))
-            .andExpect(jsonPath("$.[*].invoiceReference").value(hasItem(DEFAULT_INVOICE_REFERENCE)))
-            .andExpect(jsonPath("$.[*].invoiceDate").value(hasItem(DEFAULT_INVOICE_DATE.toString())))
-            .andExpect(jsonPath("$.[*].invoiceAmount").value(hasItem(DEFAULT_INVOICE_AMOUNT.intValue())))
-            .andExpect(jsonPath("$.[*].isProforma").value(hasItem(DEFAULT_IS_PROFORMA.booleanValue())))
-            .andExpect(jsonPath("$.[*].isCreditNote").value(hasItem(DEFAULT_IS_CREDIT_NOTE.booleanValue())))
-            .andExpect(jsonPath("$.[*].attachmentsContentType").value(hasItem(DEFAULT_ATTACHMENTS_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].attachments").value(hasItem(Base64Utils.encodeToString(DEFAULT_ATTACHMENTS))));
     }
 }

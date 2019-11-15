@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.ScannedDocument;
 import io.github.assets.repository.ScannedDocumentRepository;
-import io.github.assets.repository.search.ScannedDocumentSearchRepository;
 import io.github.assets.service.ScannedDocumentService;
 import io.github.assets.service.dto.ScannedDocumentDTO;
 import io.github.assets.service.mapper.ScannedDocumentMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -29,14 +26,11 @@ import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -82,14 +76,6 @@ public class ScannedDocumentResourceIT {
 
     @Autowired
     private ScannedDocumentService scannedDocumentService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.ScannedDocumentSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private ScannedDocumentSearchRepository mockScannedDocumentSearchRepository;
 
     @Autowired
     private ScannedDocumentQueryService scannedDocumentQueryService;
@@ -200,9 +186,6 @@ public class ScannedDocumentResourceIT {
         assertThat(testScannedDocument.getRequisitionDocumentContentType()).isEqualTo(DEFAULT_REQUISITION_DOCUMENT_CONTENT_TYPE);
         assertThat(testScannedDocument.getOtherDocuments()).isEqualTo(DEFAULT_OTHER_DOCUMENTS);
         assertThat(testScannedDocument.getOtherDocumentsContentType()).isEqualTo(DEFAULT_OTHER_DOCUMENTS_CONTENT_TYPE);
-
-        // Validate the ScannedDocument in Elasticsearch
-        verify(mockScannedDocumentSearchRepository, times(1)).save(testScannedDocument);
     }
 
     @Test
@@ -223,9 +206,6 @@ public class ScannedDocumentResourceIT {
         // Validate the ScannedDocument in the database
         List<ScannedDocument> scannedDocumentList = scannedDocumentRepository.findAll();
         assertThat(scannedDocumentList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the ScannedDocument in Elasticsearch
-        verify(mockScannedDocumentSearchRepository, times(0)).save(scannedDocument);
     }
 
 
@@ -473,9 +453,6 @@ public class ScannedDocumentResourceIT {
         assertThat(testScannedDocument.getRequisitionDocumentContentType()).isEqualTo(UPDATED_REQUISITION_DOCUMENT_CONTENT_TYPE);
         assertThat(testScannedDocument.getOtherDocuments()).isEqualTo(UPDATED_OTHER_DOCUMENTS);
         assertThat(testScannedDocument.getOtherDocumentsContentType()).isEqualTo(UPDATED_OTHER_DOCUMENTS_CONTENT_TYPE);
-
-        // Validate the ScannedDocument in Elasticsearch
-        verify(mockScannedDocumentSearchRepository, times(1)).save(testScannedDocument);
     }
 
     @Test
@@ -495,9 +472,6 @@ public class ScannedDocumentResourceIT {
         // Validate the ScannedDocument in the database
         List<ScannedDocument> scannedDocumentList = scannedDocumentRepository.findAll();
         assertThat(scannedDocumentList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the ScannedDocument in Elasticsearch
-        verify(mockScannedDocumentSearchRepository, times(0)).save(scannedDocument);
     }
 
     @Test
@@ -516,33 +490,5 @@ public class ScannedDocumentResourceIT {
         // Validate the database contains one less item
         List<ScannedDocument> scannedDocumentList = scannedDocumentRepository.findAll();
         assertThat(scannedDocumentList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the ScannedDocument in Elasticsearch
-        verify(mockScannedDocumentSearchRepository, times(1)).deleteById(scannedDocument.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchScannedDocument() throws Exception {
-        // Initialize the database
-        scannedDocumentRepository.saveAndFlush(scannedDocument);
-        when(mockScannedDocumentSearchRepository.search(queryStringQuery("id:" + scannedDocument.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(scannedDocument), PageRequest.of(0, 1), 1));
-        // Search the scannedDocument
-        restScannedDocumentMockMvc.perform(get("/api/_search/scanned-documents?query=id:" + scannedDocument.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(scannedDocument.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].approvalDocumentContentType").value(hasItem(DEFAULT_APPROVAL_DOCUMENT_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].approvalDocument").value(hasItem(Base64Utils.encodeToString(DEFAULT_APPROVAL_DOCUMENT))))
-            .andExpect(jsonPath("$.[*].invoiceDocumentContentType").value(hasItem(DEFAULT_INVOICE_DOCUMENT_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].invoiceDocument").value(hasItem(Base64Utils.encodeToString(DEFAULT_INVOICE_DOCUMENT))))
-            .andExpect(jsonPath("$.[*].lpoDocumentContentType").value(hasItem(DEFAULT_LPO_DOCUMENT_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].lpoDocument").value(hasItem(Base64Utils.encodeToString(DEFAULT_LPO_DOCUMENT))))
-            .andExpect(jsonPath("$.[*].requisitionDocumentContentType").value(hasItem(DEFAULT_REQUISITION_DOCUMENT_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].requisitionDocument").value(hasItem(Base64Utils.encodeToString(DEFAULT_REQUISITION_DOCUMENT))))
-            .andExpect(jsonPath("$.[*].otherDocumentsContentType").value(hasItem(DEFAULT_OTHER_DOCUMENTS_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].otherDocuments").value(hasItem(Base64Utils.encodeToString(DEFAULT_OTHER_DOCUMENTS))));
     }
 }

@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.FixedAssetAssessment;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.FixedAssetAssessmentRepository;
-import io.github.assets.repository.search.FixedAssetAssessmentSearchRepository;
 import io.github.assets.service.dto.FixedAssetAssessmentCriteria;
 import io.github.assets.service.dto.FixedAssetAssessmentDTO;
 import io.github.assets.service.mapper.FixedAssetAssessmentMapper;
@@ -38,12 +37,9 @@ public class FixedAssetAssessmentQueryService extends QueryService<FixedAssetAss
 
     private final FixedAssetAssessmentMapper fixedAssetAssessmentMapper;
 
-    private final FixedAssetAssessmentSearchRepository fixedAssetAssessmentSearchRepository;
-
-    public FixedAssetAssessmentQueryService(FixedAssetAssessmentRepository fixedAssetAssessmentRepository, FixedAssetAssessmentMapper fixedAssetAssessmentMapper, FixedAssetAssessmentSearchRepository fixedAssetAssessmentSearchRepository) {
+    public FixedAssetAssessmentQueryService(FixedAssetAssessmentRepository fixedAssetAssessmentRepository, FixedAssetAssessmentMapper fixedAssetAssessmentMapper) {
         this.fixedAssetAssessmentRepository = fixedAssetAssessmentRepository;
         this.fixedAssetAssessmentMapper = fixedAssetAssessmentMapper;
-        this.fixedAssetAssessmentSearchRepository = fixedAssetAssessmentSearchRepository;
     }
 
     /**

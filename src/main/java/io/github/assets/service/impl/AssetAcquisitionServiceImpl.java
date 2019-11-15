@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.AssetAcquisitionService;
 import io.github.assets.domain.AssetAcquisition;
 import io.github.assets.repository.AssetAcquisitionRepository;
-import io.github.assets.repository.search.AssetAcquisitionSearchRepository;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.mapper.AssetAcquisitionMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link AssetAcquisition}.
@@ -31,12 +28,9 @@ public class AssetAcquisitionServiceImpl implements AssetAcquisitionService {
 
     private final AssetAcquisitionMapper assetAcquisitionMapper;
 
-    private final AssetAcquisitionSearchRepository assetAcquisitionSearchRepository;
-
-    public AssetAcquisitionServiceImpl(AssetAcquisitionRepository assetAcquisitionRepository, AssetAcquisitionMapper assetAcquisitionMapper, AssetAcquisitionSearchRepository assetAcquisitionSearchRepository) {
+    public AssetAcquisitionServiceImpl(AssetAcquisitionRepository assetAcquisitionRepository, AssetAcquisitionMapper assetAcquisitionMapper) {
         this.assetAcquisitionRepository = assetAcquisitionRepository;
         this.assetAcquisitionMapper = assetAcquisitionMapper;
-        this.assetAcquisitionSearchRepository = assetAcquisitionSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class AssetAcquisitionServiceImpl implements AssetAcquisitionService {
         log.debug("Request to save AssetAcquisition : {}", assetAcquisitionDTO);
         AssetAcquisition assetAcquisition = assetAcquisitionMapper.toEntity(assetAcquisitionDTO);
         assetAcquisition = assetAcquisitionRepository.save(assetAcquisition);
-        AssetAcquisitionDTO result = assetAcquisitionMapper.toDto(assetAcquisition);
-        assetAcquisitionSearchRepository.save(assetAcquisition);
-        return result;
+        return assetAcquisitionMapper.toDto(assetAcquisition);
     }
 
     /**
@@ -93,21 +85,5 @@ public class AssetAcquisitionServiceImpl implements AssetAcquisitionService {
     public void delete(Long id) {
         log.debug("Request to delete AssetAcquisition : {}", id);
         assetAcquisitionRepository.deleteById(id);
-        assetAcquisitionSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the assetAcquisition corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<AssetAcquisitionDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of AssetAcquisitions for query {}", query);
-        return assetAcquisitionSearchRepository.search(queryStringQuery(query), pageable)
-            .map(assetAcquisitionMapper::toDto);
     }
 }

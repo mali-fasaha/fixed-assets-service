@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.DepreciationRegime;
 import io.github.assets.repository.DepreciationRegimeRepository;
-import io.github.assets.repository.search.DepreciationRegimeSearchRepository;
 import io.github.assets.service.DepreciationRegimeService;
 import io.github.assets.service.dto.DepreciationRegimeDTO;
 import io.github.assets.service.mapper.DepreciationRegimeMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -28,14 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -64,14 +58,6 @@ public class DepreciationRegimeResourceIT {
 
     @Autowired
     private DepreciationRegimeService depreciationRegimeService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.DepreciationRegimeSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private DepreciationRegimeSearchRepository mockDepreciationRegimeSearchRepository;
 
     @Autowired
     private DepreciationRegimeQueryService depreciationRegimeQueryService;
@@ -158,9 +144,6 @@ public class DepreciationRegimeResourceIT {
         assertThat(testDepreciationRegime.getAssetDecayType()).isEqualTo(DEFAULT_ASSET_DECAY_TYPE);
         assertThat(testDepreciationRegime.getDepreciationRate()).isEqualTo(DEFAULT_DEPRECIATION_RATE);
         assertThat(testDepreciationRegime.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-
-        // Validate the DepreciationRegime in Elasticsearch
-        verify(mockDepreciationRegimeSearchRepository, times(1)).save(testDepreciationRegime);
     }
 
     @Test
@@ -181,9 +164,6 @@ public class DepreciationRegimeResourceIT {
         // Validate the DepreciationRegime in the database
         List<DepreciationRegime> depreciationRegimeList = depreciationRegimeRepository.findAll();
         assertThat(depreciationRegimeList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the DepreciationRegime in Elasticsearch
-        verify(mockDepreciationRegimeSearchRepository, times(0)).save(depreciationRegime);
     }
 
 
@@ -586,9 +566,6 @@ public class DepreciationRegimeResourceIT {
         assertThat(testDepreciationRegime.getAssetDecayType()).isEqualTo(UPDATED_ASSET_DECAY_TYPE);
         assertThat(testDepreciationRegime.getDepreciationRate()).isEqualTo(UPDATED_DEPRECIATION_RATE);
         assertThat(testDepreciationRegime.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-
-        // Validate the DepreciationRegime in Elasticsearch
-        verify(mockDepreciationRegimeSearchRepository, times(1)).save(testDepreciationRegime);
     }
 
     @Test
@@ -608,9 +585,6 @@ public class DepreciationRegimeResourceIT {
         // Validate the DepreciationRegime in the database
         List<DepreciationRegime> depreciationRegimeList = depreciationRegimeRepository.findAll();
         assertThat(depreciationRegimeList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the DepreciationRegime in Elasticsearch
-        verify(mockDepreciationRegimeSearchRepository, times(0)).save(depreciationRegime);
     }
 
     @Test
@@ -629,25 +603,5 @@ public class DepreciationRegimeResourceIT {
         // Validate the database contains one less item
         List<DepreciationRegime> depreciationRegimeList = depreciationRegimeRepository.findAll();
         assertThat(depreciationRegimeList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the DepreciationRegime in Elasticsearch
-        verify(mockDepreciationRegimeSearchRepository, times(1)).deleteById(depreciationRegime.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchDepreciationRegime() throws Exception {
-        // Initialize the database
-        depreciationRegimeRepository.saveAndFlush(depreciationRegime);
-        when(mockDepreciationRegimeSearchRepository.search(queryStringQuery("id:" + depreciationRegime.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(depreciationRegime), PageRequest.of(0, 1), 1));
-        // Search the depreciationRegime
-        restDepreciationRegimeMockMvc.perform(get("/api/_search/depreciation-regimes?query=id:" + depreciationRegime.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(depreciationRegime.getId().intValue())))
-            .andExpect(jsonPath("$.[*].assetDecayType").value(hasItem(DEFAULT_ASSET_DECAY_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].depreciationRate").value(hasItem(DEFAULT_DEPRECIATION_RATE.doubleValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
     }
 }

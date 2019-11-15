@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.Employee;
 import io.github.assets.repository.EmployeeRepository;
-import io.github.assets.repository.search.EmployeeSearchRepository;
 import io.github.assets.service.EmployeeService;
 import io.github.assets.service.dto.EmployeeDTO;
 import io.github.assets.service.mapper.EmployeeMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -29,14 +26,11 @@ import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -74,14 +68,6 @@ public class EmployeeResourceIT {
 
     @Autowired
     private EmployeeService employeeService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.EmployeeSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private EmployeeSearchRepository mockEmployeeSearchRepository;
 
     @Autowired
     private EmployeeQueryService employeeQueryService;
@@ -180,9 +166,6 @@ public class EmployeeResourceIT {
         assertThat(testEmployee.getEmployeeSignature()).isEqualTo(DEFAULT_EMPLOYEE_SIGNATURE);
         assertThat(testEmployee.getEmployeeSignatureContentType()).isEqualTo(DEFAULT_EMPLOYEE_SIGNATURE_CONTENT_TYPE);
         assertThat(testEmployee.getEmployeeEmail()).isEqualTo(DEFAULT_EMPLOYEE_EMAIL);
-
-        // Validate the Employee in Elasticsearch
-        verify(mockEmployeeSearchRepository, times(1)).save(testEmployee);
     }
 
     @Test
@@ -203,9 +186,6 @@ public class EmployeeResourceIT {
         // Validate the Employee in the database
         List<Employee> employeeList = employeeRepository.findAll();
         assertThat(employeeList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the Employee in Elasticsearch
-        verify(mockEmployeeSearchRepository, times(0)).save(employee);
     }
 
 
@@ -764,9 +744,6 @@ public class EmployeeResourceIT {
         assertThat(testEmployee.getEmployeeSignature()).isEqualTo(UPDATED_EMPLOYEE_SIGNATURE);
         assertThat(testEmployee.getEmployeeSignatureContentType()).isEqualTo(UPDATED_EMPLOYEE_SIGNATURE_CONTENT_TYPE);
         assertThat(testEmployee.getEmployeeEmail()).isEqualTo(UPDATED_EMPLOYEE_EMAIL);
-
-        // Validate the Employee in Elasticsearch
-        verify(mockEmployeeSearchRepository, times(1)).save(testEmployee);
     }
 
     @Test
@@ -786,9 +763,6 @@ public class EmployeeResourceIT {
         // Validate the Employee in the database
         List<Employee> employeeList = employeeRepository.findAll();
         assertThat(employeeList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Employee in Elasticsearch
-        verify(mockEmployeeSearchRepository, times(0)).save(employee);
     }
 
     @Test
@@ -807,29 +781,5 @@ public class EmployeeResourceIT {
         // Validate the database contains one less item
         List<Employee> employeeList = employeeRepository.findAll();
         assertThat(employeeList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the Employee in Elasticsearch
-        verify(mockEmployeeSearchRepository, times(1)).deleteById(employee.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchEmployee() throws Exception {
-        // Initialize the database
-        employeeRepository.saveAndFlush(employee);
-        when(mockEmployeeSearchRepository.search(queryStringQuery("id:" + employee.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(employee), PageRequest.of(0, 1), 1));
-        // Search the employee
-        restEmployeeMockMvc.perform(get("/api/_search/employees?query=id:" + employee.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(employee.getId().intValue())))
-            .andExpect(jsonPath("$.[*].employeeName").value(hasItem(DEFAULT_EMPLOYEE_NAME)))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
-            .andExpect(jsonPath("$.[*].employeeRole").value(hasItem(DEFAULT_EMPLOYEE_ROLE)))
-            .andExpect(jsonPath("$.[*].employeeStaffCode").value(hasItem(DEFAULT_EMPLOYEE_STAFF_CODE)))
-            .andExpect(jsonPath("$.[*].employeeSignatureContentType").value(hasItem(DEFAULT_EMPLOYEE_SIGNATURE_CONTENT_TYPE)))
-            .andExpect(jsonPath("$.[*].employeeSignature").value(hasItem(Base64Utils.encodeToString(DEFAULT_EMPLOYEE_SIGNATURE))))
-            .andExpect(jsonPath("$.[*].employeeEmail").value(hasItem(DEFAULT_EMPLOYEE_EMAIL)));
     }
 }

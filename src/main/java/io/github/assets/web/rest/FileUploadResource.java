@@ -26,9 +26,6 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing {@link io.github.assets.domain.FileUpload}.
@@ -146,21 +143,5 @@ public class FileUploadResource {
         log.debug("REST request to delete FileUpload : {}", id);
         fileUploadService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
-    }
-
-    /**
-     * {@code SEARCH  /_search/file-uploads?query=:query} : search for the fileUpload corresponding
-     * to the query.
-     *
-     * @param query the query of the fileUpload search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/file-uploads")
-    public ResponseEntity<List<FileUploadDTO>> searchFileUploads(@RequestParam String query, Pageable pageable) {
-        log.debug("REST request to search for a page of FileUploads for query {}", query);
-        Page<FileUploadDTO> page = fileUploadService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

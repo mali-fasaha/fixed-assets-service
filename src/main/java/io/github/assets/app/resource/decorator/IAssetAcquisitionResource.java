@@ -65,15 +65,4 @@ public interface IAssetAcquisitionResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     ResponseEntity<Void> deleteAssetAcquisition(Long id);
-
-    /**
-     * {@code SEARCH  /_search/asset-acquisitions?query=:query} : search for the assetAcquisition corresponding
-     * to the query.
-     *
-     * @param query the query of the assetAcquisition search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    ResponseEntity<List<AssetAcquisitionDTO>> searchAssetAcquisitions(String query, Pageable pageable, MultiValueMap<String, String> queryParams,
-                                                                      UriComponentsBuilder uriBuilder);
 }

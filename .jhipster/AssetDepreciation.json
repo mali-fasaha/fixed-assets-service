@@ -32,7 +32,7 @@
     ],
     "changelogDate": "20190724160716",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "asset_depreciation",
     "databaseType": "sql",

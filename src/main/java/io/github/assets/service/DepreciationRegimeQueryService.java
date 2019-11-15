@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.DepreciationRegime;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.DepreciationRegimeRepository;
-import io.github.assets.repository.search.DepreciationRegimeSearchRepository;
 import io.github.assets.service.dto.DepreciationRegimeCriteria;
 import io.github.assets.service.dto.DepreciationRegimeDTO;
 import io.github.assets.service.mapper.DepreciationRegimeMapper;
@@ -38,12 +37,9 @@ public class DepreciationRegimeQueryService extends QueryService<DepreciationReg
 
     private final DepreciationRegimeMapper depreciationRegimeMapper;
 
-    private final DepreciationRegimeSearchRepository depreciationRegimeSearchRepository;
-
-    public DepreciationRegimeQueryService(DepreciationRegimeRepository depreciationRegimeRepository, DepreciationRegimeMapper depreciationRegimeMapper, DepreciationRegimeSearchRepository depreciationRegimeSearchRepository) {
+    public DepreciationRegimeQueryService(DepreciationRegimeRepository depreciationRegimeRepository, DepreciationRegimeMapper depreciationRegimeMapper) {
         this.depreciationRegimeRepository = depreciationRegimeRepository;
         this.depreciationRegimeMapper = depreciationRegimeMapper;
-        this.depreciationRegimeSearchRepository = depreciationRegimeSearchRepository;
     }
 
     /**

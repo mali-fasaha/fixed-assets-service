@@ -10,7 +10,6 @@ import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetAcquisition;
 import io.github.assets.repository.AssetAcquisitionRepository;
-import io.github.assets.repository.search.AssetAcquisitionSearchRepository;
 import io.github.assets.service.AssetAcquisitionQueryService;
 import io.github.assets.service.AssetAcquisitionService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
@@ -46,7 +45,6 @@ import java.util.concurrent.BlockingQueue;
 import static io.github.assets.app.AppConstants.DATETIME_FORMATTER;
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -98,14 +96,6 @@ public class AppAssetAcquisitionResourceIT {
 
     @Autowired
     private AssetAcquisitionService assetAcquisitionService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.AssetAcquisitionSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private AssetAcquisitionSearchRepository mockAssetAcquisitionSearchRepository;
 
     @Autowired
     private AssetAcquisitionQueryService assetAcquisitionQueryService;
@@ -269,9 +259,6 @@ public class AppAssetAcquisitionResourceIT {
         // Validate the AssetAcquisition in the database
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the AssetAcquisition in Elasticsearch
-        verify(mockAssetAcquisitionSearchRepository, times(0)).save(assetAcquisition);
     }
 
 
@@ -1045,9 +1032,6 @@ public class AppAssetAcquisitionResourceIT {
         // Validate the AssetAcquisition in the database
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the AssetAcquisition in Elasticsearch
-        verify(mockAssetAcquisitionSearchRepository, times(0)).save(assetAcquisition);
     }
 
     @Test
@@ -1077,28 +1061,6 @@ public class AppAssetAcquisitionResourceIT {
 //        verify(mockAssetAcquisitionSearchRepository, times(1)).deleteById(assetAcquisition.getId());
     }
 
-    @Test
-    @Transactional
-    public void searchAssetAcquisition() throws Exception {
-        // Initialize the database
-        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
-        when(mockAssetAcquisitionSearchRepository.search(queryStringQuery("id:" + assetAcquisition.getId()), PageRequest.of(0, 20))).thenReturn(
-            new PageImpl<>(Collections.singletonList(assetAcquisition), PageRequest.of(0, 1), 1));
-        // Search the assetAcquisition
-        restAssetAcquisitionMockMvc.perform(get("/api/app/_search/asset-acquisitions?query=id:" + assetAcquisition.getId()))
-                                   .andExpect(status().isOk())
-                                   .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                                   .andExpect(jsonPath("$.[*].id").value(hasItem(assetAcquisition.getId().intValue())))
-                                   .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-                                   .andExpect(jsonPath("$.[*].acquisitionMonth").value(hasItem(DEFAULT_ACQUISITION_MONTH.toString())))
-                                   .andExpect(jsonPath("$.[*].assetSerial").value(hasItem(DEFAULT_ASSET_SERIAL)))
-                                   .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
-                                   .andExpect(jsonPath("$.[*].acquisitionTransactionId").value(hasItem(DEFAULT_ACQUISITION_TRANSACTION_ID.intValue())))
-                                   .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
-                                   .andExpect(jsonPath("$.[*].purchaseAmount").value(hasItem(DEFAULT_PURCHASE_AMOUNT.intValue())))
-                                   .andExpect(jsonPath("$.[*].assetDealerId").value(hasItem(DEFAULT_ASSET_DEALER_ID.intValue())))
-                                   .andExpect(jsonPath("$.[*].assetInvoiceId").value(hasItem(DEFAULT_ASSET_INVOICE_ID.intValue())));
-    }
 
     @Test
     @Transactional

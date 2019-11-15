@@ -42,7 +42,7 @@
     ],
     "changelogDate": "20190717061217",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "fixed_asset_invoice",
     "databaseType": "sql",

@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.FixedAssetInvoiceService;
 import io.github.assets.domain.FixedAssetInvoice;
 import io.github.assets.repository.FixedAssetInvoiceRepository;
-import io.github.assets.repository.search.FixedAssetInvoiceSearchRepository;
 import io.github.assets.service.dto.FixedAssetInvoiceDTO;
 import io.github.assets.service.mapper.FixedAssetInvoiceMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link FixedAssetInvoice}.
@@ -31,12 +28,9 @@ public class FixedAssetInvoiceServiceImpl implements FixedAssetInvoiceService {
 
     private final FixedAssetInvoiceMapper fixedAssetInvoiceMapper;
 
-    private final FixedAssetInvoiceSearchRepository fixedAssetInvoiceSearchRepository;
-
-    public FixedAssetInvoiceServiceImpl(FixedAssetInvoiceRepository fixedAssetInvoiceRepository, FixedAssetInvoiceMapper fixedAssetInvoiceMapper, FixedAssetInvoiceSearchRepository fixedAssetInvoiceSearchRepository) {
+    public FixedAssetInvoiceServiceImpl(FixedAssetInvoiceRepository fixedAssetInvoiceRepository, FixedAssetInvoiceMapper fixedAssetInvoiceMapper) {
         this.fixedAssetInvoiceRepository = fixedAssetInvoiceRepository;
         this.fixedAssetInvoiceMapper = fixedAssetInvoiceMapper;
-        this.fixedAssetInvoiceSearchRepository = fixedAssetInvoiceSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class FixedAssetInvoiceServiceImpl implements FixedAssetInvoiceService {
         log.debug("Request to save FixedAssetInvoice : {}", fixedAssetInvoiceDTO);
         FixedAssetInvoice fixedAssetInvoice = fixedAssetInvoiceMapper.toEntity(fixedAssetInvoiceDTO);
         fixedAssetInvoice = fixedAssetInvoiceRepository.save(fixedAssetInvoice);
-        FixedAssetInvoiceDTO result = fixedAssetInvoiceMapper.toDto(fixedAssetInvoice);
-        fixedAssetInvoiceSearchRepository.save(fixedAssetInvoice);
-        return result;
+        return fixedAssetInvoiceMapper.toDto(fixedAssetInvoice);
     }
 
     /**
@@ -93,21 +85,5 @@ public class FixedAssetInvoiceServiceImpl implements FixedAssetInvoiceService {
     public void delete(Long id) {
         log.debug("Request to delete FixedAssetInvoice : {}", id);
         fixedAssetInvoiceRepository.deleteById(id);
-        fixedAssetInvoiceSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the fixedAssetInvoice corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<FixedAssetInvoiceDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of FixedAssetInvoices for query {}", query);
-        return fixedAssetInvoiceSearchRepository.search(queryStringQuery(query), pageable)
-            .map(fixedAssetInvoiceMapper::toDto);
     }
 }

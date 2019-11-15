@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.AssetDisposal;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.AssetDisposalRepository;
-import io.github.assets.repository.search.AssetDisposalSearchRepository;
 import io.github.assets.service.dto.AssetDisposalCriteria;
 import io.github.assets.service.dto.AssetDisposalDTO;
 import io.github.assets.service.mapper.AssetDisposalMapper;
@@ -38,12 +37,9 @@ public class AssetDisposalQueryService extends QueryService<AssetDisposal> {
 
     private final AssetDisposalMapper assetDisposalMapper;
 
-    private final AssetDisposalSearchRepository assetDisposalSearchRepository;
-
-    public AssetDisposalQueryService(AssetDisposalRepository assetDisposalRepository, AssetDisposalMapper assetDisposalMapper, AssetDisposalSearchRepository assetDisposalSearchRepository) {
+    public AssetDisposalQueryService(AssetDisposalRepository assetDisposalRepository, AssetDisposalMapper assetDisposalMapper) {
         this.assetDisposalRepository = assetDisposalRepository;
         this.assetDisposalMapper = assetDisposalMapper;
-        this.assetDisposalSearchRepository = assetDisposalSearchRepository;
     }
 
     /**

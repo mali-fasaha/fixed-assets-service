@@ -2,7 +2,6 @@ package io.github.assets.service;
 
 import io.github.assets.domain.FileType;
 import io.github.assets.repository.FileTypeRepository;
-import io.github.assets.repository.search.FileTypeSearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link FileType}.
@@ -26,11 +23,8 @@ public class FileTypeService {
 
     private final FileTypeRepository fileTypeRepository;
 
-    private final FileTypeSearchRepository fileTypeSearchRepository;
-
-    public FileTypeService(FileTypeRepository fileTypeRepository, FileTypeSearchRepository fileTypeSearchRepository) {
+    public FileTypeService(FileTypeRepository fileTypeRepository) {
         this.fileTypeRepository = fileTypeRepository;
-        this.fileTypeSearchRepository = fileTypeSearchRepository;
     }
 
     /**
@@ -41,9 +35,7 @@ public class FileTypeService {
      */
     public FileType save(FileType fileType) {
         log.debug("Request to save FileType : {}", fileType);
-        FileType result = fileTypeRepository.save(fileType);
-        fileTypeSearchRepository.save(result);
-        return result;
+        return fileTypeRepository.save(fileType);
     }
 
     /**
@@ -79,18 +71,5 @@ public class FileTypeService {
     public void delete(Long id) {
         log.debug("Request to delete FileType : {}", id);
         fileTypeRepository.deleteById(id);
-        fileTypeSearchRepository.deleteById(id);
     }
-
-    /**
-     * Search for the fileType corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Transactional(readOnly = true)
-    public Page<FileType> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of FileTypes for query {}", query);
-        return fileTypeSearchRepository.search(queryStringQuery(query), pageable);    }
 }

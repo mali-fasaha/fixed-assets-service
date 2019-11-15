@@ -5,7 +5,6 @@ import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.Dealer;
 import io.github.assets.domain.FixedAssetInvoice;
 import io.github.assets.repository.DealerRepository;
-import io.github.assets.repository.search.DealerSearchRepository;
 import io.github.assets.service.DealerService;
 import io.github.assets.service.dto.DealerDTO;
 import io.github.assets.service.mapper.DealerMapper;
@@ -18,8 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -29,14 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -91,14 +85,6 @@ public class DealerResourceIT {
 
     @Autowired
     private DealerService dealerService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.DealerSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private DealerSearchRepository mockDealerSearchRepository;
 
     @Autowired
     private DealerQueryService dealerQueryService;
@@ -212,9 +198,6 @@ public class DealerResourceIT {
         assertThat(testDealer.getBankPhysicalAddress()).isEqualTo(DEFAULT_BANK_PHYSICAL_ADDRESS);
         assertThat(testDealer.getDomicile()).isEqualTo(DEFAULT_DOMICILE);
         assertThat(testDealer.getTaxAuthorityRef()).isEqualTo(DEFAULT_TAX_AUTHORITY_REF);
-
-        // Validate the Dealer in Elasticsearch
-        verify(mockDealerSearchRepository, times(1)).save(testDealer);
     }
 
     @Test
@@ -235,9 +218,6 @@ public class DealerResourceIT {
         // Validate the Dealer in the database
         List<Dealer> dealerList = dealerRepository.findAll();
         assertThat(dealerList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the Dealer in Elasticsearch
-        verify(mockDealerSearchRepository, times(0)).save(dealer);
     }
 
 
@@ -1380,9 +1360,6 @@ public class DealerResourceIT {
         assertThat(testDealer.getBankPhysicalAddress()).isEqualTo(UPDATED_BANK_PHYSICAL_ADDRESS);
         assertThat(testDealer.getDomicile()).isEqualTo(UPDATED_DOMICILE);
         assertThat(testDealer.getTaxAuthorityRef()).isEqualTo(UPDATED_TAX_AUTHORITY_REF);
-
-        // Validate the Dealer in Elasticsearch
-        verify(mockDealerSearchRepository, times(1)).save(testDealer);
     }
 
     @Test
@@ -1402,9 +1379,6 @@ public class DealerResourceIT {
         // Validate the Dealer in the database
         List<Dealer> dealerList = dealerRepository.findAll();
         assertThat(dealerList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Dealer in Elasticsearch
-        verify(mockDealerSearchRepository, times(0)).save(dealer);
     }
 
     @Test
@@ -1423,34 +1397,5 @@ public class DealerResourceIT {
         // Validate the database contains one less item
         List<Dealer> dealerList = dealerRepository.findAll();
         assertThat(dealerList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the Dealer in Elasticsearch
-        verify(mockDealerSearchRepository, times(1)).deleteById(dealer.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchDealer() throws Exception {
-        // Initialize the database
-        dealerRepository.saveAndFlush(dealer);
-        when(mockDealerSearchRepository.search(queryStringQuery("id:" + dealer.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(dealer), PageRequest.of(0, 1), 1));
-        // Search the dealer
-        restDealerMockMvc.perform(get("/api/_search/dealers?query=id:" + dealer.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(dealer.getId().intValue())))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
-            .andExpect(jsonPath("$.[*].dealerName").value(hasItem(DEFAULT_DEALER_NAME)))
-            .andExpect(jsonPath("$.[*].dealerAddress").value(hasItem(DEFAULT_DEALER_ADDRESS)))
-            .andExpect(jsonPath("$.[*].dealerPhoneNumber").value(hasItem(DEFAULT_DEALER_PHONE_NUMBER)))
-            .andExpect(jsonPath("$.[*].dealerEmail").value(hasItem(DEFAULT_DEALER_EMAIL)))
-            .andExpect(jsonPath("$.[*].bankName").value(hasItem(DEFAULT_BANK_NAME)))
-            .andExpect(jsonPath("$.[*].bankAccountNumber").value(hasItem(DEFAULT_BANK_ACCOUNT_NUMBER)))
-            .andExpect(jsonPath("$.[*].bankBranch").value(hasItem(DEFAULT_BANK_BRANCH)))
-            .andExpect(jsonPath("$.[*].bankSwiftCode").value(hasItem(DEFAULT_BANK_SWIFT_CODE)))
-            .andExpect(jsonPath("$.[*].bankPhysicalAddress").value(hasItem(DEFAULT_BANK_PHYSICAL_ADDRESS)))
-            .andExpect(jsonPath("$.[*].domicile").value(hasItem(DEFAULT_DOMICILE)))
-            .andExpect(jsonPath("$.[*].taxAuthorityRef").value(hasItem(DEFAULT_TAX_AUTHORITY_REF)));
     }
 }

@@ -24,9 +24,6 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing {@link io.github.assets.domain.FileType}.
@@ -128,21 +125,5 @@ public class FileTypeResource {
         log.debug("REST request to delete FileType : {}", id);
         fileTypeService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
-    }
-
-    /**
-     * {@code SEARCH  /_search/file-types?query=:query} : search for the fileType corresponding
-     * to the query.
-     *
-     * @param query the query of the fileType search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/file-types")
-    public ResponseEntity<List<FileType>> searchFileTypes(@RequestParam String query, Pageable pageable) {
-        log.debug("REST request to search for a page of FileTypes for query {}", query);
-        Page<FileType> page = fileTypeService.search(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

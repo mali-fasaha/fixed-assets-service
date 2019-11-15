@@ -4,7 +4,6 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetAcquisition;
 import io.github.assets.repository.AssetAcquisitionRepository;
-import io.github.assets.repository.search.AssetAcquisitionSearchRepository;
 import io.github.assets.service.AssetAcquisitionService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.mapper.AssetAcquisitionMapper;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -31,14 +28,11 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -89,14 +83,6 @@ public class AssetAcquisitionResourceIT {
 
     @Autowired
     private AssetAcquisitionService assetAcquisitionService;
-
-    /**
-     * This repository is mocked in the io.github.assets.repository.search test package.
-     *
-     * @see io.github.assets.repository.search.AssetAcquisitionSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private AssetAcquisitionSearchRepository mockAssetAcquisitionSearchRepository;
 
     @Autowired
     private AssetAcquisitionQueryService assetAcquisitionQueryService;
@@ -201,9 +187,6 @@ public class AssetAcquisitionResourceIT {
         assertThat(testAssetAcquisition.getPurchaseAmount()).isEqualTo(DEFAULT_PURCHASE_AMOUNT);
         assertThat(testAssetAcquisition.getAssetDealerId()).isEqualTo(DEFAULT_ASSET_DEALER_ID);
         assertThat(testAssetAcquisition.getAssetInvoiceId()).isEqualTo(DEFAULT_ASSET_INVOICE_ID);
-
-        // Validate the AssetAcquisition in Elasticsearch
-        verify(mockAssetAcquisitionSearchRepository, times(1)).save(testAssetAcquisition);
     }
 
     @Test
@@ -224,9 +207,6 @@ public class AssetAcquisitionResourceIT {
         // Validate the AssetAcquisition in the database
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the AssetAcquisition in Elasticsearch
-        verify(mockAssetAcquisitionSearchRepository, times(0)).save(assetAcquisition);
     }
 
 
@@ -1383,9 +1363,6 @@ public class AssetAcquisitionResourceIT {
         assertThat(testAssetAcquisition.getPurchaseAmount()).isEqualTo(UPDATED_PURCHASE_AMOUNT);
         assertThat(testAssetAcquisition.getAssetDealerId()).isEqualTo(UPDATED_ASSET_DEALER_ID);
         assertThat(testAssetAcquisition.getAssetInvoiceId()).isEqualTo(UPDATED_ASSET_INVOICE_ID);
-
-        // Validate the AssetAcquisition in Elasticsearch
-        verify(mockAssetAcquisitionSearchRepository, times(1)).save(testAssetAcquisition);
     }
 
     @Test
@@ -1405,9 +1382,6 @@ public class AssetAcquisitionResourceIT {
         // Validate the AssetAcquisition in the database
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the AssetAcquisition in Elasticsearch
-        verify(mockAssetAcquisitionSearchRepository, times(0)).save(assetAcquisition);
     }
 
     @Test
@@ -1426,31 +1400,5 @@ public class AssetAcquisitionResourceIT {
         // Validate the database contains one less item
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the AssetAcquisition in Elasticsearch
-        verify(mockAssetAcquisitionSearchRepository, times(1)).deleteById(assetAcquisition.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchAssetAcquisition() throws Exception {
-        // Initialize the database
-        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
-        when(mockAssetAcquisitionSearchRepository.search(queryStringQuery("id:" + assetAcquisition.getId()), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(assetAcquisition), PageRequest.of(0, 1), 1));
-        // Search the assetAcquisition
-        restAssetAcquisitionMockMvc.perform(get("/api/_search/asset-acquisitions?query=id:" + assetAcquisition.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(assetAcquisition.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].acquisitionMonth").value(hasItem(DEFAULT_ACQUISITION_MONTH.toString())))
-            .andExpect(jsonPath("$.[*].assetSerial").value(hasItem(DEFAULT_ASSET_SERIAL)))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
-            .andExpect(jsonPath("$.[*].acquisitionTransactionId").value(hasItem(DEFAULT_ACQUISITION_TRANSACTION_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
-            .andExpect(jsonPath("$.[*].purchaseAmount").value(hasItem(DEFAULT_PURCHASE_AMOUNT.intValue())))
-            .andExpect(jsonPath("$.[*].assetDealerId").value(hasItem(DEFAULT_ASSET_DEALER_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetInvoiceId").value(hasItem(DEFAULT_ASSET_INVOICE_ID.intValue())));
     }
 }

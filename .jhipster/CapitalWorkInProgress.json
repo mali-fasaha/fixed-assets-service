@@ -48,7 +48,7 @@
     ],
     "changelogDate": "20190725172554",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "capital_work_in_progress",
     "databaseType": "sql",

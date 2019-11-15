@@ -70,7 +70,7 @@
     ],
     "changelogDate": "20190725173446",
     "dto": "mapstruct",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "service": "serviceImpl",
     "entityTableName": "cwip_transfer",
     "databaseType": "sql",

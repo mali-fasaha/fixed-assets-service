@@ -3,7 +3,6 @@ package io.github.assets.service.impl;
 import io.github.assets.service.AssetDisposalService;
 import io.github.assets.domain.AssetDisposal;
 import io.github.assets.repository.AssetDisposalRepository;
-import io.github.assets.repository.search.AssetDisposalSearchRepository;
 import io.github.assets.service.dto.AssetDisposalDTO;
 import io.github.assets.service.mapper.AssetDisposalMapper;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link AssetDisposal}.
@@ -31,12 +28,9 @@ public class AssetDisposalServiceImpl implements AssetDisposalService {
 
     private final AssetDisposalMapper assetDisposalMapper;
 
-    private final AssetDisposalSearchRepository assetDisposalSearchRepository;
-
-    public AssetDisposalServiceImpl(AssetDisposalRepository assetDisposalRepository, AssetDisposalMapper assetDisposalMapper, AssetDisposalSearchRepository assetDisposalSearchRepository) {
+    public AssetDisposalServiceImpl(AssetDisposalRepository assetDisposalRepository, AssetDisposalMapper assetDisposalMapper) {
         this.assetDisposalRepository = assetDisposalRepository;
         this.assetDisposalMapper = assetDisposalMapper;
-        this.assetDisposalSearchRepository = assetDisposalSearchRepository;
     }
 
     /**
@@ -50,9 +44,7 @@ public class AssetDisposalServiceImpl implements AssetDisposalService {
         log.debug("Request to save AssetDisposal : {}", assetDisposalDTO);
         AssetDisposal assetDisposal = assetDisposalMapper.toEntity(assetDisposalDTO);
         assetDisposal = assetDisposalRepository.save(assetDisposal);
-        AssetDisposalDTO result = assetDisposalMapper.toDto(assetDisposal);
-        assetDisposalSearchRepository.save(assetDisposal);
-        return result;
+        return assetDisposalMapper.toDto(assetDisposal);
     }
 
     /**
@@ -93,21 +85,5 @@ public class AssetDisposalServiceImpl implements AssetDisposalService {
     public void delete(Long id) {
         log.debug("Request to delete AssetDisposal : {}", id);
         assetDisposalRepository.deleteById(id);
-        assetDisposalSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the assetDisposal corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<AssetDisposalDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of AssetDisposals for query {}", query);
-        return assetDisposalSearchRepository.search(queryStringQuery(query), pageable)
-            .map(assetDisposalMapper::toDto);
     }
 }

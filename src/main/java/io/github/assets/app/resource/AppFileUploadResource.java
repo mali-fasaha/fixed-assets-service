@@ -146,18 +146,4 @@ public class AppFileUploadResource implements IFileUploadResource {
 
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
     }
-
-    /**
-     * {@code SEARCH  /_search/file-uploads?query=:query} : search for the fileUpload corresponding to the query.
-     *
-     * @param query    the query of the fileUpload search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/file-uploads")
-    public ResponseEntity<List<FileUploadDTO>> searchFileUploads(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
-                                                                 UriComponentsBuilder uriBuilder) {
-
-        return fileUploadResource.searchFileUploads(query, pageable, queryParams, uriBuilder);
-    }
 }

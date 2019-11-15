@@ -136,19 +136,4 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
 
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
     }
-
-    /**
-     * {@code SEARCH  /_search/asset-acquisitions?query=:query} : search for the assetAcquisition corresponding to the query.
-     *
-     * @param query    the query of the assetAcquisition search.
-     * @param pageable the pagination information.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/asset-acquisitions")
-    public ResponseEntity<List<AssetAcquisitionDTO>> searchAssetAcquisitions(@RequestParam String query, Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams,
-                                                                             UriComponentsBuilder uriBuilder) {
-
-        return assetAcquisitionResourceDecorator.searchAssetAcquisitions(query, pageable, queryParams, uriBuilder);
-    }
-
 }

@@ -43,14 +43,4 @@ public interface FixedAssetCategoryService {
      * @param id the id of the entity.
      */
     void delete(Long id);
-
-    /**
-     * Search for the fixedAssetCategory corresponding to the query.
-     *
-     * @param query the query of the search.
-     * 
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    Page<FixedAssetCategoryDTO> search(String query, Pageable pageable);
 }

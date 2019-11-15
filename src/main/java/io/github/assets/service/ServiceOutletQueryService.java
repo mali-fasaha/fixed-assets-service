@@ -17,7 +17,6 @@ import io.github.jhipster.service.QueryService;
 import io.github.assets.domain.ServiceOutlet;
 import io.github.assets.domain.*; // for static metamodels
 import io.github.assets.repository.ServiceOutletRepository;
-import io.github.assets.repository.search.ServiceOutletSearchRepository;
 import io.github.assets.service.dto.ServiceOutletCriteria;
 import io.github.assets.service.dto.ServiceOutletDTO;
 import io.github.assets.service.mapper.ServiceOutletMapper;
@@ -38,12 +37,9 @@ public class ServiceOutletQueryService extends QueryService<ServiceOutlet> {
 
     private final ServiceOutletMapper serviceOutletMapper;
 
-    private final ServiceOutletSearchRepository serviceOutletSearchRepository;
-
-    public ServiceOutletQueryService(ServiceOutletRepository serviceOutletRepository, ServiceOutletMapper serviceOutletMapper, ServiceOutletSearchRepository serviceOutletSearchRepository) {
+    public ServiceOutletQueryService(ServiceOutletRepository serviceOutletRepository, ServiceOutletMapper serviceOutletMapper) {
         this.serviceOutletRepository = serviceOutletRepository;
         this.serviceOutletMapper = serviceOutletMapper;
-        this.serviceOutletSearchRepository = serviceOutletSearchRepository;
     }
 
     /**
