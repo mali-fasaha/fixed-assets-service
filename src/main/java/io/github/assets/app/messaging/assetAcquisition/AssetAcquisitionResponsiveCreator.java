@@ -3,6 +3,7 @@ package io.github.assets.app.messaging.assetAcquisition;
 import com.google.gson.Gson;
 import io.github.assets.app.excel.ExcelFileDeserializer;
 import io.github.assets.app.messaging.GsonUtils;
+import io.github.assets.app.messaging.MuteListener;
 import io.github.assets.app.messaging.ResponsiveListener;
 import io.github.assets.app.messaging.fileNotification.FileNotification;
 import io.github.assets.app.messaging.fileNotification.FileNotificationStreams;
@@ -24,8 +25,9 @@ import org.springframework.util.MimeTypeUtils;
  * and to deserialize that data and send it back to stream.
  */
 @Slf4j
-//@Component("assetAcquisitionResponsiveCreator")
-public class AssetAcquisitionResponsiveCreator implements ResponsiveListener<FileNotification, Message<String>> {
+@Component("assetAcquisitionResponsiveCreator")
+//public class AssetAcquisitionResponsiveCreator implements ResponsiveListener<FileNotification, Message<String>> {
+public class AssetAcquisitionResponsiveCreator implements MuteListener<FileNotification> {
 
     private final FileUploadService fileUploadService;
     private final ExcelFileDeserializer<AssetAcquisitionEVM> assetAcquisitionassetAcquisitionEVMExcelFileDeserializer;
@@ -37,12 +39,13 @@ public class AssetAcquisitionResponsiveCreator implements ResponsiveListener<Fil
 
     @Override
     @StreamListener(FileNotificationStreams.INPUT)
-    @SendTo(AssetAcquisitionResourceStreams.FILED_CREATE_RESOURCE_OUT)
-    public Message<String> attendMessage(@Payload FileNotification fileNotification) {
+    //@SendTo(AssetAcquisitionResourceStreams.FILED_CREATE_RESOURCE_OUT)
+    public void handleMessage(@Payload FileNotification fileNotification) {
         FileUploadDTO fileUpload = fileUploadService.findOne(Long.parseLong(fileNotification.getFileId())).orElseThrow(() -> new IllegalArgumentException("Id # : " + fileNotification.getFileId() +
                                                                                                                                                               " does not exist"));
         String json = GsonUtils.toJsonString(assetAcquisitionassetAcquisitionEVMExcelFileDeserializer.deserialize(fileUpload.getDataFile()));
 
-        return MessageBuilder.withPayload(json).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build();
+//        return MessageBuilder.withPayload(json).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build();
+         MessageBuilder.withPayload(json).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build();
     }
 }

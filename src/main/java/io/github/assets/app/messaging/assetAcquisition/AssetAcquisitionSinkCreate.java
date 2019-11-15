@@ -25,13 +25,15 @@ import java.util.List;
 @Service("assetAcquisitionSinkCreate")
 public class AssetAcquisitionSinkCreate implements MuteListener<Message<String>> {
 
+    // TODO test this class
+
     private final AssetAcquisitionService assetAcquisitionService;
     // TODO Add this to container
-    private final Mapping<AssetAcquisitionDTO, AssetAcquisitionEVM> assetAcquisitionDTOAssetAcquisitionEVMMapping;
+    private final Mapping<AssetAcquisitionDTO, AssetAcquisitionEVM> assetAcquisitionDTOEVMMapping;
 
-    public AssetAcquisitionSinkCreate(final AssetAcquisitionService assetAcquisitionService, final Mapping<AssetAcquisitionDTO, AssetAcquisitionEVM> assetAcquisitionDTOAssetAcquisitionEVMMapping) {
+    public AssetAcquisitionSinkCreate(final AssetAcquisitionService assetAcquisitionService, final Mapping<AssetAcquisitionDTO, AssetAcquisitionEVM> assetAcquisitionDTOEVMMapping) {
         this.assetAcquisitionService = assetAcquisitionService;
-        this.assetAcquisitionDTOAssetAcquisitionEVMMapping = assetAcquisitionDTOAssetAcquisitionEVMMapping;
+        this.assetAcquisitionDTOEVMMapping = assetAcquisitionDTOEVMMapping;
     }
 
     @StreamListener(AssetAcquisitionResourceStreams.FILED_CREATE_RESOURCE_IN)
@@ -40,7 +42,7 @@ public class AssetAcquisitionSinkCreate implements MuteListener<Message<String>>
         List<AssetAcquisitionEVM> acquisitionData = GsonUtils.stringToList(message.getPayload(), AssetAcquisitionEVM[].class);
 
         List<AssetAcquisitionDTO> persistedAcquisition =
-            acquisitionData.stream().map(assetAcquisitionDTOAssetAcquisitionEVMMapping::toValue1).map(assetAcquisitionService::save).collect(ImmutableList.toImmutableList());
+            acquisitionData.stream().map(assetAcquisitionDTOEVMMapping::toValue1).map(assetAcquisitionService::save).collect(ImmutableList.toImmutableList());
 
         log.info("{} Items persisted to the sink", persistedAcquisition.size());
     }

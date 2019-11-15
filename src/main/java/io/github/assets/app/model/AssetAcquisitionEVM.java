@@ -29,7 +29,7 @@ public class AssetAcquisitionEVM implements Serializable {
     private String serviceOutletCode;
 
     @ExcelCell(3)
-    private String acquisitionTransactionIdNumber;
+    private Long acquisitionTransactionIdNumber;
 
     @ExcelCell(4)
     private String acquisitionTransactionDate;
@@ -44,10 +44,10 @@ public class AssetAcquisitionEVM implements Serializable {
     private double purchaseAmount;
 
     @ExcelCell(8)
-    private String assetDealerName;
+    private Long assetDealerName;
 
     @ExcelCell(9)
-    private String assetInvoiceNumber;
+    private Long assetInvoiceNumber;
 
     private long timestamp;
     private String messageToken;

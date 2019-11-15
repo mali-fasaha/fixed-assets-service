@@ -22,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -36,16 +34,12 @@ import org.springframework.validation.Validator;
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.app.AppConstants.DATETIME_FORMATTER;
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -210,8 +204,8 @@ class AppFileUploadResourceIT {
         List<MessageToken> messageTokenList = messageTokenRepository.findAll();
         // ! assertThat(messageTokenList).hasSize(databaseSizeBeforeCreate + 1); // Uknown reason for failure
         MessageToken testMessageToken = messageTokenList.get(messageTokenList.size() - 1);
-//        // * Validate the MessageToken in elasticSearch. Expect the method called at origin and destination
-//        verify(messageTokenSearchRepository, times(2)).save(testMessageToken);
+        //        // * Validate the MessageToken in elasticSearch. Expect the method called at origin and destination
+        //        verify(messageTokenSearchRepository, times(2)).save(testMessageToken);
 
         Object payload = messageCollector.forChannel(fileUploadResourceStreams.outboundCreateResource()).poll().getPayload();
 
@@ -258,8 +252,8 @@ class AppFileUploadResourceIT {
         List<FileUpload> fileUploadList = fileUploadRepository.findAll();
         assertThat(fileUploadList).hasSize(databaseSizeBeforeCreate);
 
-//        // Validate the FileUpload in Elasticsearch
-//        verify(mockFileUploadSearchRepository, times(0)).save(fileUpload);
+        //        // Validate the FileUpload in Elasticsearch
+        //        verify(mockFileUploadSearchRepository, times(0)).save(fileUpload);
     }
 
 
@@ -862,8 +856,8 @@ class AppFileUploadResourceIT {
         // * Every request regardless of update or create produces a token
         assertThat(messageTokenList).hasSize(tokenDatabaseBeforeCreate + 1);
         MessageToken testMessageToken = messageTokenList.get(messageTokenList.size() - 1);
-//        // * Validate the MessageToken in elasticSearch. Expect the method called at origin and destination
-//        verify(messageTokenSearchRepository, times(2)).save(testMessageToken);
+        //        // * Validate the MessageToken in elasticSearch. Expect the method called at origin and destination
+        //        verify(messageTokenSearchRepository, times(2)).save(testMessageToken);
 
         Object payload = messageCollector.forChannel(fileUploadResourceStreams.outboundUpdateResource()).poll().getPayload();
 
@@ -911,9 +905,9 @@ class AppFileUploadResourceIT {
         // Validate the FileUpload in the database
         List<FileUpload> fileUploadList = fileUploadRepository.findAll();
         assertThat(fileUploadList).hasSize(databaseSizeBeforeUpdate);
-//
-//        // Validate the FileUpload in Elasticsearch
-//        verify(mockFileUploadSearchRepository, times(0)).save(fileUpload);
+        //
+        //        // Validate the FileUpload in Elasticsearch
+        //        verify(mockFileUploadSearchRepository, times(0)).save(fileUpload);
     }
 
     @Test
@@ -933,8 +927,8 @@ class AppFileUploadResourceIT {
         // ! Every request regardless of update or create or delete produces a token
         assertThat(messageTokenList).hasSize(tokenDatabaseBeforeCreate);
         MessageToken testMessageToken = messageTokenList.get(messageTokenList.size() - 1);
-//        // * Validate the MessageToken in elasticSearch. Expect the method called at origin and destination
-//        verify(messageTokenSearchRepository, times(2)).save(testMessageToken);
+        //        // * Validate the MessageToken in elasticSearch. Expect the method called at origin and destination
+        //        verify(messageTokenSearchRepository, times(2)).save(testMessageToken);
 
         Object payload = messageCollector.forChannel(fileUploadResourceStreams.outboundDeleteResource()).poll().getPayload();
 
@@ -948,30 +942,30 @@ class AppFileUploadResourceIT {
         //        // Validate the FileUpload in Elasticsearch
         //        verify(mockFileUploadSearchRepository, times(1)).deleteById(fileUpload.getId());
     }
-//
-//    @Test
-//    @Transactional
-//    public void searchFileUpload() throws Exception {
-//        // Initialize the database
-//        fileUploadRepository.saveAndFlush(fileUpload);
-//        when(mockFileUploadSearchRepository.search(queryStringQuery("id:" + fileUpload.getId()), PageRequest.of(0, 20))).thenReturn(
-//            new PageImpl<>(Collections.singletonList(fileUpload), PageRequest.of(0, 1), 1));
-//        // Search the fileUpload
-//        restFileUploadMockMvc.perform(get("/api/app/_search/file-uploads?query=id:" + fileUpload.getId()))
-//                             .andExpect(status().isOk())
-//                             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-//                             .andExpect(jsonPath("$.[*].id").value(hasItem(fileUpload.getId().intValue())))
-//                             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-//                             .andExpect(jsonPath("$.[*].fileName").value(hasItem(DEFAULT_FILE_NAME)))
-//                             .andExpect(jsonPath("$.[*].periodFrom").value(hasItem(DEFAULT_PERIOD_FROM.toString())))
-//                             .andExpect(jsonPath("$.[*].periodTo").value(hasItem(DEFAULT_PERIOD_TO.toString())))
-//                             .andExpect(jsonPath("$.[*].fileTypeId").value(hasItem(DEFAULT_FILE_TYPE_ID.intValue())))
-//                             .andExpect(jsonPath("$.[*].dataFileContentType").value(hasItem(DEFAULT_DATA_FILE_CONTENT_TYPE)))
-//                             .andExpect(jsonPath("$.[*].dataFile").value(hasItem(Base64Utils.encodeToString(DEFAULT_DATA_FILE))))
-//                             .andExpect(jsonPath("$.[*].uploadSuccessful").value(hasItem(DEFAULT_UPLOAD_SUCCESSFUL.booleanValue())))
-//                             .andExpect(jsonPath("$.[*].uploadProcessed").value(hasItem(DEFAULT_UPLOAD_PROCESSED.booleanValue())))
-//                             .andExpect(jsonPath("$.[*].uploadToken").value(hasItem(DEFAULT_UPLOAD_TOKEN)));
-//    }
+    //
+    //    @Test
+    //    @Transactional
+    //    public void searchFileUpload() throws Exception {
+    //        // Initialize the database
+    //        fileUploadRepository.saveAndFlush(fileUpload);
+    //        when(mockFileUploadSearchRepository.search(queryStringQuery("id:" + fileUpload.getId()), PageRequest.of(0, 20))).thenReturn(
+    //            new PageImpl<>(Collections.singletonList(fileUpload), PageRequest.of(0, 1), 1));
+    //        // Search the fileUpload
+    //        restFileUploadMockMvc.perform(get("/api/app/_search/file-uploads?query=id:" + fileUpload.getId()))
+    //                             .andExpect(status().isOk())
+    //                             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    //                             .andExpect(jsonPath("$.[*].id").value(hasItem(fileUpload.getId().intValue())))
+    //                             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+    //                             .andExpect(jsonPath("$.[*].fileName").value(hasItem(DEFAULT_FILE_NAME)))
+    //                             .andExpect(jsonPath("$.[*].periodFrom").value(hasItem(DEFAULT_PERIOD_FROM.toString())))
+    //                             .andExpect(jsonPath("$.[*].periodTo").value(hasItem(DEFAULT_PERIOD_TO.toString())))
+    //                             .andExpect(jsonPath("$.[*].fileTypeId").value(hasItem(DEFAULT_FILE_TYPE_ID.intValue())))
+    //                             .andExpect(jsonPath("$.[*].dataFileContentType").value(hasItem(DEFAULT_DATA_FILE_CONTENT_TYPE)))
+    //                             .andExpect(jsonPath("$.[*].dataFile").value(hasItem(Base64Utils.encodeToString(DEFAULT_DATA_FILE))))
+    //                             .andExpect(jsonPath("$.[*].uploadSuccessful").value(hasItem(DEFAULT_UPLOAD_SUCCESSFUL.booleanValue())))
+    //                             .andExpect(jsonPath("$.[*].uploadProcessed").value(hasItem(DEFAULT_UPLOAD_PROCESSED.booleanValue())))
+    //                             .andExpect(jsonPath("$.[*].uploadToken").value(hasItem(DEFAULT_UPLOAD_TOKEN)));
+    //    }
 
     @Test
     @Transactional

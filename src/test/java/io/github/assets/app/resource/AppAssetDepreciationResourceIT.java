@@ -19,8 +19,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -33,16 +31,12 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.assets.app.AppConstants.DATETIME_FORMATTER;
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -880,8 +874,8 @@ public class AppAssetDepreciationResourceIT {
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeUpdate);
 
-//        // Validate the AssetDepreciation in Elasticsearch
-//        verify(mockAssetDepreciationSearchRepository, times(0)).save(assetDepreciation);
+        //        // Validate the AssetDepreciation in Elasticsearch
+        //        verify(mockAssetDepreciationSearchRepository, times(0)).save(assetDepreciation);
     }
 
     @Test
