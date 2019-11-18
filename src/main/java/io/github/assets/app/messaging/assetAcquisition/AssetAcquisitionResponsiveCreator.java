@@ -32,9 +32,9 @@ public class AssetAcquisitionResponsiveCreator implements MuteListener<FileNotif
     private final FileUploadService fileUploadService;
     private final ExcelFileDeserializer<AssetAcquisitionEVM> assetAcquisitionassetAcquisitionEVMExcelFileDeserializer;
 
-    public AssetAcquisitionResponsiveCreator(final FileUploadService fileUploadService, final ExcelFileDeserializer<AssetAcquisitionEVM> assetAcquisitionMTOExcelFileDeserializer) {
+    public AssetAcquisitionResponsiveCreator(final FileUploadService fileUploadService, final ExcelFileDeserializer<AssetAcquisitionEVM> assetAcquisitionExcelFileDeserializer) {
         this.fileUploadService = fileUploadService;
-        this.assetAcquisitionassetAcquisitionEVMExcelFileDeserializer = assetAcquisitionMTOExcelFileDeserializer;
+        this.assetAcquisitionassetAcquisitionEVMExcelFileDeserializer = assetAcquisitionExcelFileDeserializer;
     }
 
     @Override
