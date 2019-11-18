@@ -181,6 +181,12 @@ spring:
         file-upload-resource-delete-out:
           destination: fileUploadsDelete
           contentType: application/json
+        json-create-inbound:
+          destination: jsonStringStreams
+          contentType: application/json
+        json-create-outbound:
+          destination: jsonStringStreams
+          contentType: application/json
   autoconfigure:
     exclude: org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration
   application:

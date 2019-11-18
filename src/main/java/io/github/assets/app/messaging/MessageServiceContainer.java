@@ -6,6 +6,7 @@ import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionResourceS
 import io.github.assets.app.messaging.assetDepreciation.AssetDepreciationResourceStreams;
 import io.github.assets.app.messaging.fileNotification.FileNotificationStreams;
 import io.github.assets.app.messaging.fileUpload.FileUploadResourceStreams;
+import io.github.assets.app.messaging.jsonStrings.JsonStringStreams;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
@@ -32,7 +33,15 @@ public class MessageServiceContainer {
     @Autowired
     private FileNotificationStreams fileNotificationStreams;
     @Autowired
+    private JsonStringStreams jsonStringStreams;
+    @Autowired
     private Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper;
+
+    @Bean("jsonStringMessageService")
+    public MessageService<TokenizableMessage<String>> jsonStringMessageService() {
+
+        return new StringedTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.outbound(), messageTokenMapper);
+    }
 
     @Bean("assetAcquisitionCreateMessageService")
     public MessageService<TokenizableMessage<String>> assetAcquisitionCreateMessageService() {

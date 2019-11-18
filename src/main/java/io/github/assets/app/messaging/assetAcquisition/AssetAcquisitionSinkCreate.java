@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.assets.app.messaging.GsonUtils;
 import io.github.assets.app.Mapping;
 import io.github.assets.app.messaging.MuteListener;
+import io.github.assets.app.messaging.jsonStrings.StringMessageDTO;
 import io.github.assets.app.model.AssetAcquisitionEVM;
 import io.github.assets.service.AssetAcquisitionService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
@@ -23,7 +24,7 @@ import java.util.List;
 @Slf4j
 @Transactional
 @Service("assetAcquisitionSinkCreate")
-public class AssetAcquisitionSinkCreate implements MuteListener<Message<String>> {
+public class AssetAcquisitionSinkCreate implements MuteListener<StringMessageDTO> {
 
     // TODO test this class
 
@@ -37,9 +38,9 @@ public class AssetAcquisitionSinkCreate implements MuteListener<Message<String>>
     }
 
     @StreamListener(AssetAcquisitionResourceStreams.FILED_CREATE_RESOURCE_IN)
-    public void handleMessage(@Payload Message<String> message) {
+    public void handleMessage(@Payload StringMessageDTO message) {
 
-        List<AssetAcquisitionEVM> acquisitionData = GsonUtils.stringToList(message.getPayload(), AssetAcquisitionEVM[].class);
+        List<AssetAcquisitionEVM> acquisitionData = GsonUtils.stringToList(message.getJsonString(), AssetAcquisitionEVM[].class);
 
         List<AssetAcquisitionDTO> persistedAcquisition =
             acquisitionData.stream().map(assetAcquisitionDTOEVMMapping::toValue1).map(assetAcquisitionService::save).collect(ImmutableList.toImmutableList());
