@@ -14,8 +14,8 @@ import static io.github.assets.app.excel.PoijiOptionsConfig.getDefaultPoijiOptio
 public class ExcelDeserializerContainer {
 
     // TODO Containerize defaultExcelDeserializers
-    @Bean("assetAcquisitionEVMExcelFileDeserializer")
-    public ExcelFileDeserializer<AssetAcquisitionEVM> assetAcquisitionEVMExcelFileDeserializer() {
+    @Bean("assetAcquisitionExcelFileDeserializer")
+    public ExcelFileDeserializer<AssetAcquisitionEVM> assetAcquisitionExcelFileDeserializer() {
 
         return excelFile -> {
             DefaultExcelFileDeserializer<AssetAcquisitionEVM> deserializer =
