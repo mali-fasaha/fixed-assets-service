@@ -7,7 +7,6 @@ import io.github.assets.app.messaging.sample.Greetings;
 import io.github.assets.app.messaging.sample.GreetingsStreams;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
-import io.github.assets.domain.MessageToken;
 import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
@@ -85,7 +84,7 @@ public class GreetingsControllerIT {
         assertThat(messageToken.getId()).isNotNull();
         assertThat(messageToken.getTokenValue()).isEqualTo(tokenGenerator.md5Digest(unMutatedGreeting));
         assertThat(messageToken.getTimeSent()).isEqualTo(greeting.getTimestamp());
-//        assertThat(payload.toString()).containsSequence(String.valueOf(timestamp));
+        //        assertThat(payload.toString()).containsSequence(String.valueOf(timestamp));
         assertThat(payload.toString()).containsSequence(message);
         assertThat(payload.toString()).containsSequence(description);
         assertThat(payload.toString()).containsSequence(messageToken.getTokenValue());

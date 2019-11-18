@@ -4,12 +4,9 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.app.messaging.MessageService;
 import io.github.assets.app.messaging.TokenizableMessage;
 import io.github.assets.app.messaging.fileNotification.FileNotification;
-import io.github.assets.app.messaging.fileNotification.FileNotificationMessageService;
 import io.github.assets.app.messaging.fileNotification.FileNotificationStreams;
-import io.github.assets.app.messaging.sample.Greetings;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
-import io.github.assets.domain.MessageToken;
 import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
@@ -45,12 +42,7 @@ public class FileNotificationControllerIT {
         String filename = "AssetAdditions2019.xlsx";
         String description = "Assets Acquired in FY 2019";
 
-        final FileNotification fileNotification = FileNotification.builder()
-                                                                  .description(description)
-                                                                  .fileId(fileId)
-                                                                  .filename(filename)
-                                                                  .timestamp(timestamp)
-                                                                  .build();
+        final FileNotification fileNotification = FileNotification.builder().description(description).fileId(fileId).filename(filename).timestamp(timestamp).build();
 
         final FileNotification unMutatedFileNotification = SerializationUtils.clone(fileNotification);
 
@@ -64,7 +56,7 @@ public class FileNotificationControllerIT {
         assertThat(messageToken.getId()).isNotNull();
         assertThat(messageToken.getTokenValue()).isEqualTo(tokenGenerator.md5Digest(unMutatedFileNotification));
         assertThat(messageToken.getTimeSent()).isEqualTo(fileNotification.getTimestamp());
-//        assertThat(payload.toString()).containsSequence(String.valueOf(timestamp));
+        //        assertThat(payload.toString()).containsSequence(String.valueOf(timestamp));
         assertThat(payload.toString()).containsSequence(description);
         assertThat(payload.toString()).containsSequence(messageToken.getTokenValue());
     }

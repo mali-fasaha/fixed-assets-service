@@ -2,7 +2,6 @@ package io.github.assets.app.messaging.platform;
 
 import io.github.assets.app.messaging.sample.Greetings;
 import io.github.assets.app.util.TokenGenerator;
-import org.hamcrest.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,11 +23,7 @@ public class TokenGeneratorTest {
         String description = "About the Starks";
         long timestamp = System.currentTimeMillis();
 
-        Greetings greeting = Greetings.builder()
-                                      .message(message)
-                                      .description(description)
-                                      .timestamp(timestamp)
-                                      .build();
+        Greetings greeting = Greetings.builder().message(message).description(description).timestamp(timestamp).build();
         String messageTokenValue = tokenGenerator.md5Digest(greeting);
 
         assertThat(tokenGenerator.md5Digest(greeting)).isEqualTo(messageTokenValue);
