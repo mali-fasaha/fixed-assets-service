@@ -1,7 +1,6 @@
 package io.github.assets.app.excel;
 
 import io.github.assets.FixedAssetServiceApp;
-import io.github.assets.app.excel.deserializer.DefaultExcelFileDeserializer;
 import io.github.assets.app.model.AssetAcquisitionEVM;
 import io.github.assets.app.model.AssetTransactionEVM;
 import io.github.assets.app.model.DealerEVM;
@@ -12,18 +11,16 @@ import io.github.assets.app.model.FixedAssetInvoiceEVM;
 import io.github.assets.app.model.FixedAssetItemEVM;
 import io.github.assets.app.model.ServiceOutletEVM;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
 import java.util.List;
 
 import static io.github.assets.app.excel.ExcelTestUtil.readFile;
 import static io.github.assets.app.excel.ExcelTestUtil.toBytes;
-import static io.github.assets.app.excel.PoijiOptionsConfig.getDefaultPoijiOptions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -35,28 +32,36 @@ public class ExcelFileUtilsIT {
     @Qualifier("assetAcquisitionExcelFileDeserializer")
     private ExcelFileDeserializer<AssetAcquisitionEVM> assetAcquisitionExcelFileDeserializer;
 
-    @Autowired @Qualifier("serviceOutletExcelFileDeserializer")
+    @Autowired
+    @Qualifier("serviceOutletExcelFileDeserializer")
     private ExcelFileDeserializer<ServiceOutletEVM> serviceOutletExcelFileDeserializer;
 
-    @Autowired @Qualifier("assetTransactionExcelFileDeserializer")
+    @Autowired
+    @Qualifier("assetTransactionExcelFileDeserializer")
     private ExcelFileDeserializer<AssetTransactionEVM> assetTransactionExcelFileDeserializer;
 
-    @Autowired @Qualifier("dealerExcelFileDeserializer")
+    @Autowired
+    @Qualifier("dealerExcelFileDeserializer")
     private ExcelFileDeserializer<DealerEVM> dealerExcelFileDeserializer;
 
-    @Autowired @Qualifier("depreciationRegimeExcelFileDeserializer")
+    @Autowired
+    @Qualifier("depreciationRegimeExcelFileDeserializer")
     private ExcelFileDeserializer<DepreciationRegimeEVM> depreciationRegimeExcelFileDeserializer;
 
-    @Autowired @Qualifier("fixedAssetAssessmentExcelFileDeserializer")
+    @Autowired
+    @Qualifier("fixedAssetAssessmentExcelFileDeserializer")
     private ExcelFileDeserializer<FixedAssetAssessmentEVM> fixedAssetAssessmentExcelFileDeserializer;
 
-    @Autowired @Qualifier("fixedAssetCategoryExcelFileDeserializer")
+    @Autowired
+    @Qualifier("fixedAssetCategoryExcelFileDeserializer")
     private ExcelFileDeserializer<FixedAssetCategoryEVM> fixedAssetCategoryExcelFileDeserializer;
 
-    @Autowired @Qualifier("fixedAssetInvoiceExcelFileDeserializer")
+    @Autowired
+    @Qualifier("fixedAssetInvoiceExcelFileDeserializer")
     private ExcelFileDeserializer<FixedAssetInvoiceEVM> fixedAssetInvoiceExcelFileDeserializer;
 
-    @Autowired @Qualifier("fixedAssetItemExcelFileDeserializer")
+    @Autowired
+    @Qualifier("fixedAssetItemExcelFileDeserializer")
     private ExcelFileDeserializer<FixedAssetItemEVM> fixedAssetItemExcelFileDeserializer;
 
 
@@ -69,11 +74,11 @@ public class ExcelFileUtilsIT {
         // @formatter:on
 
         assertEquals(12, acquisitions.size());
-        assertEquals("5 Springview Park", acquisitions.get(0).getAcquisitionMonth());
-        assertEquals("Human Resources", acquisitions.get(0).getAcquisitionTransactionDate());
-        assertEquals("802", acquisitions.get(0).getAssetSerial());
-        assertEquals("802", acquisitions.get(0).getAssetCategory());
-        assertEquals("802", acquisitions.get(0).getDescription());
+        assertEquals("2019/09/01", acquisitions.get(0).getAcquisitionMonth());
+        assertEquals("2019/09/15", acquisitions.get(0).getAcquisitionTransactionDate());
+        assertEquals("GLM009827", acquisitions.get(0).getAssetSerial());
+        assertEquals("COMPUTERS", acquisitions.get(0).getAssetCategory());
+        assertEquals("ACQUISITION OF ASSET 1", acquisitions.get(0).getDescription());
     }
 
     @Test
@@ -102,7 +107,7 @@ public class ExcelFileUtilsIT {
             assetTransactionExcelFileDeserializer.deserialize(toBytes(readFile("asset_transactions.xlsx")));
         // @formatter:on
 
-        assertEquals("Incorrect number of transactions : ",997, transactions.size());
+        assertEquals("Incorrect number of transactions : ", 997, transactions.size());
         assertEquals("Wrong transaction id! : ", "TRN 218", transactions.get(0).getTransactionReference());
         assertEquals("Wrong Transaction date! : ", "2018/08/16", transactions.get(0).getTransactionDate());
         assertEquals("Wrong Scanned document! : ", 555, transactions.get(0).getScannedDocumentId());
@@ -119,7 +124,7 @@ public class ExcelFileUtilsIT {
             dealerExcelFileDeserializer.deserialize(toBytes(readFile("dealers.xlsx")));
         // @formatter:on
 
-        assertEquals("Incorrect # of dealers:",80, dealers.size());
+        assertEquals("Incorrect # of dealers:", 80, dealers.size());
 
         assertEquals("Incorrect Title Types! : ", "Honorable", dealers.get(0).getTitleTypes());
         assertEquals("Incorrect Dealer's Name! : ", "Barclay Shires", dealers.get(0).getDealerName());
@@ -236,7 +241,7 @@ public class ExcelFileUtilsIT {
 
         assertEquals("Incorrect invoice reference: ", "736", invoices.get(0).getInvoiceReference());
         assertEquals("Incorrect invoice date: ", "2019/03/22", invoices.get(0).getInvoiceDate());
-        assertEquals("Incorrect invoice amount: ", 378755.88, invoices.get(0).getInvoiceAmount(),0.01);
+        assertEquals("Incorrect invoice amount: ", 378755.88, invoices.get(0).getInvoiceAmount(), 0.01);
         assertFalse("Incorrect Response on IsProforma: ", invoices.get(0).isProforma());
         assertFalse("Incorrect Response on IsCredit Note: ", invoices.get(0).isCreditNote());
         assertEquals("Incorrect Dealer Id: ", 75, invoices.get(0).getDealerId());
@@ -244,7 +249,7 @@ public class ExcelFileUtilsIT {
 
         assertEquals("Incorrect invoice reference: ", "240", invoices.get(999).getInvoiceReference());
         assertEquals("Incorrect invoice date: ", "2018/10/21", invoices.get(999).getInvoiceDate());
-        assertEquals("Incorrect invoice amount: ", 75399.96, invoices.get(999).getInvoiceAmount(),0.01);
+        assertEquals("Incorrect invoice amount: ", 75399.96, invoices.get(999).getInvoiceAmount(), 0.01);
         assertTrue("Incorrect Response on IsProforma: ", invoices.get(999).isProforma());
         assertFalse("Incorrect Response on IsCredit Note: ", invoices.get(999).isCreditNote());
         assertEquals("Incorrect Dealer Id: ", 63, invoices.get(999).getDealerId());
@@ -260,14 +265,14 @@ public class ExcelFileUtilsIT {
 
         assertEquals(999, assetItems.size());
 
-        assertEquals("Incorrect Service Outlet Code in row index : "+ assetItems.get(0).getRowIndex(), "331", assetItems.get(0).getServiceOutletCode());
-        assertEquals("Incorrect Asset category code in row index : "+ assetItems.get(0).getRowIndex(), "001542638824", assetItems.get(0).getAssetCategoryCode());
-        assertEquals("Incorrect Asset category in row index : "+ assetItems.get(0).getRowIndex(), "MOTOR VEHICLES", assetItems.get(0).getAssetCategory());
-        assertEquals("Incorrect Asset serial in row index : "+ assetItems.get(0).getRowIndex(), "#2c7e86", assetItems.get(0).getFixedAssetSerialCode());
-        assertEquals("Incorrect Asset description in row index : "+ assetItems.get(0).getRowIndex(), "motor vehicles", assetItems.get(0).getFixedAssetDescription());
-        assertEquals("Incorrect Asset purchase date in row index : "+ assetItems.get(0).getRowIndex(), "2019/04/16", assetItems.get(0).getPurchaseDate());
-        assertEquals("Incorrect Asset purchase cost in row index : "+ assetItems.get(0).getRowIndex(), 430553.1, assetItems.get(0).getPurchaseCost(), 0.01);
-        assertEquals("Incorrect Asset purchase transaction id in row index : "+ assetItems.get(0).getRowIndex(), 952, assetItems.get(0).getPurchaseTransactionId());
-        assertEquals("Incorrect Asset ownership document id in row index : "+ assetItems.get(0).getRowIndex(), 964, assetItems.get(0).getOwnershipDocumentId());
+        assertEquals("Incorrect Service Outlet Code in row index : " + assetItems.get(0).getRowIndex(), "331", assetItems.get(0).getServiceOutletCode());
+        assertEquals("Incorrect Asset category code in row index : " + assetItems.get(0).getRowIndex(), "001542638824", assetItems.get(0).getAssetCategoryCode());
+        assertEquals("Incorrect Asset category in row index : " + assetItems.get(0).getRowIndex(), "MOTOR VEHICLES", assetItems.get(0).getAssetCategory());
+        assertEquals("Incorrect Asset serial in row index : " + assetItems.get(0).getRowIndex(), "#2c7e86", assetItems.get(0).getFixedAssetSerialCode());
+        assertEquals("Incorrect Asset description in row index : " + assetItems.get(0).getRowIndex(), "motor vehicles", assetItems.get(0).getFixedAssetDescription());
+        assertEquals("Incorrect Asset purchase date in row index : " + assetItems.get(0).getRowIndex(), "2019/04/16", assetItems.get(0).getPurchaseDate());
+        assertEquals("Incorrect Asset purchase cost in row index : " + assetItems.get(0).getRowIndex(), 430553.1, assetItems.get(0).getPurchaseCost(), 0.01);
+        assertEquals("Incorrect Asset purchase transaction id in row index : " + assetItems.get(0).getRowIndex(), 952, assetItems.get(0).getPurchaseTransactionId());
+        assertEquals("Incorrect Asset ownership document id in row index : " + assetItems.get(0).getRowIndex(), 964, assetItems.get(0).getOwnershipDocumentId());
     }
 }
