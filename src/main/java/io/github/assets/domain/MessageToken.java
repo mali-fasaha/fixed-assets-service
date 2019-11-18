@@ -30,7 +30,8 @@ public class MessageToken implements Serializable {
     private Long timeSent;
 
     @NotNull
-    @Column(name = "token_value", nullable = false, unique = true)
+//    @Column(name = "token_value", nullable = false, unique = true)
+    @Column(name = "token_value", nullable = false)
     private String tokenValue;
 
     @Column(name = "received")

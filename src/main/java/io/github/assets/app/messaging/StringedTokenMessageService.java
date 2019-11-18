@@ -60,7 +60,8 @@ public class StringedTokenMessageService implements MessageService<TokenizableMe
             message.setMessageToken(messageToken.getTokenValue());
         }
 
-        messageChannel.send(MessageBuilder.withPayload(message).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
+
+        // todo remove this messageChannel.send(MessageBuilder.withPayload(message).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
 
         return messageTokenService.save(messageTokenMapper.toDto(messageToken));
     }

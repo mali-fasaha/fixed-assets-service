@@ -28,7 +28,8 @@ public class FileUpload implements Serializable {
     private String description;
 
     @NotNull
-    @Column(name = "file_name", nullable = false, unique = true)
+//    @Column(name = "file_name", nullable = false, unique = true)
+    @Column(name = "file_name", nullable = false)
     private String fileName;
 
     @Column(name = "period_from")
@@ -41,7 +42,7 @@ public class FileUpload implements Serializable {
     @Column(name = "file_type_id", nullable = false)
     private Long fileTypeId;
 
-    
+
     @Lob
     @Column(name = "data_file", nullable = false)
     private byte[] dataFile;
@@ -55,7 +56,7 @@ public class FileUpload implements Serializable {
     @Column(name = "upload_processed")
     private Boolean uploadProcessed;
 
-    
+
     @Column(name = "upload_token", unique = true)
     private String uploadToken;
 

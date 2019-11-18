@@ -40,7 +40,7 @@ public class MessageServiceContainer {
     @Bean("jsonStringMessageService")
     public MessageService<TokenizableMessage<String>> jsonStringMessageService() {
 
-        return new StringedTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.outbound(), messageTokenMapper);
+        return new StringedTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.acquisitionsCreateOutbound(), messageTokenMapper);
     }
 
     @Bean("assetAcquisitionCreateMessageService")

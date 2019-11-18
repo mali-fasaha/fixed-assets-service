@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URISyntaxException;
 
+/**
+ *  TODO Create interface for disseminating file information
+ */
 @Transactional
 @Service("fileUploadEntityResource")
 public class FileUploadEntityResource implements EntityResource<FileUploadMTO, DeleteMessageDTO> {
@@ -23,18 +26,21 @@ public class FileUploadEntityResource implements EntityResource<FileUploadMTO, D
     @Override
     public void createEntity(final FileUploadMTO entityMTO, final MessageTokenDTO messageToken) throws URISyntaxException {
 
+        // TODO Make use of the response by implementing the correct interface
         fileUploadResponsiveEntityResource.createEntity(entityMTO, messageToken);
     }
 
     @Override
     public void updateEntity(final FileUploadMTO entityMTO, final MessageTokenDTO messageToken) throws URISyntaxException {
 
+        // TODO Make use of the response by implementing the correct interface
         fileUploadResponsiveEntityResource.updateEntity(entityMTO, messageToken);
     }
 
     @Override
     public void deleteEntity(final DeleteMessageDTO deleteMessageDTO, final MessageTokenDTO messageToken) {
 
+        // TODO Make use of the response by implementing the correct interface
         fileUploadResponsiveEntityResource.deleteEntity(deleteMessageDTO, messageToken);
     }
 }

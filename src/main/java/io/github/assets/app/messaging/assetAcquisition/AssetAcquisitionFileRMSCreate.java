@@ -23,7 +23,10 @@ import org.springframework.util.MimeTypeUtils;
 /**
  * This is intended to listen on FileUploads for which relate to asset acquisitions
  * and to deserialize that data and send it back to stream.
+ *
+ * TODO Deprecate this class
  */
+@Deprecated
 @Slf4j
 @Component("assetAcquisitionResponsiveCreator")
 public class AssetAcquisitionFileRMSCreate implements MuteListener<FileNotification> {

@@ -1,16 +1,16 @@
 package io.github.assets.app.messaging.assetAcquisition;
 
 import com.google.common.collect.ImmutableList;
-import io.github.assets.app.messaging.GsonUtils;
 import io.github.assets.app.Mapping;
+import io.github.assets.app.messaging.GsonUtils;
 import io.github.assets.app.messaging.MuteListener;
+import io.github.assets.app.messaging.jsonStrings.JsonStringStreams;
 import io.github.assets.app.messaging.jsonStrings.StringMessageDTO;
 import io.github.assets.app.model.AssetAcquisitionEVM;
 import io.github.assets.service.AssetAcquisitionService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * This is some sort of a sink capable of receiving a JSON string and persisting it as AssetAcquisition
- * items using the service
+ * This is some sort of a sink capable of receiving a JSON string and persisting it as AssetAcquisition items using the service
  */
 @Slf4j
 @Transactional
@@ -37,7 +36,7 @@ public class AssetAcquisitionSinkCreate implements MuteListener<StringMessageDTO
         this.assetAcquisitionDTOEVMMapping = assetAcquisitionDTOEVMMapping;
     }
 
-    @StreamListener(AssetAcquisitionResourceStreams.FILED_CREATE_RESOURCE_IN)
+    @StreamListener(JsonStringStreams.JSON_ACQUISITIONS_CREATE_INBOUND)
     public void handleMessage(@Payload StringMessageDTO message) {
 
         List<AssetAcquisitionEVM> acquisitionData = GsonUtils.stringToList(message.getJsonString(), AssetAcquisitionEVM[].class);
