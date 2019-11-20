@@ -1,8 +1,6 @@
 package io.github.assets.app.resource;
 
 import io.github.assets.FixedAssetServiceApp;
-import io.github.assets.app.messaging.MutationResource;
-import io.github.assets.app.messaging.assetDepreciation.AssetDepreciationResourceStreams;
 import io.github.assets.app.resource.decorator.IAssetDepreciationResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetDepreciation;
@@ -18,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -33,7 +30,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
-import static io.github.assets.app.AppConstants.DATETIME_FORMATTER;
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -47,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class AppAssetDepreciationResourceIT {
+
 
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
@@ -94,9 +91,6 @@ public class AppAssetDepreciationResourceIT {
     @Autowired
     private Validator validator;
 
-    @Autowired
-    private MessageCollector messageCollector;
-
     private MockMvc restAssetDepreciationMockMvc;
 
     private AssetDepreciation assetDepreciation;
@@ -104,17 +98,10 @@ public class AppAssetDepreciationResourceIT {
     @Autowired
     private IAssetDepreciationResource assetDepreciationResourceDecorator;
 
-    @Autowired
-    private AssetDepreciationResourceStreams assetDepreciationResourceStreams;
-
-    @Autowired
-    private MutationResource<AssetDepreciationDTO> assetDepreciationMutationResource;
-
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        // * Using decorator resource
-        final IAssetDepreciationResource assetDepreciationResource = new AppAssetDepreciationResource(assetDepreciationResourceDecorator, assetDepreciationMutationResource);
+        final IAssetDepreciationResource assetDepreciationResource = new AppAssetDepreciationResource(assetDepreciationResourceDecorator);
         this.restAssetDepreciationMockMvc = MockMvcBuilders.standaloneSetup(assetDepreciationResource)
                                                            .setCustomArgumentResolvers(pageableArgumentResolver)
                                                            .setControllerAdvice(exceptionTranslator)
@@ -165,17 +152,17 @@ public class AppAssetDepreciationResourceIT {
         // Create the AssetDepreciation
         AssetDepreciationDTO assetDepreciationDTO = assetDepreciationMapper.toDto(assetDepreciation);
         restAssetDepreciationMockMvc.perform(post("/api/app/asset-depreciations").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetDepreciationDTO)))
-                                    // ! Implement create response
-                                    .andExpect(status().isOk());
+                                    .andExpect(status().isCreated());
 
-        Object payload = messageCollector.forChannel(assetDepreciationResourceStreams.outboundCreateResource()).poll().getPayload();
-
-        assertThat(payload).isNotNull();
-        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_DESCRIPTION));
-        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_DEPRECIATION_AMOUNT));
-        assertThat(payload.toString()).containsSequence(String.valueOf(DATETIME_FORMATTER.format(DEFAULT_DEPRECIATION_DATE)));
-        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_CATEGORY_ID));
-        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_ASSET_ITEM_ID));
+        // Validate the AssetDepreciation in the database
+        List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
+        assertThat(assetDepreciationList).hasSize(databaseSizeBeforeCreate + 1);
+        AssetDepreciation testAssetDepreciation = assetDepreciationList.get(assetDepreciationList.size() - 1);
+        assertThat(testAssetDepreciation.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testAssetDepreciation.getDepreciationAmount()).isEqualTo(DEFAULT_DEPRECIATION_AMOUNT);
+        assertThat(testAssetDepreciation.getDepreciationDate()).isEqualTo(DEFAULT_DEPRECIATION_DATE);
+        assertThat(testAssetDepreciation.getCategoryId()).isEqualTo(DEFAULT_CATEGORY_ID);
+        assertThat(testAssetDepreciation.getAssetItemId()).isEqualTo(DEFAULT_ASSET_ITEM_ID);
     }
 
     @Test
@@ -194,7 +181,6 @@ public class AppAssetDepreciationResourceIT {
         // Validate the AssetDepreciation in the database
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeCreate);
-
     }
 
 
@@ -267,6 +253,26 @@ public class AppAssetDepreciationResourceIT {
                                     .andExpect(jsonPath("$.categoryId").value(DEFAULT_CATEGORY_ID.intValue()))
                                     .andExpect(jsonPath("$.assetItemId").value(DEFAULT_ASSET_ITEM_ID.intValue()));
     }
+
+
+    @Test
+    @Transactional
+    public void getAssetDepreciationsByIdFiltering() throws Exception {
+        // Initialize the database
+        assetDepreciationRepository.saveAndFlush(assetDepreciation);
+
+        Long id = assetDepreciation.getId();
+
+        defaultAssetDepreciationShouldBeFound("id.equals=" + id);
+        defaultAssetDepreciationShouldNotBeFound("id.notEquals=" + id);
+
+        defaultAssetDepreciationShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultAssetDepreciationShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultAssetDepreciationShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultAssetDepreciationShouldNotBeFound("id.lessThan=" + id);
+    }
+
 
     @Test
     @Transactional
@@ -838,24 +844,11 @@ public class AppAssetDepreciationResourceIT {
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeUpdate);
         AssetDepreciation testAssetDepreciation = assetDepreciationList.get(assetDepreciationList.size() - 1);
-
-        Object payload = messageCollector.forChannel(assetDepreciationResourceStreams.outboundUpdateResource()).poll().getPayload();
-
-        assertThat(payload).isNotNull();
-        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_DESCRIPTION));
-        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_DEPRECIATION_AMOUNT.toPlainString()));
-        assertThat(payload.toString()).containsSequence(DATETIME_FORMATTER.format(UPDATED_DEPRECIATION_DATE));
-        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_CATEGORY_ID));
-        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_ASSET_ITEM_ID));
-
-        //        assertThat(testAssetDepreciation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-        //        assertThat(testAssetDepreciation.getDepreciationAmount()).isEqualTo(UPDATED_DEPRECIATION_AMOUNT);
-        //        assertThat(testAssetDepreciation.getDepreciationDate()).isEqualTo(UPDATED_DEPRECIATION_DATE);
-        //        assertThat(testAssetDepreciation.getCategoryId()).isEqualTo(UPDATED_CATEGORY_ID);
-        //        assertThat(testAssetDepreciation.getAssetItemId()).isEqualTo(UPDATED_ASSET_ITEM_ID);
-        //
-        //        // Validate the AssetDepreciation in Elasticsearch
-        //        verify(mockAssetDepreciationSearchRepository, times(1)).save(testAssetDepreciation);
+        assertThat(testAssetDepreciation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testAssetDepreciation.getDepreciationAmount()).isEqualTo(UPDATED_DEPRECIATION_AMOUNT);
+        assertThat(testAssetDepreciation.getDepreciationDate()).isEqualTo(UPDATED_DEPRECIATION_DATE);
+        assertThat(testAssetDepreciation.getCategoryId()).isEqualTo(UPDATED_CATEGORY_ID);
+        assertThat(testAssetDepreciation.getAssetItemId()).isEqualTo(UPDATED_ASSET_ITEM_ID);
     }
 
     @Test
@@ -873,9 +866,6 @@ public class AppAssetDepreciationResourceIT {
         // Validate the AssetDepreciation in the database
         List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
         assertThat(assetDepreciationList).hasSize(databaseSizeBeforeUpdate);
-
-        //        // Validate the AssetDepreciation in Elasticsearch
-        //        verify(mockAssetDepreciationSearchRepository, times(0)).save(assetDepreciation);
     }
 
     @Test
@@ -889,54 +879,8 @@ public class AppAssetDepreciationResourceIT {
         // Delete the assetDepreciation
         restAssetDepreciationMockMvc.perform(delete("/api/app/asset-depreciations/{id}", assetDepreciation.getId()).accept(TestUtil.APPLICATION_JSON_UTF8)).andExpect(status().isNoContent());
 
-        Object payload = messageCollector.forChannel(assetDepreciationResourceStreams.outboundDeleteResource()).poll().getPayload();
-
-        assertThat(payload).isNotNull();
-        assertThat(payload.toString()).containsSequence(String.valueOf(assetDepreciation.getId()));
-
-        //        // Validate the database contains one less item
-        //        List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
-        //        assertThat(assetDepreciationList).hasSize(databaseSizeBeforeDelete - 1);
-        //
-        //        // Validate the AssetDepreciation in Elasticsearch
-        //        verify(mockAssetDepreciationSearchRepository, times(1)).deleteById(assetDepreciation.getId());
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AssetDepreciation.class);
-        AssetDepreciation assetDepreciation1 = new AssetDepreciation();
-        assetDepreciation1.setId(1L);
-        AssetDepreciation assetDepreciation2 = new AssetDepreciation();
-        assetDepreciation2.setId(assetDepreciation1.getId());
-        assertThat(assetDepreciation1).isEqualTo(assetDepreciation2);
-        assetDepreciation2.setId(2L);
-        assertThat(assetDepreciation1).isNotEqualTo(assetDepreciation2);
-        assetDepreciation1.setId(null);
-        assertThat(assetDepreciation1).isNotEqualTo(assetDepreciation2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AssetDepreciationDTO.class);
-        AssetDepreciationDTO assetDepreciationDTO1 = new AssetDepreciationDTO();
-        assetDepreciationDTO1.setId(1L);
-        AssetDepreciationDTO assetDepreciationDTO2 = new AssetDepreciationDTO();
-        assertThat(assetDepreciationDTO1).isNotEqualTo(assetDepreciationDTO2);
-        assetDepreciationDTO2.setId(assetDepreciationDTO1.getId());
-        assertThat(assetDepreciationDTO1).isEqualTo(assetDepreciationDTO2);
-        assetDepreciationDTO2.setId(2L);
-        assertThat(assetDepreciationDTO1).isNotEqualTo(assetDepreciationDTO2);
-        assetDepreciationDTO1.setId(null);
-        assertThat(assetDepreciationDTO1).isNotEqualTo(assetDepreciationDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(assetDepreciationMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(assetDepreciationMapper.fromId(null)).isNull();
+        // Validate the database contains one less item
+        List<AssetDepreciation> assetDepreciationList = assetDepreciationRepository.findAll();
+        assertThat(assetDepreciationList).hasSize(databaseSizeBeforeDelete - 1);
     }
 }

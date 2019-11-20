@@ -1,6 +1,5 @@
 package io.github.assets.app.messaging;
 
-import io.github.assets.app.messaging.assetDepreciation.AssetDepreciationResourceStreams;
 import io.github.assets.app.messaging.fileNotification.FileNotificationStreams;
 import io.github.assets.app.messaging.fileUpload.FileUploadResourceStreams;
 import io.github.assets.app.messaging.jsonStrings.JsonStringStreams;
@@ -21,8 +20,6 @@ public class MessageServiceContainer {
     @Autowired
     private MessageTokenMapper messageTokenMapper;
     @Autowired
-    private AssetDepreciationResourceStreams assetDepreciationResourceStreams;
-    @Autowired
     private FileUploadResourceStreams fileUploadResourceStreams;
     @Autowired
     private FileNotificationStreams fileNotificationStreams;
@@ -33,24 +30,6 @@ public class MessageServiceContainer {
     public MessageService<TokenizableMessage<String>> jsonStringMessageService() {
 
         return new StringedTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.acquisitionsCreateOutbound(), messageTokenMapper);
-    }
-
-    @Bean("assetDepreciationCreateMessageService")
-    public MessageService<TokenizableMessage<String>> assetDepreciationCreateMessageService() {
-
-        return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetDepreciationResourceStreams.outboundCreateResource(), messageTokenMapper);
-    }
-
-    @Bean("assetDepreciationUpdateMessageService")
-    public MessageService<TokenizableMessage<String>> assetDepreciationUpdateMessageService() {
-
-        return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetDepreciationResourceStreams.outboundUpdateResource(), messageTokenMapper);
-    }
-
-    @Bean("assetDepreciationDeleteMessageService")
-    public MessageService<TokenizableMessage<String>> assetDepreciationDeleteMessageService() {
-
-        return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetDepreciationResourceStreams.outboundDeleteResource(), messageTokenMapper);
     }
 
     @Bean("fileUploadCreateMessageService")

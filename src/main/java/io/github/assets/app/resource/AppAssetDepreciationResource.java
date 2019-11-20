@@ -36,11 +36,8 @@ public class AppAssetDepreciationResource implements IAssetDepreciationResource 
 
     private final IAssetDepreciationResource assetDepreciationResourceDecorator;
 
-    private final MutationResource<AssetDepreciationDTO> assetDepreciationMutationResource;
-
-    public AppAssetDepreciationResource(final IAssetDepreciationResource assetDepreciationResourceDecorator, final MutationResource<AssetDepreciationDTO> assetDepreciationMutationResource) {
+    public AppAssetDepreciationResource(final IAssetDepreciationResource assetDepreciationResourceDecorator) {
         this.assetDepreciationResourceDecorator = assetDepreciationResourceDecorator;
-        this.assetDepreciationMutationResource = assetDepreciationMutationResource;
     }
 
     /**
@@ -53,12 +50,8 @@ public class AppAssetDepreciationResource implements IAssetDepreciationResource 
      */
     @PostMapping("/asset-depreciations")
     public ResponseEntity<AssetDepreciationDTO> createAssetDepreciation(@Valid @RequestBody AssetDepreciationDTO assetDepreciationDTO) throws URISyntaxException {
-        log.debug("REST request to save AssetDepreciation : {}", assetDepreciationDTO);
-        if (assetDepreciationDTO.getId() != null) {
-            throw new BadRequestAlertException("A new assetDepreciation cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        assetDepreciationMutationResource.createEntity(assetDepreciationDTO);
-        return ResponseEntity.ok(assetDepreciationDTO);
+
+        return assetDepreciationResourceDecorator.createAssetDepreciation(assetDepreciationDTO);
     }
 
     /**
@@ -71,12 +64,8 @@ public class AppAssetDepreciationResource implements IAssetDepreciationResource 
      */
     @PutMapping("/asset-depreciations")
     public ResponseEntity<AssetDepreciationDTO> updateAssetDepreciation(@Valid @RequestBody AssetDepreciationDTO assetDepreciationDTO) throws URISyntaxException {
-        log.debug("REST request to update AssetDepreciation : {}", assetDepreciationDTO);
-        if (assetDepreciationDTO.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        assetDepreciationMutationResource.updateEntity(assetDepreciationDTO);
-        return ResponseEntity.ok(assetDepreciationDTO);
+
+        return assetDepreciationResourceDecorator.updateAssetDepreciation(assetDepreciationDTO);
     }
 
     /**
@@ -124,8 +113,6 @@ public class AppAssetDepreciationResource implements IAssetDepreciationResource 
      */
     @DeleteMapping("/asset-depreciations/{id}")
     public ResponseEntity<Void> deleteAssetDepreciation(@PathVariable Long id) {
-        log.debug("REST request to delete AssetDepreciation : {}", id);
-        assetDepreciationMutationResource.deleteEntity(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
+        return assetDepreciationResourceDecorator.deleteAssetDepreciation(id);
     }
 }

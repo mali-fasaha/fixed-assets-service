@@ -121,66 +121,6 @@ spring:
         file-notifications-out:
           destination: fileNotications
           contentType: application/json
-        filed-asset-acquisition-resource-create-in:
-          destination: filedAssetAcquisitions
-          contentType: application/json
-        filed-asset-acquisition-resource-create-out:
-          destination: filedAssetAcquisitions
-          contentType: application/json
-        asset-acquisition-resource-create-in:
-          destination: assetAcquisitionsCreate
-          contentType: application/json
-        asset-acquisition-resource-create-out:
-          destination: assetAcquisitionsCreate
-          contentType: application/json
-        asset-acquisition-resource-update-in:
-          destination: assetAcquisitionsUpdate
-          contentType: application/json
-        asset-acquisition-resource-update-out:
-          destination: assetAcquisitionsUpdate
-          contentType: application/json
-        asset-acquisition-resource-delete-in:
-          destination: assetAcquisitionsDelete
-          contentType: application/json
-        asset-acquisition-resource-delete-out:
-          destination: assetAcquisitionsDelete
-          contentType: application/json
-        asset-depreciation-resource-create-in:
-          destination: assetDepreciationsCreate
-          contentType: application/json
-        asset-depreciation-resource-create-out:
-          destination: assetDepreciationsCreate
-          contentType: application/json
-        asset-depreciation-resource-update-in:
-          destination: assetDepreciationsUpdate
-          contentType: application/json
-        asset-depreciation-resource-update-out:
-          destination: assetDepreciationsUpdate
-          contentType: application/json
-        asset-depreciation-resource-delete-in:
-          destination: assetDepreciationsDelete
-          contentType: application/json
-        asset-depreciation-resource-delete-out:
-          destination: assetDepreciationsDelete
-          contentType: application/json
-        file-upload-resource-create-in:
-          destination: fileUploadsCreate
-          contentType: application/json
-        file-upload-resource-create-out:
-          destination: fileUploadsCreate
-          contentType: application/json
-        file-upload-resource-update-in:
-          destination: fileUploadsUpdate
-          contentType: application/json
-        file-upload-resource-update-out:
-          destination: fileUploadsUpdate
-          contentType: application/json
-        file-upload-resource-delete-in:
-          destination: fileUploadsDelete
-          contentType: application/json
-        file-upload-resource-delete-out:
-          destination: fileUploadsDelete
-          contentType: application/json
         json-create-inbound:
           destination: jsonStringStreams
           contentType: application/json
