@@ -4,6 +4,7 @@ import io.github.assets.FixedAssetServiceApp;
 import io.github.assets.app.messaging.MessageService;
 import io.github.assets.app.messaging.TokenizableMessage;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
+import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.FileUpload;
 import io.github.assets.repository.FileUploadRepository;
@@ -122,10 +123,13 @@ class AppFileUploadResourceIT {
     @Autowired
     private MessageTokenService messageTokenService;
 
+    @Autowired
+    private TokenGenerator tokenGenerator;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final IFileUploadResource fileUploadResource = new AppFileUploadResource(fileUploadResourceDecorator, messageTokenService, fileUploadNotificationMessageService);
+        final IFileUploadResource fileUploadResource = new AppFileUploadResource(fileUploadResourceDecorator, messageTokenService, fileUploadNotificationMessageService, tokenGenerator);
         this.restFileUploadMockMvc = MockMvcBuilders.standaloneSetup(fileUploadResource)
                                                     .setCustomArgumentResolvers(pageableArgumentResolver)
                                                     .setControllerAdvice(exceptionTranslator)

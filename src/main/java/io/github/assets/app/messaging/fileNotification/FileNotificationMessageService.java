@@ -26,7 +26,7 @@ public class FileNotificationMessageService implements MessageService<FileNotifi
      */
     public MessageTokenDTO sendMessage(final FileNotification fileNotification) {
 
-        log.info("Sending file notification : {}", fileNotification);
+        log.info("Sending file notification with token# : {}", fileNotification.getMessageToken());
 
         MessageTokenDTO messageToken = fileUploadNotificationMessageService.sendMessage(fileNotification);
         messageToken.setReceived(true);

@@ -42,7 +42,6 @@ public class FileNotificationListener implements MuteListener<FileNotification> 
         FileUploadDTO fileUpload = fileUploadService.findOne(Long.parseLong(fileNotification.getFileId())).orElseThrow(() -> new IllegalArgumentException("Id # : " + fileNotification.getFileId() +
                                                                                                                                                               " does not exist"));
         String json = GsonUtils.toJsonString(deserializer.deserialize(fileUpload.getDataFile()));
-        MessageBuilder.withPayload(json).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build();
 
         // ! Sending message to queue
         jsonStringMessageService.sendMessage(StringMessageDTO.builder()

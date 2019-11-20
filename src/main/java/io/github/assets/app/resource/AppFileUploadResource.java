@@ -1,9 +1,11 @@
 package io.github.assets.app.resource;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.assets.app.messaging.MessageService;
 import io.github.assets.app.messaging.TokenizableMessage;
 import io.github.assets.app.messaging.fileNotification.FileNotification;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
+import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
@@ -43,15 +45,17 @@ public class AppFileUploadResource implements IFileUploadResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
+    private final TokenGenerator tokenGenerator;
     private final IFileUploadResource fileUploadResource;
     private final MessageTokenService messageTokenService;
     private final MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService;
 
     public AppFileUploadResource(final IFileUploadResource fileUploadResourceDecorator, final MessageTokenService messageTokenService,
-                                 final MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService) {
+                                 final MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService, final TokenGenerator tokenGenerator) {
         this.fileUploadResource = fileUploadResourceDecorator;
         this.messageTokenService = messageTokenService;
         this.fileUploadNotificationMessageService = fileUploadNotificationMessageService;
+        this.tokenGenerator = tokenGenerator;
     }
 
     /**
@@ -65,11 +69,32 @@ public class AppFileUploadResource implements IFileUploadResource {
     @PostMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> createFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
+        log.info("File-Upload received : {}", fileUploadDTO);
+
+        // TODO Generate message tokens
+        String token = null;
+        try {
+            token = tokenGenerator.md5Digest(fileUploadDTO);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        ResponseEntity<FileUploadDTO> fileUploadResponseEntity = fileUploadResource.createFileUpload(fileUploadDTO);
+
         // TODO Notifications
-        MessageTokenDTO messageToken = messageTokenService.save(fileUploadNotificationMessageService.sendMessage(FileNotification.builder().build()));
+        MessageTokenDTO messageToken =
+            messageTokenService.save(
+                fileUploadNotificationMessageService.sendMessage(FileNotification.builder()
+                                                                                 .fileId(String.valueOf(fileUploadResponseEntity.getBody().getId()))
+                                                                                 .timestamp(System.currentTimeMillis())
+                                                                                 .filename(fileUploadResponseEntity.getBody().getFileName())
+                                                                                 .messageToken(token)
+                                                                                 .description(fileUploadDTO.getDescription())
+                                                                                 .build()));
+        log.info("File successfully enqueued with token # : {}", messageToken.getTokenValue());
 
         // TODO add token field to fileUpload
-        return fileUploadResource.createFileUpload(fileUploadDTO);
+        return fileUploadResponseEntity;
     }
 
     /**
