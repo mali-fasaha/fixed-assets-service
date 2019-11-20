@@ -1,12 +1,7 @@
 package io.github.assets.app.resource;
 
+
 import io.github.assets.FixedAssetServiceApp;
-import io.github.assets.app.messaging.MutationResource;
-import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionMTO;
-import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionMTOMapper;
-import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionMuteResourceListener;
-import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionResourceStreams;
-import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetAcquisition;
 import io.github.assets.repository.AssetAcquisitionRepository;
@@ -14,6 +9,7 @@ import io.github.assets.service.AssetAcquisitionQueryService;
 import io.github.assets.service.AssetAcquisitionService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.mapper.AssetAcquisitionMapper;
+import io.github.assets.web.rest.AssetAcquisitionResource;
 import io.github.assets.web.rest.TestUtil;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,14 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.cloud.stream.test.binder.MessageCollector;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.messaging.Message;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,17 +29,11 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
-import static io.github.assets.app.AppConstants.DATETIME_FORMATTER;
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -60,12 +45,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, FixedAssetServiceApp.class})
 public class AppAssetAcquisitionResourceIT {
 
-
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
 
     private static final LocalDate DEFAULT_ACQUISITION_MONTH = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_ACQUISITION_MONTH = LocalDate.now(ZoneId.systemDefault());
+    private static final LocalDate SMALLER_ACQUISITION_MONTH = LocalDate.ofEpochDay(-1L);
 
     private static final String DEFAULT_ASSET_SERIAL = "AAAAAAAAAA";
     private static final String UPDATED_ASSET_SERIAL = "BBBBBBBBBB";
@@ -75,18 +60,23 @@ public class AppAssetAcquisitionResourceIT {
 
     private static final Long DEFAULT_ACQUISITION_TRANSACTION_ID = 1L;
     private static final Long UPDATED_ACQUISITION_TRANSACTION_ID = 2L;
+    private static final Long SMALLER_ACQUISITION_TRANSACTION_ID = 1L - 1L;
 
     private static final Long DEFAULT_ASSET_CATEGORY_ID = 1L;
     private static final Long UPDATED_ASSET_CATEGORY_ID = 2L;
+    private static final Long SMALLER_ASSET_CATEGORY_ID = 1L - 1L;
 
     private static final BigDecimal DEFAULT_PURCHASE_AMOUNT = new BigDecimal(1);
     private static final BigDecimal UPDATED_PURCHASE_AMOUNT = new BigDecimal(2);
+    private static final BigDecimal SMALLER_PURCHASE_AMOUNT = new BigDecimal(1 - 1);
 
     private static final Long DEFAULT_ASSET_DEALER_ID = 1L;
     private static final Long UPDATED_ASSET_DEALER_ID = 2L;
+    private static final Long SMALLER_ASSET_DEALER_ID = 1L - 1L;
 
     private static final Long DEFAULT_ASSET_INVOICE_ID = 1L;
     private static final Long UPDATED_ASSET_INVOICE_ID = 2L;
+    private static final Long SMALLER_ASSET_INVOICE_ID = 1L - 1L;
 
     @Autowired
     private AssetAcquisitionRepository assetAcquisitionRepository;
@@ -119,71 +109,54 @@ public class AppAssetAcquisitionResourceIT {
 
     private AssetAcquisition assetAcquisition;
 
-    @Autowired
-    private IAssetAcquisitionResource assetAcquisitionResourceDecorator;
-
-    @Autowired
-    private MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource;
-
-    @Autowired
-    private MessageCollector messageCollector;
-
-    @Autowired
-    private AssetAcquisitionResourceStreams assetAcquisitionResourceStreams;
-
-    // TODO spy listener beans orchestrations
-    @SpyBean
-    private AssetAcquisitionMuteResourceListener assetAcquisitionMuteResourceListener;
-
-    @Autowired
-    private AssetAcquisitionMTOMapper assetAcquisitionMTOMapper;
-
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final IAssetAcquisitionResource assetAcquisitionResource = new AppAssetAcquisitionResource(assetAcquisitionResourceDecorator, assetAcquisitionMutationResource);
+        final AssetAcquisitionResource assetAcquisitionResource = new AssetAcquisitionResource(assetAcquisitionService, assetAcquisitionQueryService);
         this.restAssetAcquisitionMockMvc = MockMvcBuilders.standaloneSetup(assetAcquisitionResource)
                                                           .setCustomArgumentResolvers(pageableArgumentResolver)
                                                           .setControllerAdvice(exceptionTranslator)
                                                           .setConversionService(createFormattingConversionService())
                                                           .setMessageConverters(jacksonMessageConverter)
-                                                          .setValidator(validator)
-                                                          .build();
+                                                          .setValidator(validator).build();
     }
 
     /**
      * Create an entity for this test.
-     * <p>
-     * This is a static method, as tests for other entities might also need it, if they test an entity which requires the current entity.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
      */
     public static AssetAcquisition createEntity(EntityManager em) {
-        AssetAcquisition assetAcquisition = new AssetAcquisition().description(DEFAULT_DESCRIPTION)
-                                                                  .acquisitionMonth(DEFAULT_ACQUISITION_MONTH)
-                                                                  .assetSerial(DEFAULT_ASSET_SERIAL)
-                                                                  .serviceOutletCode(DEFAULT_SERVICE_OUTLET_CODE)
-                                                                  .acquisitionTransactionId(DEFAULT_ACQUISITION_TRANSACTION_ID)
-                                                                  .assetCategoryId(DEFAULT_ASSET_CATEGORY_ID)
-                                                                  .purchaseAmount(DEFAULT_PURCHASE_AMOUNT)
-                                                                  .assetDealerId(DEFAULT_ASSET_DEALER_ID)
-                                                                  .assetInvoiceId(DEFAULT_ASSET_INVOICE_ID);
+        AssetAcquisition assetAcquisition = new AssetAcquisition()
+            .description(DEFAULT_DESCRIPTION)
+            .acquisitionMonth(DEFAULT_ACQUISITION_MONTH)
+            .assetSerial(DEFAULT_ASSET_SERIAL)
+            .serviceOutletCode(DEFAULT_SERVICE_OUTLET_CODE)
+            .acquisitionTransactionId(DEFAULT_ACQUISITION_TRANSACTION_ID)
+            .assetCategoryId(DEFAULT_ASSET_CATEGORY_ID)
+            .purchaseAmount(DEFAULT_PURCHASE_AMOUNT)
+            .assetDealerId(DEFAULT_ASSET_DEALER_ID)
+            .assetInvoiceId(DEFAULT_ASSET_INVOICE_ID);
         return assetAcquisition;
     }
-
     /**
      * Create an updated entity for this test.
-     * <p>
-     * This is a static method, as tests for other entities might also need it, if they test an entity which requires the current entity.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
      */
     public static AssetAcquisition createUpdatedEntity(EntityManager em) {
-        AssetAcquisition assetAcquisition = new AssetAcquisition().description(UPDATED_DESCRIPTION)
-                                                                  .acquisitionMonth(UPDATED_ACQUISITION_MONTH)
-                                                                  .assetSerial(UPDATED_ASSET_SERIAL)
-                                                                  .serviceOutletCode(UPDATED_SERVICE_OUTLET_CODE)
-                                                                  .acquisitionTransactionId(UPDATED_ACQUISITION_TRANSACTION_ID)
-                                                                  .assetCategoryId(UPDATED_ASSET_CATEGORY_ID)
-                                                                  .purchaseAmount(UPDATED_PURCHASE_AMOUNT)
-                                                                  .assetDealerId(UPDATED_ASSET_DEALER_ID)
-                                                                  .assetInvoiceId(UPDATED_ASSET_INVOICE_ID);
+        AssetAcquisition assetAcquisition = new AssetAcquisition()
+            .description(UPDATED_DESCRIPTION)
+            .acquisitionMonth(UPDATED_ACQUISITION_MONTH)
+            .assetSerial(UPDATED_ASSET_SERIAL)
+            .serviceOutletCode(UPDATED_SERVICE_OUTLET_CODE)
+            .acquisitionTransactionId(UPDATED_ACQUISITION_TRANSACTION_ID)
+            .assetCategoryId(UPDATED_ASSET_CATEGORY_ID)
+            .purchaseAmount(UPDATED_PURCHASE_AMOUNT)
+            .assetDealerId(UPDATED_ASSET_DEALER_ID)
+            .assetInvoiceId(UPDATED_ASSET_INVOICE_ID);
         return assetAcquisition;
     }
 
@@ -199,48 +172,24 @@ public class AppAssetAcquisitionResourceIT {
 
         // Create the AssetAcquisition
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
-        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-                                   // examine useful responses for this api in terms of message-tokens atleast
-                                   .andExpect(status().isOk());
+        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isCreated());
 
-        Object payload = messageCollector.forChannel(assetAcquisitionResourceStreams.outboundCreateResource()).poll().getPayload();
-
-        assertThat(payload).isNotNull();
-        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_DESCRIPTION));
-        assertThat(payload.toString()).containsSequence(String.valueOf(DEFAULT_PURCHASE_AMOUNT.toPlainString()));
-        assertThat(payload.toString()).containsSequence(DATETIME_FORMATTER.format(DEFAULT_ACQUISITION_MONTH));
-        assertThat(payload.toString()).containsSequence(DEFAULT_ASSET_DEALER_ID.toString());
-        assertThat(payload.toString()).containsSequence(DEFAULT_ASSET_SERIAL);
-        assertThat(payload.toString()).containsSequence(DEFAULT_ASSET_INVOICE_ID.toString());
-        assertThat(payload.toString()).containsSequence(DEFAULT_ASSET_CATEGORY_ID.toString());
-        assertThat(payload.toString()).containsSequence(DEFAULT_ACQUISITION_TRANSACTION_ID.toString());
-        assertThat(payload.toString()).containsSequence(DEFAULT_SERVICE_OUTLET_CODE);
-
-        // Check channel queue
-        BlockingQueue<Message<?>> mq = messageCollector.forChannel(assetAcquisitionResourceStreams.outboundCreateResource());
-
-        assertThat(mq).isNotNull();
-        assertThat(mq.contains(assetAcquisitionDTO));
-
-//        verify(assetAcquisitionMuteResourceListener, times(1)).createEntity(assetAcquisitionMTOMapper.toValue2(assetAcquisitionDTO));
-
-        //        // TODO confirm why persistence is not responsive
-        //        // Validate the AssetAcquisition in the database
-        //        List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
-        //        assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeCreate + 1);
-        //        AssetAcquisition testAssetAcquisition = assetAcquisitionList.get(assetAcquisitionList.size() - 1);
-        //        assertThat(testAssetAcquisition.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        //        assertThat(testAssetAcquisition.getAcquisitionMonth()).isEqualTo(DEFAULT_ACQUISITION_MONTH);
-        //        assertThat(testAssetAcquisition.getAssetSerial()).isEqualTo(DEFAULT_ASSET_SERIAL);
-        //        assertThat(testAssetAcquisition.getServiceOutletCode()).isEqualTo(DEFAULT_SERVICE_OUTLET_CODE);
-        //        assertThat(testAssetAcquisition.getAcquisitionTransactionId()).isEqualTo(DEFAULT_ACQUISITION_TRANSACTION_ID);
-        //        assertThat(testAssetAcquisition.getAssetCategoryId()).isEqualTo(DEFAULT_ASSET_CATEGORY_ID);
-        //        assertThat(testAssetAcquisition.getPurchaseAmount()).isEqualTo(DEFAULT_PURCHASE_AMOUNT);
-        //        assertThat(testAssetAcquisition.getAssetDealerId()).isEqualTo(DEFAULT_ASSET_DEALER_ID);
-        //        assertThat(testAssetAcquisition.getAssetInvoiceId()).isEqualTo(DEFAULT_ASSET_INVOICE_ID);
-        //
-        //        // Validate the AssetAcquisition in Elasticsearch
-        //        verify(mockAssetAcquisitionSearchRepository, times(1)).save(testAssetAcquisition);
+        // Validate the AssetAcquisition in the database
+        List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
+        assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeCreate + 1);
+        AssetAcquisition testAssetAcquisition = assetAcquisitionList.get(assetAcquisitionList.size() - 1);
+        assertThat(testAssetAcquisition.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testAssetAcquisition.getAcquisitionMonth()).isEqualTo(DEFAULT_ACQUISITION_MONTH);
+        assertThat(testAssetAcquisition.getAssetSerial()).isEqualTo(DEFAULT_ASSET_SERIAL);
+        assertThat(testAssetAcquisition.getServiceOutletCode()).isEqualTo(DEFAULT_SERVICE_OUTLET_CODE);
+        assertThat(testAssetAcquisition.getAcquisitionTransactionId()).isEqualTo(DEFAULT_ACQUISITION_TRANSACTION_ID);
+        assertThat(testAssetAcquisition.getAssetCategoryId()).isEqualTo(DEFAULT_ASSET_CATEGORY_ID);
+        assertThat(testAssetAcquisition.getPurchaseAmount()).isEqualTo(DEFAULT_PURCHASE_AMOUNT);
+        assertThat(testAssetAcquisition.getAssetDealerId()).isEqualTo(DEFAULT_ASSET_DEALER_ID);
+        assertThat(testAssetAcquisition.getAssetInvoiceId()).isEqualTo(DEFAULT_ASSET_INVOICE_ID);
     }
 
     @Test
@@ -253,7 +202,9 @@ public class AppAssetAcquisitionResourceIT {
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
                                    .andExpect(status().isBadRequest());
 
         // Validate the AssetAcquisition in the database
@@ -272,7 +223,9 @@ public class AppAssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
                                    .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -289,7 +242,9 @@ public class AppAssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
                                    .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -306,7 +261,9 @@ public class AppAssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
                                    .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -323,7 +280,9 @@ public class AppAssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
                                    .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -340,7 +299,9 @@ public class AppAssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
                                    .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -357,7 +318,9 @@ public class AppAssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
                                    .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -374,7 +337,9 @@ public class AppAssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
                                    .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -388,14 +353,14 @@ public class AppAssetAcquisitionResourceIT {
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
         // Get all the assetAcquisitionList
-        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions?sort=id,desc"))
+        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions?sort=id,desc"))
                                    .andExpect(status().isOk())
                                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                                    .andExpect(jsonPath("$.[*].id").value(hasItem(assetAcquisition.getId().intValue())))
-                                   .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+                                   .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
                                    .andExpect(jsonPath("$.[*].acquisitionMonth").value(hasItem(DEFAULT_ACQUISITION_MONTH.toString())))
-                                   .andExpect(jsonPath("$.[*].assetSerial").value(hasItem(DEFAULT_ASSET_SERIAL.toString())))
-                                   .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE.toString())))
+                                   .andExpect(jsonPath("$.[*].assetSerial").value(hasItem(DEFAULT_ASSET_SERIAL)))
+                                   .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
                                    .andExpect(jsonPath("$.[*].acquisitionTransactionId").value(hasItem(DEFAULT_ACQUISITION_TRANSACTION_ID.intValue())))
                                    .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
                                    .andExpect(jsonPath("$.[*].purchaseAmount").value(hasItem(DEFAULT_PURCHASE_AMOUNT.intValue())))
@@ -410,20 +375,40 @@ public class AppAssetAcquisitionResourceIT {
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
         // Get the assetAcquisition
-        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions/{id}", assetAcquisition.getId()))
+        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions/{id}", assetAcquisition.getId()))
                                    .andExpect(status().isOk())
                                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                                    .andExpect(jsonPath("$.id").value(assetAcquisition.getId().intValue()))
-                                   .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
+                                   .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
                                    .andExpect(jsonPath("$.acquisitionMonth").value(DEFAULT_ACQUISITION_MONTH.toString()))
-                                   .andExpect(jsonPath("$.assetSerial").value(DEFAULT_ASSET_SERIAL.toString()))
-                                   .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE.toString()))
+                                   .andExpect(jsonPath("$.assetSerial").value(DEFAULT_ASSET_SERIAL))
+                                   .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE))
                                    .andExpect(jsonPath("$.acquisitionTransactionId").value(DEFAULT_ACQUISITION_TRANSACTION_ID.intValue()))
                                    .andExpect(jsonPath("$.assetCategoryId").value(DEFAULT_ASSET_CATEGORY_ID.intValue()))
                                    .andExpect(jsonPath("$.purchaseAmount").value(DEFAULT_PURCHASE_AMOUNT.intValue()))
                                    .andExpect(jsonPath("$.assetDealerId").value(DEFAULT_ASSET_DEALER_ID.intValue()))
                                    .andExpect(jsonPath("$.assetInvoiceId").value(DEFAULT_ASSET_INVOICE_ID.intValue()));
     }
+
+
+    @Test
+    @Transactional
+    public void getAssetAcquisitionsByIdFiltering() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        Long id = assetAcquisition.getId();
+
+        defaultAssetAcquisitionShouldBeFound("id.equals=" + id);
+        defaultAssetAcquisitionShouldNotBeFound("id.notEquals=" + id);
+
+        defaultAssetAcquisitionShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultAssetAcquisitionShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultAssetAcquisitionShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultAssetAcquisitionShouldNotBeFound("id.lessThan=" + id);
+    }
+
 
     @Test
     @Transactional
@@ -436,6 +421,19 @@ public class AppAssetAcquisitionResourceIT {
 
         // Get all the assetAcquisitionList where description equals to UPDATED_DESCRIPTION
         defaultAssetAcquisitionShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByDescriptionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where description not equals to DEFAULT_DESCRIPTION
+        defaultAssetAcquisitionShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
+
+        // Get all the assetAcquisitionList where description not equals to UPDATED_DESCRIPTION
+        defaultAssetAcquisitionShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -463,6 +461,32 @@ public class AppAssetAcquisitionResourceIT {
         // Get all the assetAcquisitionList where description is null
         defaultAssetAcquisitionShouldNotBeFound("description.specified=false");
     }
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByDescriptionContainsSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where description contains DEFAULT_DESCRIPTION
+        defaultAssetAcquisitionShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
+
+        // Get all the assetAcquisitionList where description contains UPDATED_DESCRIPTION
+        defaultAssetAcquisitionShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByDescriptionNotContainsSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where description does not contain DEFAULT_DESCRIPTION
+        defaultAssetAcquisitionShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
+
+        // Get all the assetAcquisitionList where description does not contain UPDATED_DESCRIPTION
+        defaultAssetAcquisitionShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
+    }
+
 
     @Test
     @Transactional
@@ -475,6 +499,19 @@ public class AppAssetAcquisitionResourceIT {
 
         // Get all the assetAcquisitionList where acquisitionMonth equals to UPDATED_ACQUISITION_MONTH
         defaultAssetAcquisitionShouldNotBeFound("acquisitionMonth.equals=" + UPDATED_ACQUISITION_MONTH);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAcquisitionMonthIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where acquisitionMonth not equals to DEFAULT_ACQUISITION_MONTH
+        defaultAssetAcquisitionShouldNotBeFound("acquisitionMonth.notEquals=" + DEFAULT_ACQUISITION_MONTH);
+
+        // Get all the assetAcquisitionList where acquisitionMonth not equals to UPDATED_ACQUISITION_MONTH
+        defaultAssetAcquisitionShouldBeFound("acquisitionMonth.notEquals=" + UPDATED_ACQUISITION_MONTH);
     }
 
     @Test
@@ -509,11 +546,24 @@ public class AppAssetAcquisitionResourceIT {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
-        // Get all the assetAcquisitionList where acquisitionMonth greater than or equals to DEFAULT_ACQUISITION_MONTH
-        defaultAssetAcquisitionShouldBeFound("acquisitionMonth.greaterOrEqualThan=" + DEFAULT_ACQUISITION_MONTH);
+        // Get all the assetAcquisitionList where acquisitionMonth is greater than or equal to DEFAULT_ACQUISITION_MONTH
+        defaultAssetAcquisitionShouldBeFound("acquisitionMonth.greaterThanOrEqual=" + DEFAULT_ACQUISITION_MONTH);
 
-        // Get all the assetAcquisitionList where acquisitionMonth greater than or equals to UPDATED_ACQUISITION_MONTH
-        defaultAssetAcquisitionShouldNotBeFound("acquisitionMonth.greaterOrEqualThan=" + UPDATED_ACQUISITION_MONTH);
+        // Get all the assetAcquisitionList where acquisitionMonth is greater than or equal to UPDATED_ACQUISITION_MONTH
+        defaultAssetAcquisitionShouldNotBeFound("acquisitionMonth.greaterThanOrEqual=" + UPDATED_ACQUISITION_MONTH);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAcquisitionMonthIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where acquisitionMonth is less than or equal to DEFAULT_ACQUISITION_MONTH
+        defaultAssetAcquisitionShouldBeFound("acquisitionMonth.lessThanOrEqual=" + DEFAULT_ACQUISITION_MONTH);
+
+        // Get all the assetAcquisitionList where acquisitionMonth is less than or equal to SMALLER_ACQUISITION_MONTH
+        defaultAssetAcquisitionShouldNotBeFound("acquisitionMonth.lessThanOrEqual=" + SMALLER_ACQUISITION_MONTH);
     }
 
     @Test
@@ -522,11 +572,24 @@ public class AppAssetAcquisitionResourceIT {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
-        // Get all the assetAcquisitionList where acquisitionMonth less than or equals to DEFAULT_ACQUISITION_MONTH
+        // Get all the assetAcquisitionList where acquisitionMonth is less than DEFAULT_ACQUISITION_MONTH
         defaultAssetAcquisitionShouldNotBeFound("acquisitionMonth.lessThan=" + DEFAULT_ACQUISITION_MONTH);
 
-        // Get all the assetAcquisitionList where acquisitionMonth less than or equals to UPDATED_ACQUISITION_MONTH
+        // Get all the assetAcquisitionList where acquisitionMonth is less than UPDATED_ACQUISITION_MONTH
         defaultAssetAcquisitionShouldBeFound("acquisitionMonth.lessThan=" + UPDATED_ACQUISITION_MONTH);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAcquisitionMonthIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where acquisitionMonth is greater than DEFAULT_ACQUISITION_MONTH
+        defaultAssetAcquisitionShouldNotBeFound("acquisitionMonth.greaterThan=" + DEFAULT_ACQUISITION_MONTH);
+
+        // Get all the assetAcquisitionList where acquisitionMonth is greater than SMALLER_ACQUISITION_MONTH
+        defaultAssetAcquisitionShouldBeFound("acquisitionMonth.greaterThan=" + SMALLER_ACQUISITION_MONTH);
     }
 
 
@@ -541,6 +604,19 @@ public class AppAssetAcquisitionResourceIT {
 
         // Get all the assetAcquisitionList where assetSerial equals to UPDATED_ASSET_SERIAL
         defaultAssetAcquisitionShouldNotBeFound("assetSerial.equals=" + UPDATED_ASSET_SERIAL);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetSerialIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetSerial not equals to DEFAULT_ASSET_SERIAL
+        defaultAssetAcquisitionShouldNotBeFound("assetSerial.notEquals=" + DEFAULT_ASSET_SERIAL);
+
+        // Get all the assetAcquisitionList where assetSerial not equals to UPDATED_ASSET_SERIAL
+        defaultAssetAcquisitionShouldBeFound("assetSerial.notEquals=" + UPDATED_ASSET_SERIAL);
     }
 
     @Test
@@ -568,6 +644,32 @@ public class AppAssetAcquisitionResourceIT {
         // Get all the assetAcquisitionList where assetSerial is null
         defaultAssetAcquisitionShouldNotBeFound("assetSerial.specified=false");
     }
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetSerialContainsSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetSerial contains DEFAULT_ASSET_SERIAL
+        defaultAssetAcquisitionShouldBeFound("assetSerial.contains=" + DEFAULT_ASSET_SERIAL);
+
+        // Get all the assetAcquisitionList where assetSerial contains UPDATED_ASSET_SERIAL
+        defaultAssetAcquisitionShouldNotBeFound("assetSerial.contains=" + UPDATED_ASSET_SERIAL);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetSerialNotContainsSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetSerial does not contain DEFAULT_ASSET_SERIAL
+        defaultAssetAcquisitionShouldNotBeFound("assetSerial.doesNotContain=" + DEFAULT_ASSET_SERIAL);
+
+        // Get all the assetAcquisitionList where assetSerial does not contain UPDATED_ASSET_SERIAL
+        defaultAssetAcquisitionShouldBeFound("assetSerial.doesNotContain=" + UPDATED_ASSET_SERIAL);
+    }
+
 
     @Test
     @Transactional
@@ -580,6 +682,19 @@ public class AppAssetAcquisitionResourceIT {
 
         // Get all the assetAcquisitionList where serviceOutletCode equals to UPDATED_SERVICE_OUTLET_CODE
         defaultAssetAcquisitionShouldNotBeFound("serviceOutletCode.equals=" + UPDATED_SERVICE_OUTLET_CODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByServiceOutletCodeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where serviceOutletCode not equals to DEFAULT_SERVICE_OUTLET_CODE
+        defaultAssetAcquisitionShouldNotBeFound("serviceOutletCode.notEquals=" + DEFAULT_SERVICE_OUTLET_CODE);
+
+        // Get all the assetAcquisitionList where serviceOutletCode not equals to UPDATED_SERVICE_OUTLET_CODE
+        defaultAssetAcquisitionShouldBeFound("serviceOutletCode.notEquals=" + UPDATED_SERVICE_OUTLET_CODE);
     }
 
     @Test
@@ -607,6 +722,32 @@ public class AppAssetAcquisitionResourceIT {
         // Get all the assetAcquisitionList where serviceOutletCode is null
         defaultAssetAcquisitionShouldNotBeFound("serviceOutletCode.specified=false");
     }
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByServiceOutletCodeContainsSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where serviceOutletCode contains DEFAULT_SERVICE_OUTLET_CODE
+        defaultAssetAcquisitionShouldBeFound("serviceOutletCode.contains=" + DEFAULT_SERVICE_OUTLET_CODE);
+
+        // Get all the assetAcquisitionList where serviceOutletCode contains UPDATED_SERVICE_OUTLET_CODE
+        defaultAssetAcquisitionShouldNotBeFound("serviceOutletCode.contains=" + UPDATED_SERVICE_OUTLET_CODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByServiceOutletCodeNotContainsSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where serviceOutletCode does not contain DEFAULT_SERVICE_OUTLET_CODE
+        defaultAssetAcquisitionShouldNotBeFound("serviceOutletCode.doesNotContain=" + DEFAULT_SERVICE_OUTLET_CODE);
+
+        // Get all the assetAcquisitionList where serviceOutletCode does not contain UPDATED_SERVICE_OUTLET_CODE
+        defaultAssetAcquisitionShouldBeFound("serviceOutletCode.doesNotContain=" + UPDATED_SERVICE_OUTLET_CODE);
+    }
+
 
     @Test
     @Transactional
@@ -619,6 +760,19 @@ public class AppAssetAcquisitionResourceIT {
 
         // Get all the assetAcquisitionList where acquisitionTransactionId equals to UPDATED_ACQUISITION_TRANSACTION_ID
         defaultAssetAcquisitionShouldNotBeFound("acquisitionTransactionId.equals=" + UPDATED_ACQUISITION_TRANSACTION_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAcquisitionTransactionIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where acquisitionTransactionId not equals to DEFAULT_ACQUISITION_TRANSACTION_ID
+        defaultAssetAcquisitionShouldNotBeFound("acquisitionTransactionId.notEquals=" + DEFAULT_ACQUISITION_TRANSACTION_ID);
+
+        // Get all the assetAcquisitionList where acquisitionTransactionId not equals to UPDATED_ACQUISITION_TRANSACTION_ID
+        defaultAssetAcquisitionShouldBeFound("acquisitionTransactionId.notEquals=" + UPDATED_ACQUISITION_TRANSACTION_ID);
     }
 
     @Test
@@ -653,11 +807,24 @@ public class AppAssetAcquisitionResourceIT {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
-        // Get all the assetAcquisitionList where acquisitionTransactionId greater than or equals to DEFAULT_ACQUISITION_TRANSACTION_ID
-        defaultAssetAcquisitionShouldBeFound("acquisitionTransactionId.greaterOrEqualThan=" + DEFAULT_ACQUISITION_TRANSACTION_ID);
+        // Get all the assetAcquisitionList where acquisitionTransactionId is greater than or equal to DEFAULT_ACQUISITION_TRANSACTION_ID
+        defaultAssetAcquisitionShouldBeFound("acquisitionTransactionId.greaterThanOrEqual=" + DEFAULT_ACQUISITION_TRANSACTION_ID);
 
-        // Get all the assetAcquisitionList where acquisitionTransactionId greater than or equals to UPDATED_ACQUISITION_TRANSACTION_ID
-        defaultAssetAcquisitionShouldNotBeFound("acquisitionTransactionId.greaterOrEqualThan=" + UPDATED_ACQUISITION_TRANSACTION_ID);
+        // Get all the assetAcquisitionList where acquisitionTransactionId is greater than or equal to UPDATED_ACQUISITION_TRANSACTION_ID
+        defaultAssetAcquisitionShouldNotBeFound("acquisitionTransactionId.greaterThanOrEqual=" + UPDATED_ACQUISITION_TRANSACTION_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAcquisitionTransactionIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where acquisitionTransactionId is less than or equal to DEFAULT_ACQUISITION_TRANSACTION_ID
+        defaultAssetAcquisitionShouldBeFound("acquisitionTransactionId.lessThanOrEqual=" + DEFAULT_ACQUISITION_TRANSACTION_ID);
+
+        // Get all the assetAcquisitionList where acquisitionTransactionId is less than or equal to SMALLER_ACQUISITION_TRANSACTION_ID
+        defaultAssetAcquisitionShouldNotBeFound("acquisitionTransactionId.lessThanOrEqual=" + SMALLER_ACQUISITION_TRANSACTION_ID);
     }
 
     @Test
@@ -666,11 +833,24 @@ public class AppAssetAcquisitionResourceIT {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
-        // Get all the assetAcquisitionList where acquisitionTransactionId less than or equals to DEFAULT_ACQUISITION_TRANSACTION_ID
+        // Get all the assetAcquisitionList where acquisitionTransactionId is less than DEFAULT_ACQUISITION_TRANSACTION_ID
         defaultAssetAcquisitionShouldNotBeFound("acquisitionTransactionId.lessThan=" + DEFAULT_ACQUISITION_TRANSACTION_ID);
 
-        // Get all the assetAcquisitionList where acquisitionTransactionId less than or equals to UPDATED_ACQUISITION_TRANSACTION_ID
+        // Get all the assetAcquisitionList where acquisitionTransactionId is less than UPDATED_ACQUISITION_TRANSACTION_ID
         defaultAssetAcquisitionShouldBeFound("acquisitionTransactionId.lessThan=" + UPDATED_ACQUISITION_TRANSACTION_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAcquisitionTransactionIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where acquisitionTransactionId is greater than DEFAULT_ACQUISITION_TRANSACTION_ID
+        defaultAssetAcquisitionShouldNotBeFound("acquisitionTransactionId.greaterThan=" + DEFAULT_ACQUISITION_TRANSACTION_ID);
+
+        // Get all the assetAcquisitionList where acquisitionTransactionId is greater than SMALLER_ACQUISITION_TRANSACTION_ID
+        defaultAssetAcquisitionShouldBeFound("acquisitionTransactionId.greaterThan=" + SMALLER_ACQUISITION_TRANSACTION_ID);
     }
 
 
@@ -685,6 +865,19 @@ public class AppAssetAcquisitionResourceIT {
 
         // Get all the assetAcquisitionList where assetCategoryId equals to UPDATED_ASSET_CATEGORY_ID
         defaultAssetAcquisitionShouldNotBeFound("assetCategoryId.equals=" + UPDATED_ASSET_CATEGORY_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetCategoryIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetCategoryId not equals to DEFAULT_ASSET_CATEGORY_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetCategoryId.notEquals=" + DEFAULT_ASSET_CATEGORY_ID);
+
+        // Get all the assetAcquisitionList where assetCategoryId not equals to UPDATED_ASSET_CATEGORY_ID
+        defaultAssetAcquisitionShouldBeFound("assetCategoryId.notEquals=" + UPDATED_ASSET_CATEGORY_ID);
     }
 
     @Test
@@ -719,11 +912,24 @@ public class AppAssetAcquisitionResourceIT {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
-        // Get all the assetAcquisitionList where assetCategoryId greater than or equals to DEFAULT_ASSET_CATEGORY_ID
-        defaultAssetAcquisitionShouldBeFound("assetCategoryId.greaterOrEqualThan=" + DEFAULT_ASSET_CATEGORY_ID);
+        // Get all the assetAcquisitionList where assetCategoryId is greater than or equal to DEFAULT_ASSET_CATEGORY_ID
+        defaultAssetAcquisitionShouldBeFound("assetCategoryId.greaterThanOrEqual=" + DEFAULT_ASSET_CATEGORY_ID);
 
-        // Get all the assetAcquisitionList where assetCategoryId greater than or equals to UPDATED_ASSET_CATEGORY_ID
-        defaultAssetAcquisitionShouldNotBeFound("assetCategoryId.greaterOrEqualThan=" + UPDATED_ASSET_CATEGORY_ID);
+        // Get all the assetAcquisitionList where assetCategoryId is greater than or equal to UPDATED_ASSET_CATEGORY_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetCategoryId.greaterThanOrEqual=" + UPDATED_ASSET_CATEGORY_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetCategoryIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetCategoryId is less than or equal to DEFAULT_ASSET_CATEGORY_ID
+        defaultAssetAcquisitionShouldBeFound("assetCategoryId.lessThanOrEqual=" + DEFAULT_ASSET_CATEGORY_ID);
+
+        // Get all the assetAcquisitionList where assetCategoryId is less than or equal to SMALLER_ASSET_CATEGORY_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetCategoryId.lessThanOrEqual=" + SMALLER_ASSET_CATEGORY_ID);
     }
 
     @Test
@@ -732,11 +938,24 @@ public class AppAssetAcquisitionResourceIT {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
-        // Get all the assetAcquisitionList where assetCategoryId less than or equals to DEFAULT_ASSET_CATEGORY_ID
+        // Get all the assetAcquisitionList where assetCategoryId is less than DEFAULT_ASSET_CATEGORY_ID
         defaultAssetAcquisitionShouldNotBeFound("assetCategoryId.lessThan=" + DEFAULT_ASSET_CATEGORY_ID);
 
-        // Get all the assetAcquisitionList where assetCategoryId less than or equals to UPDATED_ASSET_CATEGORY_ID
+        // Get all the assetAcquisitionList where assetCategoryId is less than UPDATED_ASSET_CATEGORY_ID
         defaultAssetAcquisitionShouldBeFound("assetCategoryId.lessThan=" + UPDATED_ASSET_CATEGORY_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetCategoryIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetCategoryId is greater than DEFAULT_ASSET_CATEGORY_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetCategoryId.greaterThan=" + DEFAULT_ASSET_CATEGORY_ID);
+
+        // Get all the assetAcquisitionList where assetCategoryId is greater than SMALLER_ASSET_CATEGORY_ID
+        defaultAssetAcquisitionShouldBeFound("assetCategoryId.greaterThan=" + SMALLER_ASSET_CATEGORY_ID);
     }
 
 
@@ -751,6 +970,19 @@ public class AppAssetAcquisitionResourceIT {
 
         // Get all the assetAcquisitionList where purchaseAmount equals to UPDATED_PURCHASE_AMOUNT
         defaultAssetAcquisitionShouldNotBeFound("purchaseAmount.equals=" + UPDATED_PURCHASE_AMOUNT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByPurchaseAmountIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where purchaseAmount not equals to DEFAULT_PURCHASE_AMOUNT
+        defaultAssetAcquisitionShouldNotBeFound("purchaseAmount.notEquals=" + DEFAULT_PURCHASE_AMOUNT);
+
+        // Get all the assetAcquisitionList where purchaseAmount not equals to UPDATED_PURCHASE_AMOUNT
+        defaultAssetAcquisitionShouldBeFound("purchaseAmount.notEquals=" + UPDATED_PURCHASE_AMOUNT);
     }
 
     @Test
@@ -781,6 +1013,59 @@ public class AppAssetAcquisitionResourceIT {
 
     @Test
     @Transactional
+    public void getAllAssetAcquisitionsByPurchaseAmountIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where purchaseAmount is greater than or equal to DEFAULT_PURCHASE_AMOUNT
+        defaultAssetAcquisitionShouldBeFound("purchaseAmount.greaterThanOrEqual=" + DEFAULT_PURCHASE_AMOUNT);
+
+        // Get all the assetAcquisitionList where purchaseAmount is greater than or equal to UPDATED_PURCHASE_AMOUNT
+        defaultAssetAcquisitionShouldNotBeFound("purchaseAmount.greaterThanOrEqual=" + UPDATED_PURCHASE_AMOUNT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByPurchaseAmountIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where purchaseAmount is less than or equal to DEFAULT_PURCHASE_AMOUNT
+        defaultAssetAcquisitionShouldBeFound("purchaseAmount.lessThanOrEqual=" + DEFAULT_PURCHASE_AMOUNT);
+
+        // Get all the assetAcquisitionList where purchaseAmount is less than or equal to SMALLER_PURCHASE_AMOUNT
+        defaultAssetAcquisitionShouldNotBeFound("purchaseAmount.lessThanOrEqual=" + SMALLER_PURCHASE_AMOUNT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByPurchaseAmountIsLessThanSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where purchaseAmount is less than DEFAULT_PURCHASE_AMOUNT
+        defaultAssetAcquisitionShouldNotBeFound("purchaseAmount.lessThan=" + DEFAULT_PURCHASE_AMOUNT);
+
+        // Get all the assetAcquisitionList where purchaseAmount is less than UPDATED_PURCHASE_AMOUNT
+        defaultAssetAcquisitionShouldBeFound("purchaseAmount.lessThan=" + UPDATED_PURCHASE_AMOUNT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByPurchaseAmountIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where purchaseAmount is greater than DEFAULT_PURCHASE_AMOUNT
+        defaultAssetAcquisitionShouldNotBeFound("purchaseAmount.greaterThan=" + DEFAULT_PURCHASE_AMOUNT);
+
+        // Get all the assetAcquisitionList where purchaseAmount is greater than SMALLER_PURCHASE_AMOUNT
+        defaultAssetAcquisitionShouldBeFound("purchaseAmount.greaterThan=" + SMALLER_PURCHASE_AMOUNT);
+    }
+
+
+    @Test
+    @Transactional
     public void getAllAssetAcquisitionsByAssetDealerIdIsEqualToSomething() throws Exception {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
@@ -790,6 +1075,19 @@ public class AppAssetAcquisitionResourceIT {
 
         // Get all the assetAcquisitionList where assetDealerId equals to UPDATED_ASSET_DEALER_ID
         defaultAssetAcquisitionShouldNotBeFound("assetDealerId.equals=" + UPDATED_ASSET_DEALER_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetDealerIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetDealerId not equals to DEFAULT_ASSET_DEALER_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetDealerId.notEquals=" + DEFAULT_ASSET_DEALER_ID);
+
+        // Get all the assetAcquisitionList where assetDealerId not equals to UPDATED_ASSET_DEALER_ID
+        defaultAssetAcquisitionShouldBeFound("assetDealerId.notEquals=" + UPDATED_ASSET_DEALER_ID);
     }
 
     @Test
@@ -824,11 +1122,24 @@ public class AppAssetAcquisitionResourceIT {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
-        // Get all the assetAcquisitionList where assetDealerId greater than or equals to DEFAULT_ASSET_DEALER_ID
-        defaultAssetAcquisitionShouldBeFound("assetDealerId.greaterOrEqualThan=" + DEFAULT_ASSET_DEALER_ID);
+        // Get all the assetAcquisitionList where assetDealerId is greater than or equal to DEFAULT_ASSET_DEALER_ID
+        defaultAssetAcquisitionShouldBeFound("assetDealerId.greaterThanOrEqual=" + DEFAULT_ASSET_DEALER_ID);
 
-        // Get all the assetAcquisitionList where assetDealerId greater than or equals to UPDATED_ASSET_DEALER_ID
-        defaultAssetAcquisitionShouldNotBeFound("assetDealerId.greaterOrEqualThan=" + UPDATED_ASSET_DEALER_ID);
+        // Get all the assetAcquisitionList where assetDealerId is greater than or equal to UPDATED_ASSET_DEALER_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetDealerId.greaterThanOrEqual=" + UPDATED_ASSET_DEALER_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetDealerIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetDealerId is less than or equal to DEFAULT_ASSET_DEALER_ID
+        defaultAssetAcquisitionShouldBeFound("assetDealerId.lessThanOrEqual=" + DEFAULT_ASSET_DEALER_ID);
+
+        // Get all the assetAcquisitionList where assetDealerId is less than or equal to SMALLER_ASSET_DEALER_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetDealerId.lessThanOrEqual=" + SMALLER_ASSET_DEALER_ID);
     }
 
     @Test
@@ -837,11 +1148,24 @@ public class AppAssetAcquisitionResourceIT {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
-        // Get all the assetAcquisitionList where assetDealerId less than or equals to DEFAULT_ASSET_DEALER_ID
+        // Get all the assetAcquisitionList where assetDealerId is less than DEFAULT_ASSET_DEALER_ID
         defaultAssetAcquisitionShouldNotBeFound("assetDealerId.lessThan=" + DEFAULT_ASSET_DEALER_ID);
 
-        // Get all the assetAcquisitionList where assetDealerId less than or equals to UPDATED_ASSET_DEALER_ID
+        // Get all the assetAcquisitionList where assetDealerId is less than UPDATED_ASSET_DEALER_ID
         defaultAssetAcquisitionShouldBeFound("assetDealerId.lessThan=" + UPDATED_ASSET_DEALER_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetDealerIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetDealerId is greater than DEFAULT_ASSET_DEALER_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetDealerId.greaterThan=" + DEFAULT_ASSET_DEALER_ID);
+
+        // Get all the assetAcquisitionList where assetDealerId is greater than SMALLER_ASSET_DEALER_ID
+        defaultAssetAcquisitionShouldBeFound("assetDealerId.greaterThan=" + SMALLER_ASSET_DEALER_ID);
     }
 
 
@@ -856,6 +1180,19 @@ public class AppAssetAcquisitionResourceIT {
 
         // Get all the assetAcquisitionList where assetInvoiceId equals to UPDATED_ASSET_INVOICE_ID
         defaultAssetAcquisitionShouldNotBeFound("assetInvoiceId.equals=" + UPDATED_ASSET_INVOICE_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetInvoiceIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetInvoiceId not equals to DEFAULT_ASSET_INVOICE_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetInvoiceId.notEquals=" + DEFAULT_ASSET_INVOICE_ID);
+
+        // Get all the assetAcquisitionList where assetInvoiceId not equals to UPDATED_ASSET_INVOICE_ID
+        defaultAssetAcquisitionShouldBeFound("assetInvoiceId.notEquals=" + UPDATED_ASSET_INVOICE_ID);
     }
 
     @Test
@@ -890,11 +1227,24 @@ public class AppAssetAcquisitionResourceIT {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
-        // Get all the assetAcquisitionList where assetInvoiceId greater than or equals to DEFAULT_ASSET_INVOICE_ID
-        defaultAssetAcquisitionShouldBeFound("assetInvoiceId.greaterOrEqualThan=" + DEFAULT_ASSET_INVOICE_ID);
+        // Get all the assetAcquisitionList where assetInvoiceId is greater than or equal to DEFAULT_ASSET_INVOICE_ID
+        defaultAssetAcquisitionShouldBeFound("assetInvoiceId.greaterThanOrEqual=" + DEFAULT_ASSET_INVOICE_ID);
 
-        // Get all the assetAcquisitionList where assetInvoiceId greater than or equals to UPDATED_ASSET_INVOICE_ID
-        defaultAssetAcquisitionShouldNotBeFound("assetInvoiceId.greaterOrEqualThan=" + UPDATED_ASSET_INVOICE_ID);
+        // Get all the assetAcquisitionList where assetInvoiceId is greater than or equal to UPDATED_ASSET_INVOICE_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetInvoiceId.greaterThanOrEqual=" + UPDATED_ASSET_INVOICE_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetInvoiceIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetInvoiceId is less than or equal to DEFAULT_ASSET_INVOICE_ID
+        defaultAssetAcquisitionShouldBeFound("assetInvoiceId.lessThanOrEqual=" + DEFAULT_ASSET_INVOICE_ID);
+
+        // Get all the assetAcquisitionList where assetInvoiceId is less than or equal to SMALLER_ASSET_INVOICE_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetInvoiceId.lessThanOrEqual=" + SMALLER_ASSET_INVOICE_ID);
     }
 
     @Test
@@ -903,18 +1253,31 @@ public class AppAssetAcquisitionResourceIT {
         // Initialize the database
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
-        // Get all the assetAcquisitionList where assetInvoiceId less than or equals to DEFAULT_ASSET_INVOICE_ID
+        // Get all the assetAcquisitionList where assetInvoiceId is less than DEFAULT_ASSET_INVOICE_ID
         defaultAssetAcquisitionShouldNotBeFound("assetInvoiceId.lessThan=" + DEFAULT_ASSET_INVOICE_ID);
 
-        // Get all the assetAcquisitionList where assetInvoiceId less than or equals to UPDATED_ASSET_INVOICE_ID
+        // Get all the assetAcquisitionList where assetInvoiceId is less than UPDATED_ASSET_INVOICE_ID
         defaultAssetAcquisitionShouldBeFound("assetInvoiceId.lessThan=" + UPDATED_ASSET_INVOICE_ID);
+    }
+
+    @Test
+    @Transactional
+    public void getAllAssetAcquisitionsByAssetInvoiceIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        assetAcquisitionRepository.saveAndFlush(assetAcquisition);
+
+        // Get all the assetAcquisitionList where assetInvoiceId is greater than DEFAULT_ASSET_INVOICE_ID
+        defaultAssetAcquisitionShouldNotBeFound("assetInvoiceId.greaterThan=" + DEFAULT_ASSET_INVOICE_ID);
+
+        // Get all the assetAcquisitionList where assetInvoiceId is greater than SMALLER_ASSET_INVOICE_ID
+        defaultAssetAcquisitionShouldBeFound("assetInvoiceId.greaterThan=" + SMALLER_ASSET_INVOICE_ID);
     }
 
     /**
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultAssetAcquisitionShouldBeFound(String filter) throws Exception {
-        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions?sort=id,desc&" + filter))
+        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions?sort=id,desc&" + filter))
                                    .andExpect(status().isOk())
                                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                                    .andExpect(jsonPath("$.[*].id").value(hasItem(assetAcquisition.getId().intValue())))
@@ -929,7 +1292,7 @@ public class AppAssetAcquisitionResourceIT {
                                    .andExpect(jsonPath("$.[*].assetInvoiceId").value(hasItem(DEFAULT_ASSET_INVOICE_ID.intValue())));
 
         // Check, that the count call also returns 1
-        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions/count?sort=id,desc&" + filter))
+        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions/count?sort=id,desc&" + filter))
                                    .andExpect(status().isOk())
                                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                                    .andExpect(content().string("1"));
@@ -939,14 +1302,14 @@ public class AppAssetAcquisitionResourceIT {
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultAssetAcquisitionShouldNotBeFound(String filter) throws Exception {
-        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions?sort=id,desc&" + filter))
+        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions?sort=id,desc&" + filter))
                                    .andExpect(status().isOk())
                                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                                    .andExpect(jsonPath("$").isArray())
                                    .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions/count?sort=id,desc&" + filter))
+        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions/count?sort=id,desc&" + filter))
                                    .andExpect(status().isOk())
                                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                                    .andExpect(content().string("0"));
@@ -957,7 +1320,8 @@ public class AppAssetAcquisitionResourceIT {
     @Transactional
     public void getNonExistingAssetAcquisition() throws Exception {
         // Get the assetAcquisition
-        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
+        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions/{id}", Long.MAX_VALUE))
+                                   .andExpect(status().isNotFound());
     }
 
     @Test
@@ -972,49 +1336,36 @@ public class AppAssetAcquisitionResourceIT {
         AssetAcquisition updatedAssetAcquisition = assetAcquisitionRepository.findById(assetAcquisition.getId()).get();
         // Disconnect from session so that the updates on updatedAssetAcquisition are not directly saved in db
         em.detach(updatedAssetAcquisition);
-        updatedAssetAcquisition.description(UPDATED_DESCRIPTION)
-                               .acquisitionMonth(UPDATED_ACQUISITION_MONTH)
-                               .assetSerial(UPDATED_ASSET_SERIAL)
-                               .serviceOutletCode(UPDATED_SERVICE_OUTLET_CODE)
-                               .acquisitionTransactionId(UPDATED_ACQUISITION_TRANSACTION_ID)
-                               .assetCategoryId(UPDATED_ASSET_CATEGORY_ID)
-                               .purchaseAmount(UPDATED_PURCHASE_AMOUNT)
-                               .assetDealerId(UPDATED_ASSET_DEALER_ID)
-                               .assetInvoiceId(UPDATED_ASSET_INVOICE_ID);
+        updatedAssetAcquisition
+            .description(UPDATED_DESCRIPTION)
+            .acquisitionMonth(UPDATED_ACQUISITION_MONTH)
+            .assetSerial(UPDATED_ASSET_SERIAL)
+            .serviceOutletCode(UPDATED_SERVICE_OUTLET_CODE)
+            .acquisitionTransactionId(UPDATED_ACQUISITION_TRANSACTION_ID)
+            .assetCategoryId(UPDATED_ASSET_CATEGORY_ID)
+            .purchaseAmount(UPDATED_PURCHASE_AMOUNT)
+            .assetDealerId(UPDATED_ASSET_DEALER_ID)
+            .assetInvoiceId(UPDATED_ASSET_INVOICE_ID);
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(updatedAssetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(put("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+        restAssetAcquisitionMockMvc.perform(put("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
                                    .andExpect(status().isOk());
 
-
-        Object payload = messageCollector.forChannel(assetAcquisitionResourceStreams.outboundUpdateResource()).poll().getPayload();
-
-        assertThat(payload).isNotNull();
-        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_DESCRIPTION));
-        assertThat(payload.toString()).containsSequence(String.valueOf(UPDATED_PURCHASE_AMOUNT.toPlainString()));
-        assertThat(payload.toString()).containsSequence(DATETIME_FORMATTER.format(UPDATED_ACQUISITION_MONTH));
-        assertThat(payload.toString()).containsSequence(UPDATED_ASSET_DEALER_ID.toString());
-        assertThat(payload.toString()).containsSequence(UPDATED_ASSET_SERIAL);
-        assertThat(payload.toString()).containsSequence(UPDATED_ASSET_INVOICE_ID.toString());
-        assertThat(payload.toString()).containsSequence(UPDATED_ASSET_CATEGORY_ID.toString());
-        assertThat(payload.toString()).containsSequence(UPDATED_ACQUISITION_TRANSACTION_ID.toString());
-        assertThat(payload.toString()).containsSequence(UPDATED_SERVICE_OUTLET_CODE);
-
         // Validate the AssetAcquisition in the database
-//        List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
-//        assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeUpdate);
-//        AssetAcquisition testAssetAcquisition = assetAcquisitionList.get(assetAcquisitionList.size() - 1);
-//        assertThat(testAssetAcquisition.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-//        assertThat(testAssetAcquisition.getAcquisitionMonth()).isEqualTo(UPDATED_ACQUISITION_MONTH);
-//        assertThat(testAssetAcquisition.getAssetSerial()).isEqualTo(UPDATED_ASSET_SERIAL);
-//        assertThat(testAssetAcquisition.getServiceOutletCode()).isEqualTo(UPDATED_SERVICE_OUTLET_CODE);
-//        assertThat(testAssetAcquisition.getAcquisitionTransactionId()).isEqualTo(UPDATED_ACQUISITION_TRANSACTION_ID);
-//        assertThat(testAssetAcquisition.getAssetCategoryId()).isEqualTo(UPDATED_ASSET_CATEGORY_ID);
-//        assertThat(testAssetAcquisition.getPurchaseAmount()).isEqualTo(UPDATED_PURCHASE_AMOUNT);
-//        assertThat(testAssetAcquisition.getAssetDealerId()).isEqualTo(UPDATED_ASSET_DEALER_ID);
-//        assertThat(testAssetAcquisition.getAssetInvoiceId()).isEqualTo(UPDATED_ASSET_INVOICE_ID);
-//        // Validate the AssetAcquisition in Elasticsearch
-//        verify(mockAssetAcquisitionSearchRepository, times(1)).save(testAssetAcquisition);
+        List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
+        assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeUpdate);
+        AssetAcquisition testAssetAcquisition = assetAcquisitionList.get(assetAcquisitionList.size() - 1);
+        assertThat(testAssetAcquisition.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testAssetAcquisition.getAcquisitionMonth()).isEqualTo(UPDATED_ACQUISITION_MONTH);
+        assertThat(testAssetAcquisition.getAssetSerial()).isEqualTo(UPDATED_ASSET_SERIAL);
+        assertThat(testAssetAcquisition.getServiceOutletCode()).isEqualTo(UPDATED_SERVICE_OUTLET_CODE);
+        assertThat(testAssetAcquisition.getAcquisitionTransactionId()).isEqualTo(UPDATED_ACQUISITION_TRANSACTION_ID);
+        assertThat(testAssetAcquisition.getAssetCategoryId()).isEqualTo(UPDATED_ASSET_CATEGORY_ID);
+        assertThat(testAssetAcquisition.getPurchaseAmount()).isEqualTo(UPDATED_PURCHASE_AMOUNT);
+        assertThat(testAssetAcquisition.getAssetDealerId()).isEqualTo(UPDATED_ASSET_DEALER_ID);
+        assertThat(testAssetAcquisition.getAssetInvoiceId()).isEqualTo(UPDATED_ASSET_INVOICE_ID);
     }
 
     @Test
@@ -1026,7 +1377,9 @@ public class AppAssetAcquisitionResourceIT {
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restAssetAcquisitionMockMvc.perform(put("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+        restAssetAcquisitionMockMvc.perform(put("/api/asset-acquisitions")
+                                                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                                                .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
                                    .andExpect(status().isBadRequest());
 
         // Validate the AssetAcquisition in the database
@@ -1043,60 +1396,12 @@ public class AppAssetAcquisitionResourceIT {
         int databaseSizeBeforeDelete = assetAcquisitionRepository.findAll().size();
 
         // Delete the assetAcquisition
-        restAssetAcquisitionMockMvc.perform(delete("/api/app/asset-acquisitions/{id}", assetAcquisition.getId()).accept(TestUtil.APPLICATION_JSON_UTF8)).andExpect(status().isNoContent());
+        restAssetAcquisitionMockMvc.perform(delete("/api/asset-acquisitions/{id}", assetAcquisition.getId())
+                                                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                                   .andExpect(status().isNoContent());
 
-
-        Object payload = messageCollector.forChannel(assetAcquisitionResourceStreams.outboundDeleteResource()).poll().getPayload();
-
-        assertThat(payload).isNotNull();
-        assertThat(payload.toString()).containsSequence(String.valueOf(assetAcquisition.getId()));
-
-        AssetAcquisitionMTO.builder().build();
-
-//        // Validate the database is empty
-//        List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
-//        assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeDelete - 1);
-//
-//        // Validate the AssetAcquisition in Elasticsearch
-//        verify(mockAssetAcquisitionSearchRepository, times(1)).deleteById(assetAcquisition.getId());
-    }
-
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AssetAcquisition.class);
-        AssetAcquisition assetAcquisition1 = new AssetAcquisition();
-        assetAcquisition1.setId(1L);
-        AssetAcquisition assetAcquisition2 = new AssetAcquisition();
-        assetAcquisition2.setId(assetAcquisition1.getId());
-        assertThat(assetAcquisition1).isEqualTo(assetAcquisition2);
-        assetAcquisition2.setId(2L);
-        assertThat(assetAcquisition1).isNotEqualTo(assetAcquisition2);
-        assetAcquisition1.setId(null);
-        assertThat(assetAcquisition1).isNotEqualTo(assetAcquisition2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AssetAcquisitionDTO.class);
-        AssetAcquisitionDTO assetAcquisitionDTO1 = new AssetAcquisitionDTO();
-        assetAcquisitionDTO1.setId(3L);
-        AssetAcquisitionDTO assetAcquisitionDTO2 = new AssetAcquisitionDTO();
-        assertThat(assetAcquisitionDTO1).isNotEqualTo(assetAcquisitionDTO2);
-        assetAcquisitionDTO2.setId(assetAcquisitionDTO1.getId());
-        assertThat(assetAcquisitionDTO1).isEqualTo(assetAcquisitionDTO2);
-        assetAcquisitionDTO2.setId(2L);
-        assertThat(assetAcquisitionDTO1).isNotEqualTo(assetAcquisitionDTO2);
-        assetAcquisitionDTO1.setId(null);
-        assertThat(assetAcquisitionDTO1).isNotEqualTo(assetAcquisitionDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(assetAcquisitionMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(assetAcquisitionMapper.fromId(null)).isNull();
+        // Validate the database contains one less item
+        List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
+        assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeDelete - 1);
     }
 }

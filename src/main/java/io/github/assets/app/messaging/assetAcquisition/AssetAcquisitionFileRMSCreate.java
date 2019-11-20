@@ -45,6 +45,7 @@ public class AssetAcquisitionFileRMSCreate implements MuteListener<FileNotificat
     @Override
     @StreamListener(FileNotificationStreams.INPUT)
     public void handleMessage(@Payload FileNotification fileNotification) {
+        log.info("File-Notification received by the file-rms-create : {}", fileNotification);
         FileUploadDTO fileUpload = fileUploadService.findOne(Long.parseLong(fileNotification.getFileId())).orElseThrow(() -> new IllegalArgumentException("Id # : " + fileNotification.getFileId() +
                                                                                                                                                               " does not exist"));
         String json = GsonUtils.toJsonString(deserializer.deserialize(fileUpload.getDataFile()));

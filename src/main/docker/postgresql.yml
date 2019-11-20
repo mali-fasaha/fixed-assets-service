@@ -1,6 +1,7 @@
 version: '2'
 services:
   fixedassetservice-postgresql:
+    image: postgres:11.5
     volumes:
           # be sure no one is using this volume
           - ~/volumes/jhipster/fixedAssetService/postgresql/:/var/lib/postgresql/assetsServiceData/

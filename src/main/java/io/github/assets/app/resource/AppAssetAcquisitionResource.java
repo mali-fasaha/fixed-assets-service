@@ -38,7 +38,7 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
     private final IAssetAcquisitionResource assetAcquisitionResourceDecorator;
     private static final String ENTITY_NAME = "fixedAssetServiceAssetAcquisition";
 
-    // TODO Something awesome with this interface
+    // TODO Remove this interface
     private final MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource;
 
     public AppAssetAcquisitionResource(final IAssetAcquisitionResource assetAcquisitionResourceDecorator, final MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource) {
@@ -60,9 +60,7 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
         if (assetAcquisitionDTO.getId() != null) {
             throw new BadRequestAlertException("A new assetAcquisition cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        assetAcquisitionMutationResource.createEntity(assetAcquisitionDTO);
-
-        return ResponseEntity.ok(assetAcquisitionDTO);
+        return assetAcquisitionResourceDecorator.createAssetAcquisition(assetAcquisitionDTO);
     }
 
     /**
@@ -80,9 +78,7 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        assetAcquisitionMutationResource.updateEntity(assetAcquisitionDTO);
-
-        return ResponseEntity.ok(assetAcquisitionDTO);
+        return assetAcquisitionResourceDecorator.updateAssetAcquisition(assetAcquisitionDTO);
     }
 
     /**
@@ -132,8 +128,6 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
     @DeleteMapping("/asset-acquisitions/{id}")
     public ResponseEntity<Void> deleteAssetAcquisition(@PathVariable Long id) {
 
-        assetAcquisitionMutationResource.deleteEntity(id);
-
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
+        return assetAcquisitionResourceDecorator.deleteAssetAcquisition(id);
     }
 }

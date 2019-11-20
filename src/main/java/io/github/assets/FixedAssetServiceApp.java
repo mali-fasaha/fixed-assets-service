@@ -72,8 +72,8 @@ public class FixedAssetServiceApp implements InitializingBean {
         SpringApplication app = new SpringApplication(FixedAssetServiceApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         ConfigurableApplicationContext applicationContext = app.run(args);
-        applicationContext.getBean(FixedAssetServiceKafkaProducer.class).init();
-        applicationContext.getBean(FixedAssetServiceKafkaConsumer.class).start();
+//        applicationContext.getBean(FixedAssetServiceKafkaProducer.class).init();
+//        applicationContext.getBean(FixedAssetServiceKafkaConsumer.class).start();
         Environment env = applicationContext.getEnvironment();
         logApplicationStartup(env);
     }

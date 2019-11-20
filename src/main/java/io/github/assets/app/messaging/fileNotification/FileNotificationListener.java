@@ -37,7 +37,7 @@ public class FileNotificationListener implements MuteListener<FileNotification> 
 
     @StreamListener(FileNotificationStreams.INPUT)
     public void handleMessage(@Payload FileNotification fileNotification) {
-        log.info("File notification received...");
+        log.info("File notification received : {}", fileNotification);
 
         FileUploadDTO fileUpload = fileUploadService.findOne(Long.parseLong(fileNotification.getFileId())).orElseThrow(() -> new IllegalArgumentException("Id # : " + fileNotification.getFileId() +
                                                                                                                                                               " does not exist"));

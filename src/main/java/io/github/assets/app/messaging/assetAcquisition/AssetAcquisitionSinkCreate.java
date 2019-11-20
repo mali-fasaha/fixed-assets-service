@@ -39,6 +39,8 @@ public class AssetAcquisitionSinkCreate implements MuteListener<StringMessageDTO
     @StreamListener(JsonStringStreams.JSON_ACQUISITIONS_CREATE_INBOUND)
     public void handleMessage(@Payload StringMessageDTO message) {
 
+        log.info("JSON string list items received for persistence : {}", message);
+
         List<AssetAcquisitionEVM> acquisitionData = GsonUtils.stringToList(message.getJsonString(), AssetAcquisitionEVM[].class);
 
         List<AssetAcquisitionDTO> persistedAcquisition =
