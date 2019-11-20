@@ -64,7 +64,7 @@ public class AppFileUploadResource implements IFileUploadResource {
     public ResponseEntity<FileUploadDTO> createFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
         // TODO Notifications
-        
+
         return fileUploadResource.createFileUpload(fileUploadDTO);
     }
 
