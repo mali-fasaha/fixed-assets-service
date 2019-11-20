@@ -46,4 +46,19 @@
         <appender-ref ref="CONSOLE"/>
     </root>
 
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--<fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+            <fileNamePattern>assetServiceMain-Tests-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- keep 3 days' worth of history capped at 3GB total size -->
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>3</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <charset>utf-8</charset>
+            <Pattern>%d %-5level [%thread] %logger{0}: %msg%n</Pattern>
+        </encoder>
+    </appender>
+
 </configuration>
