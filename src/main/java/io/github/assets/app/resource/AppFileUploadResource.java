@@ -4,9 +4,6 @@ import io.github.assets.app.messaging.MutationResource;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
-import io.github.assets.service.dto.MessageTokenDTO;
-import io.github.assets.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -45,11 +41,9 @@ public class AppFileUploadResource implements IFileUploadResource {
     private String applicationName;
 
     private final IFileUploadResource fileUploadResource;
-    private final MutationResource<FileUploadDTO> fileUploadMutationResource;
 
-    public AppFileUploadResource(final @Qualifier("fileUploadResourceDecorator") IFileUploadResource fileUploadResource, final MutationResource<FileUploadDTO> fileUploadMutationResource) {
+    public AppFileUploadResource(final IFileUploadResource fileUploadResource) {
         this.fileUploadResource = fileUploadResource;
-        this.fileUploadMutationResource = fileUploadMutationResource;
     }
 
     /**
