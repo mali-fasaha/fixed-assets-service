@@ -29,7 +29,7 @@ public class MessageServiceContainer {
         return new StringedTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.acquisitionsCreateOutbound(), messageTokenMapper);
     }
 
-    @Bean("fileUploadNotificationMessageService")
+    @Bean("fileNotificationMessageService")
     public MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService() {
 
         return new StringedTokenMessageService(tokenGenerator, messageTokenService, fileNotificationStreams.outbound(), messageTokenMapper);

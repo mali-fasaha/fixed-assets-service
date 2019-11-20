@@ -11,6 +11,7 @@ import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -51,10 +52,10 @@ public class AppFileUploadResource implements IFileUploadResource {
     private final MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService;
 
     public AppFileUploadResource(final IFileUploadResource fileUploadResourceDecorator, final MessageTokenService messageTokenService,
-                                 final MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService, final TokenGenerator tokenGenerator) {
+                                 @Qualifier("fileNotificationMessageService") MessageService<TokenizableMessage<String>> fileNotificationMessageService, final TokenGenerator tokenGenerator) {
         this.fileUploadResource = fileUploadResourceDecorator;
         this.messageTokenService = messageTokenService;
-        this.fileUploadNotificationMessageService = fileUploadNotificationMessageService;
+        this.fileUploadNotificationMessageService = fileNotificationMessageService;
         this.tokenGenerator = tokenGenerator;
     }
 

@@ -15,6 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 
+import java.util.Objects;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -30,6 +34,7 @@ public class FileNotificationControllerIT {
 
     @Autowired
     private FileNotificationStreams fileNotificationStreams;
+
     @Autowired
     private TokenGenerator tokenGenerator;
 
@@ -48,9 +53,12 @@ public class FileNotificationControllerIT {
 
         MessageTokenDTO messageToken = fileNotificationMessageService.sendMessage(fileNotification);
 
-        log.info("Message sent with the token: {}", messageToken.getTokenValue());
+        BlockingQueue<?> mq = messageCollector.forChannel(fileNotificationStreams.outbound());
+        assertThat(mq).isNotNull();
 
-        Object payload = messageCollector.forChannel(fileNotificationStreams.outbound()).poll().getPayload();
+        Object payload =
+            Objects.requireNonNull(
+                messageCollector.forChannel(fileNotificationStreams.outbound()).poll(1000000, TimeUnit.MILLISECONDS).getPayload());
 
         // Check that message-token has been created in the db
         assertThat(messageToken.getId()).isNotNull();
