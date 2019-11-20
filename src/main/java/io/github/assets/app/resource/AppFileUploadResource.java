@@ -63,15 +63,9 @@ public class AppFileUploadResource implements IFileUploadResource {
     @PostMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> createFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
-        if (fileUploadDTO.getId() != null) {
-            throw new BadRequestAlertException("A new fileUpload cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        MessageTokenDTO messageToken = fileUploadMutationResource.createEntity(fileUploadDTO);
-
-        // ! Attempting response with message tokens
-        return ResponseEntity.created(new URI("/api/message-tokens/" + messageToken.getId()))
-                             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, messageToken.getId().toString()))
-                             .body(fileUploadDTO);
+        // TODO Notifications
+        
+        return fileUploadResource.createFileUpload(fileUploadDTO);
     }
 
     /**
@@ -86,12 +80,7 @@ public class AppFileUploadResource implements IFileUploadResource {
     @PutMapping("/file-uploads")
     public ResponseEntity<FileUploadDTO> updateFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
-        if (fileUploadDTO.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        fileUploadMutationResource.updateEntity(fileUploadDTO);
-
-        return ResponseEntity.ok(fileUploadDTO);
+        return fileUploadResource.updateFileUpload(fileUploadDTO);
     }
 
     /**
@@ -142,8 +131,6 @@ public class AppFileUploadResource implements IFileUploadResource {
     @DeleteMapping("/file-uploads/{id}")
     public ResponseEntity<Void> deleteFileUpload(@PathVariable Long id) {
 
-        fileUploadMutationResource.deleteEntity(id);
-
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
+        return fileUploadResource.deleteFileUpload(id);
     }
 }
