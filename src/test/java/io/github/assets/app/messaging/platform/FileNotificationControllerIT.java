@@ -56,9 +56,10 @@ public class FileNotificationControllerIT {
         BlockingQueue<?> mq = messageCollector.forChannel(fileNotificationStreams.outbound());
         assertThat(mq).isNotNull();
 
+        // TODO FIX NULL POINTER EXCEPTION AND TEST WITH JAVA 13
         Object payload =
             Objects.requireNonNull(
-                messageCollector.forChannel(fileNotificationStreams.outbound()).poll(1000000, TimeUnit.MILLISECONDS).getPayload());
+                messageCollector.forChannel(fileNotificationStreams.outbound()).poll(10000, TimeUnit.MILLISECONDS).getPayload());
 
         // Check that message-token has been created in the db
         assertThat(messageToken.getId()).isNotNull();
