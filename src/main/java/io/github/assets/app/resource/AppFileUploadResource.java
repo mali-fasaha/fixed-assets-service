@@ -1,11 +1,14 @@
 package io.github.assets.app.resource;
 
-import io.github.assets.app.messaging.MutationResource;
+import io.github.assets.app.messaging.MessageService;
+import io.github.assets.app.messaging.TokenizableMessage;
+import io.github.assets.app.messaging.fileNotification.FileNotification;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
+import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.FileUploadCriteria;
 import io.github.assets.service.dto.FileUploadDTO;
+import io.github.assets.service.dto.MessageTokenDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -41,9 +44,14 @@ public class AppFileUploadResource implements IFileUploadResource {
     private String applicationName;
 
     private final IFileUploadResource fileUploadResource;
+    private final MessageTokenService messageTokenService;
+    private final MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService;
 
-    public AppFileUploadResource(final IFileUploadResource fileUploadResource) {
-        this.fileUploadResource = fileUploadResource;
+    public AppFileUploadResource(final IFileUploadResource fileUploadResourceDecorator, final MessageTokenService messageTokenService,
+                                 final MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService) {
+        this.fileUploadResource = fileUploadResourceDecorator;
+        this.messageTokenService = messageTokenService;
+        this.fileUploadNotificationMessageService = fileUploadNotificationMessageService;
     }
 
     /**
@@ -58,7 +66,9 @@ public class AppFileUploadResource implements IFileUploadResource {
     public ResponseEntity<FileUploadDTO> createFileUpload(@Valid @RequestBody FileUploadDTO fileUploadDTO) throws URISyntaxException {
 
         // TODO Notifications
+        MessageTokenDTO messageToken = messageTokenService.save(fileUploadNotificationMessageService.sendMessage(FileNotification.builder().build()));
 
+        // TODO add token field to fileUpload
         return fileUploadResource.createFileUpload(fileUploadDTO);
     }
 

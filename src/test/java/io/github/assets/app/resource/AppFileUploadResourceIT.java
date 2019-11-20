@@ -1,12 +1,15 @@
 package io.github.assets.app.resource;
 
 import io.github.assets.FixedAssetServiceApp;
+import io.github.assets.app.messaging.MessageService;
+import io.github.assets.app.messaging.TokenizableMessage;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.FileUpload;
 import io.github.assets.repository.FileUploadRepository;
 import io.github.assets.service.FileUploadQueryService;
 import io.github.assets.service.FileUploadService;
+import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.FileUploadDTO;
 import io.github.assets.service.mapper.FileUploadMapper;
 import io.github.assets.web.rest.TestUtil;
@@ -113,10 +116,16 @@ class AppFileUploadResourceIT {
     @Autowired
     private IFileUploadResource fileUploadResourceDecorator;
 
+    @Autowired
+    private MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService;
+
+    @Autowired
+    private MessageTokenService messageTokenService;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final IFileUploadResource fileUploadResource = new AppFileUploadResource(fileUploadResourceDecorator);
+        final IFileUploadResource fileUploadResource = new AppFileUploadResource(fileUploadResourceDecorator, messageTokenService, fileUploadNotificationMessageService);
         this.restFileUploadMockMvc = MockMvcBuilders.standaloneSetup(fileUploadResource)
                                                     .setCustomArgumentResolvers(pageableArgumentResolver)
                                                     .setControllerAdvice(exceptionTranslator)
