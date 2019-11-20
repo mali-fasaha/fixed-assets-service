@@ -1,15 +1,11 @@
 package io.github.assets.app.messaging;
 
-import io.github.assets.app.Mapping;
-import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionMTO;
-import io.github.assets.app.messaging.assetAcquisition.AssetAcquisitionResourceStreams;
 import io.github.assets.app.messaging.assetDepreciation.AssetDepreciationResourceStreams;
 import io.github.assets.app.messaging.fileNotification.FileNotificationStreams;
 import io.github.assets.app.messaging.fileUpload.FileUploadResourceStreams;
 import io.github.assets.app.messaging.jsonStrings.JsonStringStreams;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.service.MessageTokenService;
-import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.mapper.MessageTokenMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,8 +21,6 @@ public class MessageServiceContainer {
     @Autowired
     private MessageTokenMapper messageTokenMapper;
     @Autowired
-    private AssetAcquisitionResourceStreams assetAcquisitionResourceStreams;
-    @Autowired
     private AssetDepreciationResourceStreams assetDepreciationResourceStreams;
     @Autowired
     private FileUploadResourceStreams fileUploadResourceStreams;
@@ -34,31 +28,11 @@ public class MessageServiceContainer {
     private FileNotificationStreams fileNotificationStreams;
     @Autowired
     private JsonStringStreams jsonStringStreams;
-    @Autowired
-    private Mapping<AssetAcquisitionDTO, AssetAcquisitionMTO> assetAcquisitionMTOMapper;
 
     @Bean("jsonStringMessageService")
     public MessageService<TokenizableMessage<String>> jsonStringMessageService() {
 
         return new StringedTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.acquisitionsCreateOutbound(), messageTokenMapper);
-    }
-
-    @Bean("assetAcquisitionCreateMessageService")
-    public MessageService<TokenizableMessage<String>> assetAcquisitionCreateMessageService() {
-
-        return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundCreateResource(), messageTokenMapper);
-    }
-
-    @Bean("assetAcquisitionUpdateMessageService")
-    public MessageService<TokenizableMessage<String>> assetAcquisitionUpdateMessageService() {
-
-        return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundUpdateResource(), messageTokenMapper);
-    }
-
-    @Bean("assetAcquisitionDeleteMessageService")
-    public MessageService<TokenizableMessage<String>> assetAcquisitionDeleteMessageService() {
-
-        return new StringedTokenMessageService(tokenGenerator, messageTokenService, assetAcquisitionResourceStreams.outboundDeleteResource(), messageTokenMapper);
     }
 
     @Bean("assetDepreciationCreateMessageService")

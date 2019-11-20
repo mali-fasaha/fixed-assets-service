@@ -1,16 +1,16 @@
 package io.github.assets.web.rest;
 
 import io.github.assets.FixedAssetServiceApp;
+import io.github.assets.app.resource.AppAssetAcquisitionResource;
+import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
 import io.github.assets.config.SecurityBeanOverrideConfiguration;
 import io.github.assets.domain.AssetAcquisition;
 import io.github.assets.repository.AssetAcquisitionRepository;
+import io.github.assets.service.AssetAcquisitionQueryService;
 import io.github.assets.service.AssetAcquisitionService;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.service.mapper.AssetAcquisitionMapper;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
-import io.github.assets.service.dto.AssetAcquisitionCriteria;
-import io.github.assets.service.AssetAcquisitionQueryService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -33,8 +33,13 @@ import java.util.List;
 import static io.github.assets.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration tests for the {@link AssetAcquisitionResource} REST controller.
@@ -106,54 +111,55 @@ public class AssetAcquisitionResourceIT {
 
     private AssetAcquisition assetAcquisition;
 
+    @Autowired
+    private IAssetAcquisitionResource assetAcquisitionResourceDecorator;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final AssetAcquisitionResource assetAcquisitionResource = new AssetAcquisitionResource(assetAcquisitionService, assetAcquisitionQueryService);
+        final IAssetAcquisitionResource assetAcquisitionResource = new AppAssetAcquisitionResource(assetAcquisitionResourceDecorator);
         this.restAssetAcquisitionMockMvc = MockMvcBuilders.standaloneSetup(assetAcquisitionResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
+                                                          .setCustomArgumentResolvers(pageableArgumentResolver)
+                                                          .setControllerAdvice(exceptionTranslator)
+                                                          .setConversionService(createFormattingConversionService())
+                                                          .setMessageConverters(jacksonMessageConverter)
+                                                          .setValidator(validator)
+                                                          .build();
     }
 
     /**
      * Create an entity for this test.
-     *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * <p>
+     * This is a static method, as tests for other entities might also need it, if they test an entity which requires the current entity.
      */
     public static AssetAcquisition createEntity(EntityManager em) {
-        AssetAcquisition assetAcquisition = new AssetAcquisition()
-            .description(DEFAULT_DESCRIPTION)
-            .acquisitionMonth(DEFAULT_ACQUISITION_MONTH)
-            .assetSerial(DEFAULT_ASSET_SERIAL)
-            .serviceOutletCode(DEFAULT_SERVICE_OUTLET_CODE)
-            .acquisitionTransactionId(DEFAULT_ACQUISITION_TRANSACTION_ID)
-            .assetCategoryId(DEFAULT_ASSET_CATEGORY_ID)
-            .purchaseAmount(DEFAULT_PURCHASE_AMOUNT)
-            .assetDealerId(DEFAULT_ASSET_DEALER_ID)
-            .assetInvoiceId(DEFAULT_ASSET_INVOICE_ID);
+        AssetAcquisition assetAcquisition = new AssetAcquisition().description(DEFAULT_DESCRIPTION)
+                                                                  .acquisitionMonth(DEFAULT_ACQUISITION_MONTH)
+                                                                  .assetSerial(DEFAULT_ASSET_SERIAL)
+                                                                  .serviceOutletCode(DEFAULT_SERVICE_OUTLET_CODE)
+                                                                  .acquisitionTransactionId(DEFAULT_ACQUISITION_TRANSACTION_ID)
+                                                                  .assetCategoryId(DEFAULT_ASSET_CATEGORY_ID)
+                                                                  .purchaseAmount(DEFAULT_PURCHASE_AMOUNT)
+                                                                  .assetDealerId(DEFAULT_ASSET_DEALER_ID)
+                                                                  .assetInvoiceId(DEFAULT_ASSET_INVOICE_ID);
         return assetAcquisition;
     }
+
     /**
      * Create an updated entity for this test.
-     *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
+     * <p>
+     * This is a static method, as tests for other entities might also need it, if they test an entity which requires the current entity.
      */
     public static AssetAcquisition createUpdatedEntity(EntityManager em) {
-        AssetAcquisition assetAcquisition = new AssetAcquisition()
-            .description(UPDATED_DESCRIPTION)
-            .acquisitionMonth(UPDATED_ACQUISITION_MONTH)
-            .assetSerial(UPDATED_ASSET_SERIAL)
-            .serviceOutletCode(UPDATED_SERVICE_OUTLET_CODE)
-            .acquisitionTransactionId(UPDATED_ACQUISITION_TRANSACTION_ID)
-            .assetCategoryId(UPDATED_ASSET_CATEGORY_ID)
-            .purchaseAmount(UPDATED_PURCHASE_AMOUNT)
-            .assetDealerId(UPDATED_ASSET_DEALER_ID)
-            .assetInvoiceId(UPDATED_ASSET_INVOICE_ID);
+        AssetAcquisition assetAcquisition = new AssetAcquisition().description(UPDATED_DESCRIPTION)
+                                                                  .acquisitionMonth(UPDATED_ACQUISITION_MONTH)
+                                                                  .assetSerial(UPDATED_ASSET_SERIAL)
+                                                                  .serviceOutletCode(UPDATED_SERVICE_OUTLET_CODE)
+                                                                  .acquisitionTransactionId(UPDATED_ACQUISITION_TRANSACTION_ID)
+                                                                  .assetCategoryId(UPDATED_ASSET_CATEGORY_ID)
+                                                                  .purchaseAmount(UPDATED_PURCHASE_AMOUNT)
+                                                                  .assetDealerId(UPDATED_ASSET_DEALER_ID)
+                                                                  .assetInvoiceId(UPDATED_ASSET_INVOICE_ID);
         return assetAcquisition;
     }
 
@@ -169,10 +175,8 @@ public class AssetAcquisitionResourceIT {
 
         // Create the AssetAcquisition
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
-        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isCreated());
+        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isCreated());
 
         // Validate the AssetAcquisition in the database
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -199,10 +203,8 @@ public class AssetAcquisitionResourceIT {
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isBadRequest());
+        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isBadRequest());
 
         // Validate the AssetAcquisition in the database
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -220,10 +222,8 @@ public class AssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isBadRequest());
+        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeTest);
@@ -239,10 +239,8 @@ public class AssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isBadRequest());
+        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeTest);
@@ -258,10 +256,8 @@ public class AssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isBadRequest());
+        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeTest);
@@ -277,10 +273,8 @@ public class AssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isBadRequest());
+        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeTest);
@@ -296,10 +290,8 @@ public class AssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isBadRequest());
+        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeTest);
@@ -315,10 +307,8 @@ public class AssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isBadRequest());
+        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeTest);
@@ -334,10 +324,8 @@ public class AssetAcquisitionResourceIT {
         // Create the AssetAcquisition, which fails.
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(post("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isBadRequest());
+        restAssetAcquisitionMockMvc.perform(post("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isBadRequest());
 
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
         assertThat(assetAcquisitionList).hasSize(databaseSizeBeforeTest);
@@ -350,21 +338,21 @@ public class AssetAcquisitionResourceIT {
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
         // Get all the assetAcquisitionList
-        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions?sort=id,desc"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(assetAcquisition.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].acquisitionMonth").value(hasItem(DEFAULT_ACQUISITION_MONTH.toString())))
-            .andExpect(jsonPath("$.[*].assetSerial").value(hasItem(DEFAULT_ASSET_SERIAL)))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
-            .andExpect(jsonPath("$.[*].acquisitionTransactionId").value(hasItem(DEFAULT_ACQUISITION_TRANSACTION_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
-            .andExpect(jsonPath("$.[*].purchaseAmount").value(hasItem(DEFAULT_PURCHASE_AMOUNT.intValue())))
-            .andExpect(jsonPath("$.[*].assetDealerId").value(hasItem(DEFAULT_ASSET_DEALER_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetInvoiceId").value(hasItem(DEFAULT_ASSET_INVOICE_ID.intValue())));
+        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions?sort=id,desc"))
+                                   .andExpect(status().isOk())
+                                   .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                                   .andExpect(jsonPath("$.[*].id").value(hasItem(assetAcquisition.getId().intValue())))
+                                   .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+                                   .andExpect(jsonPath("$.[*].acquisitionMonth").value(hasItem(DEFAULT_ACQUISITION_MONTH.toString())))
+                                   .andExpect(jsonPath("$.[*].assetSerial").value(hasItem(DEFAULT_ASSET_SERIAL)))
+                                   .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
+                                   .andExpect(jsonPath("$.[*].acquisitionTransactionId").value(hasItem(DEFAULT_ACQUISITION_TRANSACTION_ID.intValue())))
+                                   .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
+                                   .andExpect(jsonPath("$.[*].purchaseAmount").value(hasItem(DEFAULT_PURCHASE_AMOUNT.intValue())))
+                                   .andExpect(jsonPath("$.[*].assetDealerId").value(hasItem(DEFAULT_ASSET_DEALER_ID.intValue())))
+                                   .andExpect(jsonPath("$.[*].assetInvoiceId").value(hasItem(DEFAULT_ASSET_INVOICE_ID.intValue())));
     }
-    
+
     @Test
     @Transactional
     public void getAssetAcquisition() throws Exception {
@@ -372,19 +360,19 @@ public class AssetAcquisitionResourceIT {
         assetAcquisitionRepository.saveAndFlush(assetAcquisition);
 
         // Get the assetAcquisition
-        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions/{id}", assetAcquisition.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(assetAcquisition.getId().intValue()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
-            .andExpect(jsonPath("$.acquisitionMonth").value(DEFAULT_ACQUISITION_MONTH.toString()))
-            .andExpect(jsonPath("$.assetSerial").value(DEFAULT_ASSET_SERIAL))
-            .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE))
-            .andExpect(jsonPath("$.acquisitionTransactionId").value(DEFAULT_ACQUISITION_TRANSACTION_ID.intValue()))
-            .andExpect(jsonPath("$.assetCategoryId").value(DEFAULT_ASSET_CATEGORY_ID.intValue()))
-            .andExpect(jsonPath("$.purchaseAmount").value(DEFAULT_PURCHASE_AMOUNT.intValue()))
-            .andExpect(jsonPath("$.assetDealerId").value(DEFAULT_ASSET_DEALER_ID.intValue()))
-            .andExpect(jsonPath("$.assetInvoiceId").value(DEFAULT_ASSET_INVOICE_ID.intValue()));
+        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions/{id}", assetAcquisition.getId()))
+                                   .andExpect(status().isOk())
+                                   .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                                   .andExpect(jsonPath("$.id").value(assetAcquisition.getId().intValue()))
+                                   .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+                                   .andExpect(jsonPath("$.acquisitionMonth").value(DEFAULT_ACQUISITION_MONTH.toString()))
+                                   .andExpect(jsonPath("$.assetSerial").value(DEFAULT_ASSET_SERIAL))
+                                   .andExpect(jsonPath("$.serviceOutletCode").value(DEFAULT_SERVICE_OUTLET_CODE))
+                                   .andExpect(jsonPath("$.acquisitionTransactionId").value(DEFAULT_ACQUISITION_TRANSACTION_ID.intValue()))
+                                   .andExpect(jsonPath("$.assetCategoryId").value(DEFAULT_ASSET_CATEGORY_ID.intValue()))
+                                   .andExpect(jsonPath("$.purchaseAmount").value(DEFAULT_PURCHASE_AMOUNT.intValue()))
+                                   .andExpect(jsonPath("$.assetDealerId").value(DEFAULT_ASSET_DEALER_ID.intValue()))
+                                   .andExpect(jsonPath("$.assetInvoiceId").value(DEFAULT_ASSET_INVOICE_ID.intValue()));
     }
 
 
@@ -458,7 +446,8 @@ public class AssetAcquisitionResourceIT {
         // Get all the assetAcquisitionList where description is null
         defaultAssetAcquisitionShouldNotBeFound("description.specified=false");
     }
-                @Test
+
+    @Test
     @Transactional
     public void getAllAssetAcquisitionsByDescriptionContainsSomething() throws Exception {
         // Initialize the database
@@ -641,7 +630,8 @@ public class AssetAcquisitionResourceIT {
         // Get all the assetAcquisitionList where assetSerial is null
         defaultAssetAcquisitionShouldNotBeFound("assetSerial.specified=false");
     }
-                @Test
+
+    @Test
     @Transactional
     public void getAllAssetAcquisitionsByAssetSerialContainsSomething() throws Exception {
         // Initialize the database
@@ -719,7 +709,8 @@ public class AssetAcquisitionResourceIT {
         // Get all the assetAcquisitionList where serviceOutletCode is null
         defaultAssetAcquisitionShouldNotBeFound("serviceOutletCode.specified=false");
     }
-                @Test
+
+    @Test
     @Transactional
     public void getAllAssetAcquisitionsByServiceOutletCodeContainsSomething() throws Exception {
         // Initialize the database
@@ -1274,42 +1265,42 @@ public class AssetAcquisitionResourceIT {
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultAssetAcquisitionShouldBeFound(String filter) throws Exception {
-        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions?sort=id,desc&" + filter))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(assetAcquisition.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].acquisitionMonth").value(hasItem(DEFAULT_ACQUISITION_MONTH.toString())))
-            .andExpect(jsonPath("$.[*].assetSerial").value(hasItem(DEFAULT_ASSET_SERIAL)))
-            .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
-            .andExpect(jsonPath("$.[*].acquisitionTransactionId").value(hasItem(DEFAULT_ACQUISITION_TRANSACTION_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
-            .andExpect(jsonPath("$.[*].purchaseAmount").value(hasItem(DEFAULT_PURCHASE_AMOUNT.intValue())))
-            .andExpect(jsonPath("$.[*].assetDealerId").value(hasItem(DEFAULT_ASSET_DEALER_ID.intValue())))
-            .andExpect(jsonPath("$.[*].assetInvoiceId").value(hasItem(DEFAULT_ASSET_INVOICE_ID.intValue())));
+        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions?sort=id,desc&" + filter))
+                                   .andExpect(status().isOk())
+                                   .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                                   .andExpect(jsonPath("$.[*].id").value(hasItem(assetAcquisition.getId().intValue())))
+                                   .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+                                   .andExpect(jsonPath("$.[*].acquisitionMonth").value(hasItem(DEFAULT_ACQUISITION_MONTH.toString())))
+                                   .andExpect(jsonPath("$.[*].assetSerial").value(hasItem(DEFAULT_ASSET_SERIAL)))
+                                   .andExpect(jsonPath("$.[*].serviceOutletCode").value(hasItem(DEFAULT_SERVICE_OUTLET_CODE)))
+                                   .andExpect(jsonPath("$.[*].acquisitionTransactionId").value(hasItem(DEFAULT_ACQUISITION_TRANSACTION_ID.intValue())))
+                                   .andExpect(jsonPath("$.[*].assetCategoryId").value(hasItem(DEFAULT_ASSET_CATEGORY_ID.intValue())))
+                                   .andExpect(jsonPath("$.[*].purchaseAmount").value(hasItem(DEFAULT_PURCHASE_AMOUNT.intValue())))
+                                   .andExpect(jsonPath("$.[*].assetDealerId").value(hasItem(DEFAULT_ASSET_DEALER_ID.intValue())))
+                                   .andExpect(jsonPath("$.[*].assetInvoiceId").value(hasItem(DEFAULT_ASSET_INVOICE_ID.intValue())));
 
         // Check, that the count call also returns 1
-        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions/count?sort=id,desc&" + filter))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(content().string("1"));
+        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions/count?sort=id,desc&" + filter))
+                                   .andExpect(status().isOk())
+                                   .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                                   .andExpect(content().string("1"));
     }
 
     /**
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultAssetAcquisitionShouldNotBeFound(String filter) throws Exception {
-        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions?sort=id,desc&" + filter))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$").isEmpty());
+        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions?sort=id,desc&" + filter))
+                                   .andExpect(status().isOk())
+                                   .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                                   .andExpect(jsonPath("$").isArray())
+                                   .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions/count?sort=id,desc&" + filter))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(content().string("0"));
+        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions/count?sort=id,desc&" + filter))
+                                   .andExpect(status().isOk())
+                                   .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                                   .andExpect(content().string("0"));
     }
 
 
@@ -1317,8 +1308,7 @@ public class AssetAcquisitionResourceIT {
     @Transactional
     public void getNonExistingAssetAcquisition() throws Exception {
         // Get the assetAcquisition
-        restAssetAcquisitionMockMvc.perform(get("/api/asset-acquisitions/{id}", Long.MAX_VALUE))
-            .andExpect(status().isNotFound());
+        restAssetAcquisitionMockMvc.perform(get("/api/app/asset-acquisitions/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
     }
 
     @Test
@@ -1333,22 +1323,19 @@ public class AssetAcquisitionResourceIT {
         AssetAcquisition updatedAssetAcquisition = assetAcquisitionRepository.findById(assetAcquisition.getId()).get();
         // Disconnect from session so that the updates on updatedAssetAcquisition are not directly saved in db
         em.detach(updatedAssetAcquisition);
-        updatedAssetAcquisition
-            .description(UPDATED_DESCRIPTION)
-            .acquisitionMonth(UPDATED_ACQUISITION_MONTH)
-            .assetSerial(UPDATED_ASSET_SERIAL)
-            .serviceOutletCode(UPDATED_SERVICE_OUTLET_CODE)
-            .acquisitionTransactionId(UPDATED_ACQUISITION_TRANSACTION_ID)
-            .assetCategoryId(UPDATED_ASSET_CATEGORY_ID)
-            .purchaseAmount(UPDATED_PURCHASE_AMOUNT)
-            .assetDealerId(UPDATED_ASSET_DEALER_ID)
-            .assetInvoiceId(UPDATED_ASSET_INVOICE_ID);
+        updatedAssetAcquisition.description(UPDATED_DESCRIPTION)
+                               .acquisitionMonth(UPDATED_ACQUISITION_MONTH)
+                               .assetSerial(UPDATED_ASSET_SERIAL)
+                               .serviceOutletCode(UPDATED_SERVICE_OUTLET_CODE)
+                               .acquisitionTransactionId(UPDATED_ACQUISITION_TRANSACTION_ID)
+                               .assetCategoryId(UPDATED_ASSET_CATEGORY_ID)
+                               .purchaseAmount(UPDATED_PURCHASE_AMOUNT)
+                               .assetDealerId(UPDATED_ASSET_DEALER_ID)
+                               .assetInvoiceId(UPDATED_ASSET_INVOICE_ID);
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(updatedAssetAcquisition);
 
-        restAssetAcquisitionMockMvc.perform(put("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isOk());
+        restAssetAcquisitionMockMvc.perform(put("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isOk());
 
         // Validate the AssetAcquisition in the database
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -1374,10 +1361,8 @@ public class AssetAcquisitionResourceIT {
         AssetAcquisitionDTO assetAcquisitionDTO = assetAcquisitionMapper.toDto(assetAcquisition);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restAssetAcquisitionMockMvc.perform(put("/api/asset-acquisitions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
-            .andExpect(status().isBadRequest());
+        restAssetAcquisitionMockMvc.perform(put("/api/app/asset-acquisitions").contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(assetAcquisitionDTO)))
+                                   .andExpect(status().isBadRequest());
 
         // Validate the AssetAcquisition in the database
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();
@@ -1393,9 +1378,7 @@ public class AssetAcquisitionResourceIT {
         int databaseSizeBeforeDelete = assetAcquisitionRepository.findAll().size();
 
         // Delete the assetAcquisition
-        restAssetAcquisitionMockMvc.perform(delete("/api/asset-acquisitions/{id}", assetAcquisition.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
-            .andExpect(status().isNoContent());
+        restAssetAcquisitionMockMvc.perform(delete("/api/app/asset-acquisitions/{id}", assetAcquisition.getId()).accept(TestUtil.APPLICATION_JSON_UTF8)).andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<AssetAcquisition> assetAcquisitionList = assetAcquisitionRepository.findAll();

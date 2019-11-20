@@ -38,12 +38,8 @@ public class AppAssetAcquisitionResource implements IAssetAcquisitionResource {
     private final IAssetAcquisitionResource assetAcquisitionResourceDecorator;
     private static final String ENTITY_NAME = "fixedAssetServiceAssetAcquisition";
 
-    // TODO Remove this interface
-    private final MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource;
-
-    public AppAssetAcquisitionResource(final IAssetAcquisitionResource assetAcquisitionResourceDecorator, final MutationResource<AssetAcquisitionDTO> assetAcquisitionMutationResource) {
+    public AppAssetAcquisitionResource(final IAssetAcquisitionResource assetAcquisitionResourceDecorator) {
         this.assetAcquisitionResourceDecorator = assetAcquisitionResourceDecorator;
-        this.assetAcquisitionMutationResource = assetAcquisitionMutationResource;
     }
 
     /**
