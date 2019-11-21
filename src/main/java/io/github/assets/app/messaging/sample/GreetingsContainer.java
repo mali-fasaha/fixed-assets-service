@@ -1,4 +1,4 @@
-package io.github.assets.app.messaging;
+package io.github.assets.app.messaging.sample;
 
 import io.github.assets.app.messaging.fileNotification.FileNotificationStreams;
 import io.github.assets.app.messaging.jsonStrings.JsonStringStreams;
@@ -12,10 +12,9 @@ import io.github.assets.service.mapper.MessageTokenMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
-public class MessageServiceContainer {
+public class GreetingsContainer {
 
     @Autowired
     private TokenGenerator tokenGenerator;
@@ -24,29 +23,19 @@ public class MessageServiceContainer {
     @Autowired
     private MessageTokenMapper messageTokenMapper;
     @Autowired
-    private FileNotificationStreams fileNotificationStreams;
-    @Autowired
-    private JsonStringStreams jsonStringStreams;
+    private GreetingsStreams greetingsStreams;
 
-    @Transactional
-    @Bean("jsonStringMessageService")
-    public MessageService<TokenizableMessage<String>, MessageTokenDTO> jsonStringMessageService() {
+    @Bean("greetingsService")
+    public MessageService<TokenizableMessage<String>, MessageTokenDTO> greetingsService() {
 
-        return message -> {
+        return greeting -> {
             MessageService<TokenizableMessage<String>, MessageTokenDTO> service =
-                new StringTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.acquisitionsCreateOutbound(), messageTokenMapper);
-            MessageTokenDTO messageTokenDTO = service.sendMessage(message);
+                new StringTokenMessageService(tokenGenerator, messageTokenService, greetingsStreams.outbound(), messageTokenMapper);
+            MessageTokenDTO messageTokenDTO = service.sendMessage(greeting);
             messageTokenDTO.setReceived(true);
             messageTokenDTO.setActioned(true);
 
             return messageTokenDTO;
         };
-    }
-
-    @Transactional
-    @Bean("fileNotificationMessageService")
-    public MessageService<TokenizableMessage<String>, MessageTokenDTO> fileUploadNotificationMessageService() {
-
-        return new StringTokenMessageService(tokenGenerator, messageTokenService, fileNotificationStreams.outbound(), messageTokenMapper);
     }
 }

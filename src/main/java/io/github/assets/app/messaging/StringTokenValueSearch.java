@@ -1,4 +1,4 @@
-package io.github.assets.app.messaging.platform;
+package io.github.assets.app.messaging;
 
 import io.github.assets.service.MessageTokenQueryService;
 import io.github.assets.service.dto.MessageTokenCriteria;

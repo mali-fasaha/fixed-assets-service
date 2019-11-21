@@ -17,7 +17,7 @@ import org.springframework.util.MimeTypeUtils;
  * which themselves implement @{code MessageService<TokenizableMessage<String>>} interface
  */
 @Slf4j
-public class StringTokenMessageService implements MessageService<TokenizableMessage<String>> {
+public class StringTokenMessageService implements MessageService<TokenizableMessage<String>, MessageTokenDTO> {
 
     private final TokenGenerator tokenGenerator;
     private final MessageTokenService messageTokenService;
