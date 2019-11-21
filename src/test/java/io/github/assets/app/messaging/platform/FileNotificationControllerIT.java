@@ -1,8 +1,6 @@
 package io.github.assets.app.messaging.platform;
 
 import io.github.assets.FixedAssetServiceApp;
-import io.github.assets.app.messaging.MessageService;
-import io.github.assets.app.messaging.TokenizableMessage;
 import io.github.assets.app.messaging.fileNotification.FileNotification;
 import io.github.assets.app.messaging.fileNotification.FileNotificationStreams;
 import io.github.assets.app.util.TokenGenerator;

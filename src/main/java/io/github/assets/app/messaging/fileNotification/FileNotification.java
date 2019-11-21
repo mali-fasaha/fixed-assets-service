@@ -1,13 +1,10 @@
 package io.github.assets.app.messaging.fileNotification;
 
-import io.github.assets.app.messaging.Tokenizable;
-import io.github.assets.app.messaging.TokenizableMessage;
+import io.github.assets.app.messaging.platform.TokenizableMessage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 
 @NoArgsConstructor
 @AllArgsConstructor

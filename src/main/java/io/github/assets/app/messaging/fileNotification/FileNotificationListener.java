@@ -1,23 +1,20 @@
 package io.github.assets.app.messaging.fileNotification;
 
 import io.github.assets.app.excel.ExcelFileDeserializer;
-import io.github.assets.app.messaging.GsonUtils;
-import io.github.assets.app.messaging.MessageService;
-import io.github.assets.app.messaging.MuteListener;
-import io.github.assets.app.messaging.TokenizableMessage;
+import io.github.assets.app.messaging.platform.GsonUtils;
+import io.github.assets.app.messaging.platform.MessageService;
+import io.github.assets.app.messaging.platform.MuteListener;
+import io.github.assets.app.messaging.platform.TokenizableMessage;
 import io.github.assets.app.messaging.jsonStrings.StringMessageDTO;
 import io.github.assets.app.model.AssetAcquisitionEVM;
 import io.github.assets.service.FileUploadService;
 import io.github.assets.service.dto.FileUploadDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.MimeTypeUtils;
 
 @Slf4j
 @Transactional

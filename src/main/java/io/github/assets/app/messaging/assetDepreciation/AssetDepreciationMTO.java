@@ -1,6 +1,6 @@
 package io.github.assets.app.messaging.assetDepreciation;
 
-import io.github.assets.app.messaging.TokenizableMessage;
+import io.github.assets.app.messaging.platform.TokenizableMessage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

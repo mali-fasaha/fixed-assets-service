@@ -1,6 +1,7 @@
 package io.github.assets.app.messaging;
 
 import io.github.assets.app.messaging.fileNotification.FileNotification;
+import io.github.assets.app.messaging.platform.GsonUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

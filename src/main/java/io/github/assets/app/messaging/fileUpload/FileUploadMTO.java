@@ -1,15 +1,11 @@
 package io.github.assets.app.messaging.fileUpload;
 
-import io.github.assets.app.messaging.TokenizableMessage;
+import io.github.assets.app.messaging.platform.TokenizableMessage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import javax.persistence.Lob;
-import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 
 @Data
 @Builder

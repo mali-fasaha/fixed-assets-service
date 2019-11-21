@@ -1,11 +1,9 @@
 package io.github.assets.app.resource;
 
-import io.github.assets.app.messaging.MutationResource;
 import io.github.assets.app.resource.decorator.IAssetAcquisitionResource;
 import io.github.assets.service.dto.AssetAcquisitionCriteria;
 import io.github.assets.service.dto.AssetAcquisitionDTO;
 import io.github.assets.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

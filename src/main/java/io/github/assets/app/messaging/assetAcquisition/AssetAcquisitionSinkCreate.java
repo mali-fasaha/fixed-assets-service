@@ -2,8 +2,8 @@ package io.github.assets.app.messaging.assetAcquisition;
 
 import com.google.common.collect.ImmutableList;
 import io.github.assets.app.Mapping;
-import io.github.assets.app.messaging.GsonUtils;
-import io.github.assets.app.messaging.MuteListener;
+import io.github.assets.app.messaging.platform.GsonUtils;
+import io.github.assets.app.messaging.platform.MuteListener;
 import io.github.assets.app.messaging.jsonStrings.JsonStringStreams;
 import io.github.assets.app.messaging.jsonStrings.StringMessageDTO;
 import io.github.assets.app.model.AssetAcquisitionEVM;

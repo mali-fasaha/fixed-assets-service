@@ -1,11 +1,8 @@
 package io.github.assets.app.resource;
 
-import io.github.assets.app.messaging.MutationResource;
 import io.github.assets.app.resource.decorator.IAssetDepreciationResource;
 import io.github.assets.service.dto.AssetDepreciationCriteria;
 import io.github.assets.service.dto.AssetDepreciationDTO;
-import io.github.assets.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;

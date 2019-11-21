@@ -1,8 +1,8 @@
 package io.github.assets.app.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.assets.app.messaging.MessageService;
-import io.github.assets.app.messaging.TokenizableMessage;
+import io.github.assets.app.messaging.platform.MessageService;
+import io.github.assets.app.messaging.platform.TokenizableMessage;
 import io.github.assets.app.messaging.fileNotification.FileNotification;
 import io.github.assets.app.resource.decorator.IFileUploadResource;
 import io.github.assets.app.util.TokenGenerator;
