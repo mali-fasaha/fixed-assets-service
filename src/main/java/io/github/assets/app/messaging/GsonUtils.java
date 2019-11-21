@@ -1,4 +1,4 @@
-package io.github.assets.app.messaging.platform;
+package io.github.assets.app.messaging;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;

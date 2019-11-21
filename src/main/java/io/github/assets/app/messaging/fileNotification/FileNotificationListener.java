@@ -1,7 +1,7 @@
 package io.github.assets.app.messaging.fileNotification;
 
 import io.github.assets.app.excel.ExcelFileDeserializer;
-import io.github.assets.app.messaging.platform.GsonUtils;
+import io.github.assets.app.messaging.GsonUtils;
 import io.github.assets.app.messaging.platform.MessageService;
 import io.github.assets.app.messaging.platform.MuteListener;
 import io.github.assets.app.messaging.platform.TokenizableMessage;

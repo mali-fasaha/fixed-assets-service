@@ -1,7 +1,10 @@
-package io.github.assets.app.messaging.platform;
+package io.github.assets.app.messaging;
 
 import io.github.assets.app.messaging.fileNotification.FileNotificationStreams;
 import io.github.assets.app.messaging.jsonStrings.JsonStringStreams;
+import io.github.assets.app.messaging.platform.MessageService;
+import io.github.assets.app.messaging.platform.StringTokenMessageService;
+import io.github.assets.app.messaging.platform.TokenizableMessage;
 import io.github.assets.app.messaging.sample.GreetingsStreams;
 import io.github.assets.app.util.TokenGenerator;
 import io.github.assets.service.MessageTokenService;
@@ -46,7 +49,15 @@ public class MessageServiceContainer {
     @Bean("jsonStringMessageService")
     public MessageService<TokenizableMessage<String>> jsonStringMessageService() {
 
-        return new StringTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.acquisitionsCreateOutbound(), messageTokenMapper);
+        return message -> {
+            MessageService<TokenizableMessage<String>> service =
+                new StringTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.acquisitionsCreateOutbound(), messageTokenMapper);
+            MessageTokenDTO messageTokenDTO = service.sendMessage(message);
+            messageTokenDTO.setReceived(true);
+            messageTokenDTO.setActioned(true);
+
+            return messageTokenDTO;
+        };
     }
 
     @Bean("fileNotificationMessageService")

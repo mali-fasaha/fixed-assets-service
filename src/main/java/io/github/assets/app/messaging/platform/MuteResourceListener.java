@@ -1,5 +1,7 @@
 package io.github.assets.app.messaging.platform;
 
+import io.github.assets.app.messaging.DeleteMessageDTO;
+
 import java.net.URISyntaxException;
 
 public interface MuteResourceListener<MTO> {
