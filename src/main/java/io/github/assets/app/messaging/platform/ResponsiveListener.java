@@ -1,4 +1,4 @@
-package io.github.assets.app.messaging;
+package io.github.assets.app.messaging.platform;
 
 /**
  * This is a marker of an interface which might turn out to be

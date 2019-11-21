@@ -1,4 +1,4 @@
-package io.github.assets.app.messaging;
+package io.github.assets.app.messaging.platform;
 
 import java.net.URISyntaxException;
 

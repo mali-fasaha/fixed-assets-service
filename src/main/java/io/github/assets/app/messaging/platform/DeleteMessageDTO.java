@@ -1,6 +1,5 @@
-package io.github.assets.app.messaging;
+package io.github.assets.app.messaging.platform;
 
-import io.github.assets.app.messaging.TokenizableMessage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

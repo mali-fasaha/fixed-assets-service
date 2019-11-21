@@ -1,4 +1,4 @@
-package io.github.assets.app.messaging;
+package io.github.assets.app.messaging.platform;
 
 import io.github.assets.service.dto.MessageTokenDTO;
 import org.springframework.http.ResponseEntity;

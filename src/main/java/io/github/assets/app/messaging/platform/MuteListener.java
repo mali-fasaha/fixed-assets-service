@@ -1,4 +1,4 @@
-package io.github.assets.app.messaging;
+package io.github.assets.app.messaging.platform;
 
 /**
  * This is mostly a marker and corresponds to listeners who give no response
