@@ -30,7 +30,7 @@ public class JsonStringsControllerIT {
     @Autowired
     private TokenGenerator tokenGenerator;
     @Autowired
-    private MessageService<TokenizableMessage<String>> jsonStringMessageService;
+    private MessageService<TokenizableMessage<String>, MessageTokenDTO> jsonStringMessageService;
 
     @Test
     public void callJsonStringService() throws Exception {

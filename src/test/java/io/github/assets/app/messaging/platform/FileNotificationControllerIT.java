@@ -25,7 +25,7 @@ public class FileNotificationControllerIT {
 
 
     @Autowired
-    private MessageService<TokenizableMessage<String>> fileNotificationMessageService;
+    private MessageService<TokenizableMessage<String>, MessageTokenDTO> fileNotificationMessageService;
 
     @Autowired
     private MessageCollector messageCollector;

@@ -49,10 +49,11 @@ public class AppFileUploadResource implements IFileUploadResource {
     private final TokenGenerator tokenGenerator;
     private final IFileUploadResource fileUploadResource;
     private final MessageTokenService messageTokenService;
-    private final MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService;
+    private final MessageService<TokenizableMessage<String>, MessageTokenDTO> fileUploadNotificationMessageService;
 
     public AppFileUploadResource(final IFileUploadResource fileUploadResourceDecorator, final MessageTokenService messageTokenService,
-                                 @Qualifier("fileNotificationMessageService") MessageService<TokenizableMessage<String>> fileNotificationMessageService, final TokenGenerator tokenGenerator) {
+                                 @Qualifier("fileNotificationMessageService") MessageService<TokenizableMessage<String>, MessageTokenDTO> fileNotificationMessageService, final TokenGenerator
+                                     tokenGenerator) {
         this.fileUploadResource = fileUploadResourceDecorator;
         this.messageTokenService = messageTokenService;
         this.fileUploadNotificationMessageService = fileNotificationMessageService;

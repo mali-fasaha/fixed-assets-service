@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GreetingsControllerIT {
 
     @Autowired
-    private MessageService<TokenizableMessage<String>> greetingsService;
+    private MessageService<TokenizableMessage<String>, MessageTokenDTO> greetingsService;
 
     @Autowired
     private MessageCollector messageCollector;

@@ -12,6 +12,7 @@ import io.github.assets.service.FileUploadQueryService;
 import io.github.assets.service.FileUploadService;
 import io.github.assets.service.MessageTokenService;
 import io.github.assets.service.dto.FileUploadDTO;
+import io.github.assets.service.dto.MessageTokenDTO;
 import io.github.assets.service.mapper.FileUploadMapper;
 import io.github.assets.web.rest.TestUtil;
 import io.github.assets.web.rest.errors.ExceptionTranslator;
@@ -118,7 +119,7 @@ class AppFileUploadResourceIT {
     private IFileUploadResource fileUploadResourceDecorator;
 
     @Autowired
-    private MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService;
+    private MessageService<TokenizableMessage<String>,MessageTokenDTO> fileUploadNotificationMessageService;
 
     @Autowired
     private MessageTokenService messageTokenService;
