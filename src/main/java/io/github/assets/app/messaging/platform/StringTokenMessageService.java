@@ -17,15 +17,15 @@ import org.springframework.util.MimeTypeUtils;
  * which themselves implement @{code MessageService<TokenizableMessage<String>>} interface
  */
 @Slf4j
-public class StringedTokenMessageService implements MessageService<TokenizableMessage<String>> {
+public class StringTokenMessageService implements MessageService<TokenizableMessage<String>> {
 
     private final TokenGenerator tokenGenerator;
     private final MessageTokenService messageTokenService;
     private final MessageChannel messageChannel;
     private final MessageTokenMapper messageTokenMapper;
 
-    public StringedTokenMessageService(final TokenGenerator tokenGenerator, final MessageTokenService messageTokenService, final MessageChannel messageChannel,
-                                       final MessageTokenMapper messageTokenMapper) {
+    public StringTokenMessageService(final TokenGenerator tokenGenerator, final MessageTokenService messageTokenService, final MessageChannel messageChannel,
+                                     final MessageTokenMapper messageTokenMapper) {
         this.tokenGenerator = tokenGenerator;
         this.messageTokenService = messageTokenService;
         this.messageChannel = messageChannel;

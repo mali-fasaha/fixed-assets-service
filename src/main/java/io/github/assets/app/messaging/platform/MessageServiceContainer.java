@@ -34,7 +34,7 @@ public class MessageServiceContainer {
 
         return greeting -> {
             MessageService<TokenizableMessage<String>> service =
-                new StringedTokenMessageService(tokenGenerator, messageTokenService, greetingsStreams.outbound(), messageTokenMapper);
+                new StringTokenMessageService(tokenGenerator, messageTokenService, greetingsStreams.outbound(), messageTokenMapper);
             MessageTokenDTO messageTokenDTO = service.sendMessage(greeting);
             messageTokenDTO.setReceived(true);
             messageTokenDTO.setActioned(true);
@@ -46,12 +46,12 @@ public class MessageServiceContainer {
     @Bean("jsonStringMessageService")
     public MessageService<TokenizableMessage<String>> jsonStringMessageService() {
 
-        return new StringedTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.acquisitionsCreateOutbound(), messageTokenMapper);
+        return new StringTokenMessageService(tokenGenerator, messageTokenService, jsonStringStreams.acquisitionsCreateOutbound(), messageTokenMapper);
     }
 
     @Bean("fileNotificationMessageService")
     public MessageService<TokenizableMessage<String>> fileUploadNotificationMessageService() {
 
-        return new StringedTokenMessageService(tokenGenerator, messageTokenService, fileNotificationStreams.outbound(), messageTokenMapper);
+        return new StringTokenMessageService(tokenGenerator, messageTokenService, fileNotificationStreams.outbound(), messageTokenMapper);
     }
 }
