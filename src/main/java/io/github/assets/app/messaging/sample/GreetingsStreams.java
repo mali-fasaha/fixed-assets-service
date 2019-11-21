@@ -1,6 +1,6 @@
 package io.github.assets.app.messaging.sample;
 
-import io.github.assets.app.messaging.MessageStreams;
+import io.github.assets.app.messaging.platform.MessageStreams;
 import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;

@@ -1,7 +1,6 @@
 package io.github.assets.app.messaging.sample;
 
-import io.github.assets.app.messaging.Tokenizable;
-import io.github.assets.app.messaging.TokenizableMessage;
+import io.github.assets.app.messaging.platform.TokenizableMessage;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

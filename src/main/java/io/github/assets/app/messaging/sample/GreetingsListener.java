@@ -1,6 +1,6 @@
 package io.github.assets.app.messaging.sample;
 
-import io.github.assets.app.messaging.MuteListener;
+import io.github.assets.app.messaging.platform.MuteListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
